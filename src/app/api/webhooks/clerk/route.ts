@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Webhook } from 'svix'
-import createSupabaseClient from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
 
