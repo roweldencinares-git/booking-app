@@ -25,13 +25,14 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Get ALL booking types (admin can see everything)
+    // Get only this user's booking types for better performance
     const { data: bookingTypes, error } = await supabase
       .from('booking_types')
       .select(`
         *,
         users!inner(first_name, last_name, email)
       `)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
     if (error) {

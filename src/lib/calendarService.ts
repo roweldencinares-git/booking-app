@@ -268,7 +268,6 @@ export class CalendarService {
           timezone,
           first_name,
           last_name,
-          google_calendar_id,
           google_access_token,
           google_refresh_token,
           working_hours
@@ -284,7 +283,7 @@ export class CalendarService {
         id: data.id,
         email: data.email,
         timezone: data.timezone || 'America/New_York',
-        calendarId: data.google_calendar_id,
+        calendarId: 'primary', // Use primary calendar since we don't store calendar_id
         accessToken: data.google_access_token,
         refreshToken: data.google_refresh_token,
         workingHours: data.working_hours || this.getDefaultWorkingHours(),
@@ -438,7 +437,6 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
       timezone,
       first_name,
       last_name,
-      google_calendar_id,
       google_access_token,
       google_refresh_token,
       working_hours
@@ -454,7 +452,7 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
     id: data.id,
     email: data.email,
     timezone: data.timezone || 'America/New_York',
-    calendarId: data.google_calendar_id,
+    calendarId: 'primary', // Use primary calendar since we don't store calendar_id
     accessToken: data.google_access_token,
     refreshToken: data.google_refresh_token,
     workingHours: data.working_hours

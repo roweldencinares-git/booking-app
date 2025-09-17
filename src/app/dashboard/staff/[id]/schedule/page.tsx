@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js'
 import StaffScheduleManager from '../../../../../components/StaffScheduleManager'
 import GoogleCalendarIntegration from '../../../../../components/GoogleCalendarIntegration'
 
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{
     id: string
@@ -75,7 +77,20 @@ export default async function StaffSchedulePage({ params }: PageProps) {
 
           <div className="space-y-8">
             {/* Google Calendar Integration */}
-            <GoogleCalendarIntegration staff={staff} />
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-lg font-medium text-gray-900">
+                  Calendar Integration
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Connect your Google Calendar to sync availability and bookings
+                </p>
+              </div>
+
+              <div className="p-6">
+                <GoogleCalendarIntegration staff={staff} />
+              </div>
+            </div>
 
             {/* Schedule Manager */}
             <div className="bg-white shadow rounded-lg">
@@ -87,9 +102,9 @@ export default async function StaffSchedulePage({ params }: PageProps) {
                   Set working hours and availability for each day of the week
                 </p>
               </div>
-              
+
               <div className="p-6">
-                <StaffScheduleManager 
+                <StaffScheduleManager
                   staffId={id}
                   staff={staff}
                   availability={availability || []}

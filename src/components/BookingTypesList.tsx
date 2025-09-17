@@ -46,21 +46,36 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
     }
   }
 
-  const deleteBookingType = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this service?')) return
+  const deleteBookingType = async (id: string, serviceName: string) => {
+    const baseMessage = `Are you sure you want to delete the service "${serviceName}"?\n\nThis action cannot be undone.`
+
+    if (!confirm(baseMessage)) {
+      return
+    }
 
     setLoading(id)
-    
+
     try {
       const response = await fetch(`/api/booking-types/${id}`, {
         method: 'DELETE'
       })
 
+      const data = await response.json()
+
       if (response.ok) {
+        // Show success message with details
+        if (data.message) {
+          alert(data.message)
+        } else {
+          alert(`Service "${serviceName}" deleted successfully.`)
+        }
         router.refresh()
+      } else {
+        alert(`Error: ${data.error || 'Failed to delete service'}`)
       }
     } catch (error) {
       console.error('Error deleting booking type:', error)
+      alert('Network error: Failed to delete service')
     } finally {
       setLoading(null)
     }
@@ -124,7 +139,7 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
               </button>
 
               <button
-                onClick={() => deleteBookingType(type.id)}
+                onClick={() => deleteBookingType(type.id, type.name)}
                 disabled={loading === type.id}
                 className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
               >

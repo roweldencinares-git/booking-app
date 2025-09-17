@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js'
 import StaffList from '../../../components/StaffList'
 import AddStaffForm from '../../../components/AddStaffForm'
 
+export const dynamic = 'force-dynamic'
+
 export default async function StaffPage() {
   const { userId } = await auth()
   const user = await currentUser()

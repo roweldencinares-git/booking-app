@@ -18,27 +18,35 @@ interface GoogleCalendarIntegrationProps {
 export default function GoogleCalendarIntegration({ staff }: GoogleCalendarIntegrationProps) {
   const router = useRouter()
   const [connecting, setConnecting] = useState(false)
+  const [loadingCalendars, setLoadingCalendars] = useState(false)
   const [calendars, setCalendars] = useState<any[]>([])
   const [selectedCalendar, setSelectedCalendar] = useState('primary')
 
   const connectGoogleCalendar = async () => {
     setConnecting(true)
-    
+
     try {
       const response = await fetch(`/api/staff/${staff.id}/google-auth`)
       const data = await response.json()
-      
+
       if (data.authUrl) {
         // Redirect to Google OAuth
         window.location.href = data.authUrl
+      } else {
+        // No OAuth URL available, show message
+        alert(data.message || 'Google Calendar integration is not configured')
+        setConnecting(false)
       }
     } catch (error) {
       console.error('Error connecting to Google Calendar:', error)
+      alert('Failed to connect to Google Calendar')
       setConnecting(false)
     }
   }
 
   const disconnectGoogleCalendar = async () => {
+    if (!confirm('Are you sure you want to disconnect Google Calendar?')) return
+
     try {
       const response = await fetch(`/api/staff/${staff.id}/google-disconnect`, {
         method: 'POST'
@@ -46,30 +54,39 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
 
       if (response.ok) {
         router.refresh()
+      } else {
+        alert('Failed to disconnect Google Calendar')
       }
     } catch (error) {
       console.error('Error disconnecting Google Calendar:', error)
+      alert('Failed to disconnect Google Calendar')
     }
   }
 
   const loadCalendars = async () => {
+    if (loadingCalendars) return // Prevent duplicate calls
+
+    setLoadingCalendars(true)
     try {
       const response = await fetch(`/api/staff/${staff.id}/google-calendars`)
       const data = await response.json()
-      
+
       if (data.calendars) {
         setCalendars(data.calendars)
       }
     } catch (error) {
       console.error('Error loading calendars:', error)
+    } finally {
+      setLoadingCalendars(false)
     }
   }
 
-  useEffect(() => {
-    if (staff.google_calendar_connected) {
+  // Only load calendars on user interaction to improve performance
+  const handleViewCalendars = () => {
+    if (calendars.length === 0 && staff.google_calendar_connected) {
       loadCalendars()
     }
-  }, [staff.google_calendar_connected])
+  }
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">

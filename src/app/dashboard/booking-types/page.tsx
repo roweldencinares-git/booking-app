@@ -4,6 +4,9 @@ import { createClient } from '@supabase/supabase-js'
 import BookingTypesList from '../../../components/BookingTypesList'
 import CreateBookingTypeForm from '../../../components/CreateBookingTypeForm'
 
+// Force dynamic rendering to prevent build-time issues
+export const dynamic = 'force-dynamic'
+
 export default async function BookingTypesPage() {
   const { userId } = await auth()
   const user = await currentUser()
@@ -17,37 +20,79 @@ export default async function BookingTypesPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Get user from database, create if doesn't exist
-  let { data: dbUser } = await supabase
-    .from('users')
-    .select('id')
-    .eq('clerk_user_id', userId)
-    .single()
-
-  // If user doesn't exist, create them
-  if (!dbUser) {
-    const { data: newUser } = await supabase
-      .from('users')
-      .insert([{
+  // Ensure user exists in database via API call
+  try {
+    const syncResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3003'}/api/sync-user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         clerk_user_id: userId,
         email: user.emailAddresses[0]?.emailAddress || '',
         first_name: user.firstName || '',
         last_name: user.lastName || '',
-      }])
-      .select('id')
-      .single()
-    
-    dbUser = newUser
+      })
+    })
+  } catch (syncError) {
+    console.error('Error syncing user:', syncError)
   }
 
-  // Get ALL booking types (admin can see everything)
-  const { data: bookingTypes } = await supabase
+  // Get user from database - try by clerk_user_id first, then by email as fallback
+  let { data: dbUser, error: userError } = await supabase
+    .from('users')
+    .select('id, clerk_user_id')
+    .eq('clerk_user_id', userId)
+    .single()
+
+  // If not found by clerk_user_id, try by email and update clerk_user_id
+  if (!dbUser && user.emailAddresses[0]?.emailAddress) {
+    const { data: userByEmail } = await supabase
+      .from('users')
+      .select('id, clerk_user_id')
+      .eq('email', user.emailAddresses[0].emailAddress)
+      .single()
+
+    if (userByEmail) {
+      // Update the clerk_user_id for this user
+      const { data: updatedUser } = await supabase
+        .from('users')
+        .update({ clerk_user_id: userId })
+        .eq('id', userByEmail.id)
+        .select('id')
+        .single()
+
+      dbUser = updatedUser
+    }
+  }
+
+  if (userError && userError.code !== 'PGRST116') { // PGRST116 = not found, which is okay
+    console.error('Error fetching user:', userError, 'for userId:', userId)
+  }
+
+  if (!dbUser) {
+    console.error('Failed to create or find user in database for userId:', userId)
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600">Database Error</h1>
+          <p className="text-gray-600 mt-2">Unable to access user data. Please try again.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Get only this user's booking types for faster loading
+  const { data: bookingTypes, error: bookingTypesError } = await supabase
     .from('booking_types')
     .select(`
       *,
       users!inner(first_name, last_name, email)
     `)
+    .eq('user_id', dbUser.id)
     .order('created_at', { ascending: false })
+
+  if (bookingTypesError) {
+    console.error('Error fetching booking types:', bookingTypesError, 'for user:', dbUser.id)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,7 +112,7 @@ export default async function BookingTypesPage() {
                 <h2 className="text-lg font-medium text-gray-900 mb-4">
                   Add New Service
                 </h2>
-                <CreateBookingTypeForm userId={dbUser?.id} />
+                <CreateBookingTypeForm userId={dbUser.id} />
               </div>
             </div>
 

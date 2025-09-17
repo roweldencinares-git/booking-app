@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
   last_name text,
   timezone text DEFAULT 'America/New_York',
   role text DEFAULT 'admin' CHECK (role IN ('admin', 'staff')),
+  google_calendar_connected boolean DEFAULT false,
+  google_access_token text,
+  google_refresh_token text,
+  google_token_expires_at timestamptz,
+  google_calendar_id text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
