@@ -9,7 +9,10 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('=== BOOKING API CALLED ===')
     const body = await request.json()
+    console.log('Request body:', JSON.stringify(body, null, 2))
+
     const {
       serviceId,
       userId,
@@ -22,8 +25,21 @@ export async function POST(request: NextRequest) {
       notes
     } = body
 
+    console.log('Extracted fields:', {
+      serviceId,
+      userId,
+      date,
+      time,
+      duration,
+      customerName,
+      customerEmail,
+      customerPhone,
+      notes
+    })
+
     // Validate required fields
     if (!serviceId || !userId || !date || !time || !duration || !customerName || !customerEmail) {
+      console.log('Missing required fields')
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -113,15 +129,20 @@ export async function POST(request: NextRequest) {
     // Try to create Google Calendar event
     let calendarEventId = null
     try {
+      console.log('Looking for Google Calendar integration for userId:', userId)
+
       // Get user's Google Calendar integration
-      const { data: integration } = await supabase
+      const { data: integration, error: integrationError } = await supabase
         .from('user_integrations')
         .select('access_token, refresh_token')
         .eq('user_id', userId)
         .eq('provider', 'google_calendar')
         .single()
 
+      console.log('Integration query result:', { integration, integrationError })
+
       if (integration) {
+        console.log('Found Google Calendar integration, creating event...')
         const calendarService = new GoogleCalendarService(
           integration.access_token,
           integration.refresh_token
@@ -165,7 +186,9 @@ Meeting details will be provided separately.
           .update({ google_calendar_event_id: calendarEventId })
           .eq('id', booking.id)
 
-        console.log('Calendar event created:', calendarEventId)
+        console.log('Calendar event created successfully:', calendarEventId)
+      } else {
+        console.log('No Google Calendar integration found for user')
       }
     } catch (calendarError) {
       console.error('Calendar creation error (non-critical):', calendarError)
