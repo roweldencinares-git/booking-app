@@ -12,7 +12,7 @@ export default function CreateBookingTypeForm({ userId }: CreateBookingTypeFormP
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
-    duration: 30,
+    duration: 0, // Default to flexible duration options
     description: '',
     price: ''
   })
@@ -35,7 +35,7 @@ export default function CreateBookingTypeForm({ userId }: CreateBookingTypeFormP
       })
 
       if (response.ok) {
-        setFormData({ name: '', duration: 30, description: '', price: '' })
+        setFormData({ name: '', duration: 0, description: '', price: '' })
         router.refresh()
       }
     } catch (error) {
@@ -70,12 +70,10 @@ export default function CreateBookingTypeForm({ userId }: CreateBookingTypeFormP
           onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
           className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         >
-          <option value={15}>15 minutes</option>
-          <option value={30}>30 minutes</option>
-          <option value={45}>45 minutes</option>
-          <option value={60}>1 hour</option>
-          <option value={90}>1.5 hours</option>
-          <option value={120}>2 hours</option>
+          <option value={0}>Default (15 mins, 30 mins, 1 hour options)</option>
+          <option value={15}>15 minutes only</option>
+          <option value={30}>30 minutes only</option>
+          <option value={60}>1 hour only</option>
         </select>
       </div>
 

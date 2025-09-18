@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --turbopack",
+    "build": "node scripts/check-env.js && next build --turbopack",
     "start": "next start",
+    "check-env": "node scripts/check-env.js",
     "lint": "eslint",
     "db:setup": "node scripts/setup-database.js",
     "db:add-roles": "node scripts/add-roles.js",

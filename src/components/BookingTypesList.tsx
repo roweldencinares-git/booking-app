@@ -114,10 +114,34 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
                 </span>
               </div>
               
-              <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                <span>{type.duration} minutes</span>
-                {type.price && <span>${type.price}</span>}
-                <span>Created by {type.users.first_name} {type.users.last_name}</span>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <span>{type.duration} minutes</span>
+                  {type.price && <span>${type.price}</span>}
+                  <span>Created by {type.users.first_name} {type.users.last_name}</span>
+                </div>
+
+                {/* Personalized URL */}
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">URL:</span>
+                  <a
+                    href={`https://meetings.spearity.com/${type.name}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:text-blue-800 underline font-mono"
+                  >
+                    meetings.spearity.com/{type.name}
+                  </a>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`https://meetings.spearity.com/${type.name}`)}
+                    className="text-gray-400 hover:text-gray-600"
+                    title="Copy URL"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               
               {type.description && (
