@@ -123,6 +123,14 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
               {type.description && (
                 <p className="mt-2 text-sm text-gray-600">{type.description}</p>
               )}
+
+              {/* Booking URL */}
+              <div className="mt-3 p-2 bg-gray-50 rounded">
+                <div className="text-xs text-gray-500 mb-1">Booking URL:</div>
+                <div className="font-mono text-sm text-blue-600">
+                  {typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/{type.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">

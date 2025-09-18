@@ -13,7 +13,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
               <SignedOut>
-                <SignInButton mode="modal">
+                <SignInButton>
                   <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Sign In
                   </button>
@@ -47,7 +47,7 @@ export default function Home() {
           
           <div className="mt-10 flex justify-center gap-4">
             <SignedOut>
-              <SignInButton mode="modal">
+              <SignInButton>
                 <button className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-medium hover:bg-blue-700">
                   Get Started Free
                 </button>

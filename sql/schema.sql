@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS booking_types (
   duration integer NOT NULL, -- minutes
   description text,
   price decimal(10,2),
+  slug text UNIQUE, -- for personalized URLs like /darren30
   is_active boolean DEFAULT true,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_clerk_id ON users(clerk_user_id);
 CREATE INDEX IF NOT EXISTS idx_booking_types_user_id ON booking_types(user_id);
+CREATE INDEX IF NOT EXISTS idx_booking_types_slug ON booking_types(slug);
 CREATE INDEX IF NOT EXISTS idx_availability_user_id ON availability(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_start_time ON bookings(start_time);

@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
-import ServiceSelector from '../../components/ServiceSelector'
+import Link from 'next/link'
 
 export default async function PublicBookingPage() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
   // Get all active services for public booking
@@ -58,9 +58,12 @@ export default async function PublicBookingPage() {
                     </p>
                   )}
                   
-                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors">
+                  <Link
+                    href={`/book/${service.id}/schedule`}
+                    className="block w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-center"
+                  >
                     Select This Service
-                  </button>
+                  </Link>
                 </div>
               ))}
             </div>
