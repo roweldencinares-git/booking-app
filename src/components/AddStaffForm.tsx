@@ -11,7 +11,7 @@ export default function AddStaffForm() {
     last_name: '',
     email: '',
     timezone: 'America/New_York',
-    role: 'staff'
+    role: 'admin'
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export default function AddStaffForm() {
           last_name: '',
           email: '',
           timezone: 'America/New_York',
-          role: 'staff'
+          role: 'admin'
         })
         router.refresh()
       }
@@ -90,18 +90,11 @@ export default function AddStaffForm() {
         <label className="block text-sm font-medium text-gray-700">
           Role
         </label>
-        <select
-          value={formData.role}
-          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-        >
-          <option value="staff">👤 Staff - View own bookings and schedule</option>
-          <option value="manager">👔 Manager - Manage bookings and staff</option>
-          <option value="admin">👑 Admin - Full access to all features</option>
-          <option value="viewer">👁️ Viewer - View-only access</option>
-        </select>
+        <div className="mt-1 p-3 border border-gray-200 rounded-md bg-gray-50">
+          <span className="text-sm text-gray-700">👑 Admin - Full access to all features</span>
+        </div>
         <p className="mt-1 text-xs text-gray-500">
-          You can change roles later from the staff list
+          All staff members have admin access for now
         </p>
       </div>
 

@@ -19,11 +19,10 @@ export default async function StaffPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 
-  // Get all active staff members (exclude deleted ones)
+  // Get all staff members (temporarily show all including any marked as deleted so we can restore them)
   const { data: staff } = await supabase
     .from('users')
     .select('*')
-    .neq('status', 'deleted')
     .order('first_name', { ascending: true })
 
   return (

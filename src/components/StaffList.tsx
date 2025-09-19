@@ -32,10 +32,7 @@ export default function StaffList({ staff }: StaffListProps) {
   })
 
   const roles = [
-    { value: 'admin', label: '👑 Admin', description: 'Full access to all features' },
-    { value: 'manager', label: '👔 Manager', description: 'Manage bookings and staff' },
-    { value: 'staff', label: '👤 Staff', description: 'View own bookings and schedule' },
-    { value: 'viewer', label: '👁️ Viewer', description: 'View-only access' }
+    { value: 'admin', label: '👑 Admin', description: 'Full access to all features' }
   ]
 
   const updateStaff = async (staffId: string, updates: any) => {
@@ -62,8 +59,8 @@ export default function StaffList({ staff }: StaffListProps) {
     }
   }
 
-  const deleteStaff = async (staffId: string, staffName: string) => {
-    if (!confirm(`Are you sure you want to remove ${staffName} from your team?\n\nThis action cannot be undone.`)) {
+  const restoreStaff = async (staffId: string, staffName: string) => {
+    if (!confirm(`Restore ${staffName} to active status?`)) {
       return
     }
 
@@ -71,17 +68,19 @@ export default function StaffList({ staff }: StaffListProps) {
 
     try {
       const response = await fetch(`/api/staff/${staffId}`, {
-        method: 'DELETE'
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'active' })
       })
 
       if (response.ok) {
         router.refresh()
       } else {
-        alert('Failed to delete staff member')
+        alert('Failed to restore staff member')
       }
     } catch (error) {
-      console.error('Error deleting staff:', error)
-      alert('Error deleting staff member')
+      console.error('Error restoring staff:', error)
+      alert('Error restoring staff member')
     } finally {
       setLoading(null)
     }
@@ -110,11 +109,19 @@ export default function StaffList({ staff }: StaffListProps) {
 
   const getRoleDisplay = (role?: string) => {
     const roleInfo = roles.find(r => r.value === role)
-    return roleInfo ? roleInfo.label : '👤 Staff'
+    return roleInfo ? roleInfo.label : '👑 Admin'
   }
 
   const getStatusColor = (status?: string) => {
-    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+    if (status === 'deleted') return 'bg-red-100 text-red-800'
+    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+  }
+
+  const getStatusLabel = (status?: string) => {
+    if (status === 'deleted') return '🗑️ Deleted'
+    if (status === 'active') return '✅ Active'
+    if (status === 'inactive') return '⏸️ Inactive'
+    return '✅ Active'
   }
 
   if (staff.length === 0) {
@@ -249,7 +256,7 @@ export default function StaffList({ staff }: StaffListProps) {
 
                 <div className="mt-3 flex items-center space-x-3">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(member.status)}`}>
-                    {member.status === 'active' ? '✅ Active' : '❌ Inactive'}
+                    {getStatusLabel(member.status)}
                   </span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {getRoleDisplay(member.role)}
@@ -280,24 +287,27 @@ export default function StaffList({ staff }: StaffListProps) {
                     >
                       ⚙️ Config
                     </a>
-                    <button
-                      onClick={() => toggleStatus(member.id, member.status || 'active')}
-                      disabled={loading === member.id}
-                      className={`inline-flex items-center px-2 py-1 border text-xs leading-4 font-medium rounded disabled:opacity-50 ${
-                        member.status === 'active'
-                          ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
-                          : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                      }`}
-                    >
-                      {member.status === 'active' ? '⏸️ Deactivate' : '▶️ Activate'}
-                    </button>
-                    <button
-                      onClick={() => deleteStaff(member.id, `${member.first_name} ${member.last_name}`)}
-                      disabled={loading === member.id}
-                      className="inline-flex items-center px-2 py-1 border border-red-300 text-xs leading-4 font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50"
-                    >
-                      🗑️ Delete
-                    </button>
+                    {member.status === 'deleted' ? (
+                      <button
+                        onClick={() => restoreStaff(member.id, `${member.first_name} ${member.last_name}`)}
+                        disabled={loading === member.id}
+                        className="inline-flex items-center px-2 py-1 border border-green-300 text-xs leading-4 font-medium rounded text-green-700 bg-green-50 hover:bg-green-100 disabled:opacity-50"
+                      >
+                        🔄 Restore
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => toggleStatus(member.id, member.status || 'active')}
+                        disabled={loading === member.id}
+                        className={`inline-flex items-center px-2 py-1 border text-xs leading-4 font-medium rounded disabled:opacity-50 ${
+                          member.status === 'active'
+                            ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+                            : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                        }`}
+                      >
+                        {member.status === 'active' ? '⏸️ Deactivate' : '▶️ Activate'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
