@@ -90,9 +90,19 @@ export default function AddStaffForm() {
         <label className="block text-sm font-medium text-gray-700">
           Role
         </label>
-        <div className="mt-1 p-3 border border-gray-200 rounded-md bg-gray-50">
-          <span className="text-sm text-gray-500">👤 Team Member (roles coming soon)</span>
-        </div>
+        <select
+          value={formData.role}
+          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="staff">👤 Staff - View own bookings and schedule</option>
+          <option value="manager">👔 Manager - Manage bookings and staff</option>
+          <option value="admin">👑 Admin - Full access to all features</option>
+          <option value="viewer">👁️ Viewer - View-only access</option>
+        </select>
+        <p className="mt-1 text-xs text-gray-500">
+          You can change roles later from the staff list
+        </p>
       </div>
 
       <div>
@@ -104,11 +114,15 @@ export default function AddStaffForm() {
           onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
           className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
         >
+          <option value="UTC">UTC</option>
           <option value="America/New_York">Eastern Time</option>
           <option value="America/Chicago">Central Time</option>
           <option value="America/Denver">Mountain Time</option>
           <option value="America/Los_Angeles">Pacific Time</option>
-          <option value="America/Phoenix">Arizona Time</option>
+          <option value="Asia/Manila">Philippines</option>
+          <option value="Europe/London">London</option>
+          <option value="Asia/Tokyo">Tokyo</option>
+          <option value="Australia/Sydney">Sydney</option>
         </select>
       </div>
 
