@@ -23,12 +23,26 @@ export default function StaffList({ staff }: StaffListProps) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
   const [editingStaff, setEditingStaff] = useState<string | null>(null)
+  const [configuringStaff, setConfiguringStaff] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
     email: '',
     timezone: '',
     role: ''
+  })
+  const [configForm, setConfigForm] = useState({
+    working_hours: {
+      monday: { enabled: true, start: '09:00', end: '17:00' },
+      tuesday: { enabled: true, start: '09:00', end: '17:00' },
+      wednesday: { enabled: true, start: '09:00', end: '17:00' },
+      thursday: { enabled: true, start: '09:00', end: '17:00' },
+      friday: { enabled: true, start: '09:00', end: '17:00' },
+      saturday: { enabled: false, start: '09:00', end: '17:00' },
+      sunday: { enabled: false, start: '09:00', end: '17:00' }
+    },
+    buffer_minutes: 15,
+    advance_booking_days: 30
   })
 
   const roles = [
@@ -98,8 +112,34 @@ export default function StaffList({ staff }: StaffListProps) {
       last_name: member.last_name,
       email: member.email,
       timezone: member.timezone,
-      role: member.role || 'staff'
+      role: member.role || 'admin'
     })
+  }
+
+  const startConfig = (member: Staff) => {
+    setConfiguringStaff(member.id)
+    // Reset to default config (in real app, would load from API)
+    setConfigForm({
+      working_hours: {
+        monday: { enabled: true, start: '09:00', end: '17:00' },
+        tuesday: { enabled: true, start: '09:00', end: '17:00' },
+        wednesday: { enabled: true, start: '09:00', end: '17:00' },
+        thursday: { enabled: true, start: '09:00', end: '17:00' },
+        friday: { enabled: true, start: '09:00', end: '17:00' },
+        saturday: { enabled: false, start: '09:00', end: '17:00' },
+        sunday: { enabled: false, start: '09:00', end: '17:00' }
+      },
+      buffer_minutes: 15,
+      advance_booking_days: 30
+    })
+  }
+
+  const handleConfigSubmit = async (e: React.FormEvent, staffId: string) => {
+    e.preventDefault()
+    console.log('Saving config for staff:', staffId, configForm)
+    // In real app, would save to API/database
+    alert('Configuration saved! (Demo mode)')
+    setConfiguringStaff(null)
   }
 
   const handleEditSubmit = (e: React.FormEvent, staffId: string) => {
@@ -224,6 +264,126 @@ export default function StaffList({ staff }: StaffListProps) {
                 </button>
               </div>
             </form>
+          ) : configuringStaff === member.id ? (
+            // Configuration Form
+            <form onSubmit={(e) => handleConfigSubmit(e, member.id)} className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-blue-900 mb-2">
+                  ⚙️ Configuration for {member.first_name} {member.last_name}
+                </h3>
+                <p className="text-blue-700 text-sm">
+                  Set working hours, booking preferences, and availability settings
+                </p>
+              </div>
+
+              {/* Working Hours */}
+              <div className="bg-white border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">🕒 Working Hours</h4>
+                <div className="space-y-2">
+                  {Object.entries(configForm.working_hours).map(([day, settings]) => (
+                    <div key={day} className="flex items-center space-x-3">
+                      <div className="w-20">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={settings.enabled}
+                            onChange={(e) => setConfigForm({
+                              ...configForm,
+                              working_hours: {
+                                ...configForm.working_hours,
+                                [day]: { ...settings, enabled: e.target.checked }
+                              }
+                            })}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700 capitalize">{day}</span>
+                        </label>
+                      </div>
+                      {settings.enabled && (
+                        <>
+                          <input
+                            type="time"
+                            value={settings.start}
+                            onChange={(e) => setConfigForm({
+                              ...configForm,
+                              working_hours: {
+                                ...configForm.working_hours,
+                                [day]: { ...settings, start: e.target.value }
+                              }
+                            })}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm"
+                          />
+                          <span className="text-gray-500">to</span>
+                          <input
+                            type="time"
+                            value={settings.end}
+                            onChange={(e) => setConfigForm({
+                              ...configForm,
+                              working_hours: {
+                                ...configForm.working_hours,
+                                [day]: { ...settings, end: e.target.value }
+                              }
+                            })}
+                            className="border border-gray-300 rounded px-2 py-1 text-sm"
+                          />
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Booking Settings */}
+              <div className="bg-white border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">📅 Booking Settings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Buffer Time (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="60"
+                      value={configForm.buffer_minutes}
+                      onChange={(e) => setConfigForm({ ...configForm, buffer_minutes: parseInt(e.target.value) })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Time between bookings</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Advance Booking (days)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="365"
+                      value={configForm.advance_booking_days}
+                      onChange={(e) => setConfigForm({ ...configForm, advance_booking_days: parseInt(e.target.value) })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">How far ahead bookings allowed</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setConfiguringStaff(null)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  Save Configuration
+                </button>
+              </div>
+            </form>
           ) : (
             // Display Mode
             <div className="flex items-center justify-between">
@@ -281,12 +441,13 @@ export default function StaffList({ staff }: StaffListProps) {
                     >
                       ✏️ Edit
                     </button>
-                    <a
-                      href={`/dashboard/staff/${member.id}/config`}
-                      className="inline-flex items-center px-2 py-1 border border-blue-300 text-xs leading-4 font-medium rounded text-blue-700 bg-blue-50 hover:bg-blue-100"
+                    <button
+                      onClick={() => startConfig(member)}
+                      disabled={loading === member.id}
+                      className="inline-flex items-center px-2 py-1 border border-blue-300 text-xs leading-4 font-medium rounded text-blue-700 bg-blue-50 hover:bg-blue-100 disabled:opacity-50"
                     >
                       ⚙️ Config
-                    </a>
+                    </button>
                     {member.status === 'deleted' ? (
                       <button
                         onClick={() => restoreStaff(member.id, `${member.first_name} ${member.last_name}`)}
