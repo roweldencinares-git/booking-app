@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/check-env.js && next build --turbopack",
+    "build": "node scripts/check-env.js && next build",
     "start": "next start",
     "check-env": "node scripts/check-env.js",
     "lint": "eslint",

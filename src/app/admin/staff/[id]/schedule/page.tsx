@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import StaffScheduleManager from '../../../../../components/StaffScheduleManager'
 import GoogleCalendarIntegration from '../../../../../components/GoogleCalendarIntegration'
+import ZoomIntegration from '../../../../../components/ZoomIntegration'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,19 +77,38 @@ export default async function StaffSchedulePage({ params }: PageProps) {
           </div>
 
           <div className="space-y-8">
-            {/* Google Calendar Integration */}
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">
-                  Calendar Integration
-                </h2>
-                <p className="text-sm text-gray-500 mt-1">
-                  Connect your Google Calendar to sync availability and bookings
-                </p>
+            {/* Integrations */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Google Calendar Integration */}
+              <div className="bg-white shadow rounded-lg">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-lg font-medium text-gray-900">
+                    Calendar Integration
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Connect your Google Calendar to sync availability and bookings
+                  </p>
+                </div>
+
+                <div className="p-6">
+                  <GoogleCalendarIntegration staff={staff} />
+                </div>
               </div>
 
-              <div className="p-6">
-                <GoogleCalendarIntegration staff={staff} />
+              {/* Zoom Integration */}
+              <div className="bg-white shadow rounded-lg">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h2 className="text-lg font-medium text-gray-900">
+                    Meeting Integration
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Connect Zoom to automatically create meetings for bookings
+                  </p>
+                </div>
+
+                <div className="p-6">
+                  <ZoomIntegration staff={staff} />
+                </div>
               </div>
             </div>
 

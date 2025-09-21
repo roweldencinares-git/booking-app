@@ -1,0 +1,129 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
+
+export async function GET(request: NextRequest) {
+  try {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const user_id = searchParams.get('user_id')
+    const code = searchParams.get('code')
+
+    if (!user_id) {
+      return NextResponse.json({ error: 'Missing user_id parameter' }, { status: 400 })
+    }
+
+    // If no code, redirect to Zoom OAuth
+    if (!code) {
+      const zoomClientId = process.env.ZOOM_CLIENT_ID
+      if (!zoomClientId) {
+        return NextResponse.json({ error: 'Zoom OAuth not configured' }, { status: 500 })
+      }
+
+      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/zoom`
+      const scopes = 'meeting:write meeting:read'
+      const state = user_id // Pass user_id as state
+
+      const authUrl = new URL('https://zoom.us/oauth/authorize')
+      authUrl.searchParams.set('response_type', 'code')
+      authUrl.searchParams.set('client_id', zoomClientId)
+      authUrl.searchParams.set('redirect_uri', redirectUri)
+      authUrl.searchParams.set('scope', scopes)
+      authUrl.searchParams.set('state', state)
+
+      return NextResponse.redirect(authUrl.toString())
+    }
+
+    // Handle OAuth callback
+    const state = searchParams.get('state')
+    if (!state) {
+      return NextResponse.json({ error: 'Missing state parameter' }, { status: 400 })
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://zoom.us/oauth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(
+          `${process.env.ZOOM_CLIENT_ID}:${process.env.ZOOM_CLIENT_SECRET}`
+        ).toString('base64')}`
+      },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/zoom`
+      })
+    })
+
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text()
+      console.error('Zoom token exchange failed:', error)
+      return NextResponse.json({ error: 'Failed to exchange code for token' }, { status: 500 })
+    }
+
+    const tokenData = await tokenResponse.json()
+
+    // Get user info from Zoom
+    const userResponse = await fetch('https://api.zoom.us/v2/users/me', {
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`
+      }
+    })
+
+    if (!userResponse.ok) {
+      console.error('Failed to get Zoom user info')
+      return NextResponse.json({ error: 'Failed to get user information' }, { status: 500 })
+    }
+
+    const userData = await userResponse.json()
+
+    // Store integration in database
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Calculate expiry time (1 hour from now)
+    const expiresAt = new Date()
+    expiresAt.setHours(expiresAt.getHours() + 1)
+
+    const { error: insertError } = await supabase
+      .from('user_integrations')
+      .upsert({
+        user_id: state, // user_id from state parameter
+        provider: 'zoom',
+        external_id: userData.id,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_at: expiresAt.toISOString(),
+        is_active: true,
+        metadata: {
+          email: userData.email,
+          display_name: userData.display_name,
+          account_id: userData.account_id
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,provider'
+      })
+
+    if (insertError) {
+      console.error('Database error:', insertError)
+      return NextResponse.json({ error: 'Failed to store integration' }, { status: 500 })
+    }
+
+    // Redirect back to staff schedule page
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/staff/${state}/schedule?zoom_connected=true`)
+
+  } catch (error) {
+    console.error('Error in Zoom OAuth:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

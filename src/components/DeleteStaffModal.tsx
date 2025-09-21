@@ -40,8 +40,14 @@ export default function DeleteStaffModal({
   })
   const [futureBookings, setFutureBookings] = useState<any[]>([])
   const [error, setError] = useState<string>('')
+  const [confirmText, setConfirmText] = useState<string>('')
 
   const handleInitialDelete = async () => {
+    if (confirmText !== 'DELETE') {
+      setError('Please type DELETE to confirm')
+      return
+    }
+
     setStep('processing')
     setError('')
 
@@ -55,6 +61,8 @@ export default function DeleteStaffModal({
 
       const data = await response.json()
 
+      console.log('Delete response:', { status: response.status, data })
+
       if (response.status === 409) {
         // Has future bookings - show options
         setFutureBookings(data.futureBookings || [])
@@ -66,10 +74,11 @@ export default function DeleteStaffModal({
         throw new Error(data.error || 'Failed to delete staff member')
       }
 
-      // Success - no conflicts
-      await onDelete(deleteOptions)
+      // Success - no conflicts, call parent delete handler
+      await onDelete({ deleteFutureBookings: false, transferBookingsTo: null, force: false })
       onClose()
     } catch (err) {
+      console.error('Delete error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setStep('confirm')
     }
@@ -97,6 +106,7 @@ export default function DeleteStaffModal({
     })
     setFutureBookings([])
     setError('')
+    setConfirmText('')
     onClose()
   }
 
@@ -126,6 +136,19 @@ export default function DeleteStaffModal({
               </p>
             </div>
 
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Type <span className="font-mono font-bold text-red-600">DELETE</span> to confirm:
+              </label>
+              <input
+                type="text"
+                value={confirmText}
+                onChange={(e) => setConfirmText(e.target.value)}
+                placeholder="Type DELETE here"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
                 <p className="text-sm text-red-800">{error}</p>
@@ -141,8 +164,8 @@ export default function DeleteStaffModal({
               </button>
               <button
                 onClick={handleInitialDelete}
-                disabled={step === 'processing'}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50"
+                disabled={step === 'processing' || confirmText !== 'DELETE'}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {step === 'processing' ? 'Checking...' : 'Delete Staff Member'}
               </button>

@@ -171,6 +171,7 @@ export default function StaffList({ staff }: StaffListProps) {
 
     try {
       setLoading(deletingStaff.id)
+      console.log('Deleting staff with options:', options)
 
       const response = await fetch(`/api/staff/${deletingStaff.id}/delete`, {
         method: 'DELETE',
@@ -179,6 +180,7 @@ export default function StaffList({ staff }: StaffListProps) {
       })
 
       const data = await response.json()
+      console.log('Delete response:', { status: response.status, data })
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to delete staff member')
@@ -494,13 +496,6 @@ export default function StaffList({ staff }: StaffListProps) {
                     >
                       ⚙️ Config
                     </button>
-                    <button
-                      onClick={() => startDelete(member)}
-                      disabled={loading === member.id}
-                      className="inline-flex items-center px-2 py-1 border border-red-300 text-xs leading-4 font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50"
-                    >
-                      🗑️ Delete
-                    </button>
                     {member.status === 'deleted' ? (
                       <button
                         onClick={() => restoreStaff(member.id, `${member.first_name} ${member.last_name}`)}
@@ -510,17 +505,26 @@ export default function StaffList({ staff }: StaffListProps) {
                         🔄 Restore
                       </button>
                     ) : (
-                      <button
-                        onClick={() => toggleStatus(member.id, member.status || 'active')}
-                        disabled={loading === member.id}
-                        className={`inline-flex items-center px-2 py-1 border text-xs leading-4 font-medium rounded disabled:opacity-50 ${
-                          member.status === 'active'
-                            ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
-                            : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                        }`}
-                      >
-                        {member.status === 'active' ? '⏸️ Deactivate' : '▶️ Activate'}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => startDelete(member)}
+                          disabled={loading === member.id}
+                          className="inline-flex items-center px-2 py-1 border border-red-300 text-xs leading-4 font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50"
+                        >
+                          🗑️ Delete
+                        </button>
+                        <button
+                          onClick={() => toggleStatus(member.id, member.status || 'active')}
+                          disabled={loading === member.id}
+                          className={`inline-flex items-center px-2 py-1 border text-xs leading-4 font-medium rounded disabled:opacity-50 ${
+                            member.status === 'active'
+                              ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+                              : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                          }`}
+                        >
+                          {member.status === 'active' ? '⏸️ Deactivate' : '▶️ Activate'}
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
