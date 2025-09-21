@@ -13,232 +13,195 @@ export default async function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm">
+      {/* Left Sidebar */}
+      <div className="w-64 bg-white shadow-sm border-r">
         <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900">BookingApp Admin</h1>
+          <h1 className="text-xl font-bold text-gray-900">System Administration</h1>
         </div>
         <nav className="mt-6">
           <div className="px-4 space-y-1">
             <Link
               href="/admin"
-              className="bg-purple-100 text-purple-700 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">📅</span>
-              Appointments
-            </Link>
-            <Link
-              href="/dashboard/staff"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">👨‍💼</span>
-              Consultants
-            </Link>
-            <Link
-              href="/dashboard/booking-types"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">📋</span>
-              Consultations
-            </Link>
-            <button className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left">
-              <span className="mr-3">🔄</span>
-              Workflows
-            </button>
-            <button className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left">
-              <span className="mr-3">📄</span>
-              Booking Pages
-            </button>
-            <Link
-              href="/admin/settings"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">⚙️</span>
-              Settings
-            </Link>
-            <Link
-              href="/admin/system"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
+              className="bg-blue-100 text-blue-700 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
             >
               <span className="mr-3">🔧</span>
-              System Admin
+              Connection Status
+            </Link>
+            <Link
+              href="/admin/system/staff"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">👥</span>
+              Manage Staff
+            </Link>
+            <Link
+              href="/admin/system/booking-types"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">📋</span>
+              Booking Types
+            </Link>
+            <Link
+              href="/admin/system/analytics"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">📊</span>
+              Analytics
+            </Link>
+            <Link
+              href="/admin/system/notifications"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">🔔</span>
+              Notifications
+            </Link>
+            <Link
+              href="/admin/system/maintenance"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">🔧</span>
+              Maintenance
             </Link>
           </div>
         </nav>
 
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="px-6 py-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Appointments</h1>
+        {/* System Status */}
+        <div className="mt-8 px-4">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">System Status</h4>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">Clerk: Connected</span>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  />
-                  <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
-                </div>
-                <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2">
-                  <span>+</span>
-                  New Appointment
-                </button>
-                <Link
-                  href="/"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ← Back to Home
-                </Link>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="text-gray-600">Supabase: Pending</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">Zoho: Connected</span>
               </div>
             </div>
-          </div>
-        </header>
-
-        {/* Tabs */}
-        <div className="bg-white border-b">
-          <div className="px-6">
-            <nav className="flex space-x-8">
-              <button className="border-b-2 border-purple-500 py-4 px-1 text-sm font-medium text-purple-600">
-                Upcoming
-              </button>
-              <button className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                Past
-              </button>
-              <button className="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700">
-                Custom Date
-              </button>
-            </nav>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 bg-white">
-          <div className="px-6 py-4">
-            {/* Table Header */}
-            <div className="grid grid-cols-6 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider mb-4">
-              <div>TIME</div>
-              <div>BOOKING ID</div>
-              <div>CONSULTATION</div>
-              <div>CONSULTANTS/RESOURCES</div>
-              <div>CUSTOMER</div>
-              <div></div>
-            </div>
+        {/* Back Navigation */}
+        <div className="mt-4 px-4">
+          <Link
+            href="/admin/system"
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+          >
+            ← Back to Appointments
+          </Link>
+        </div>
+      </div>
 
-            {/* Sample Appointments */}
-            <div className="space-y-4">
-              {/* Date Header */}
-              <div className="flex items-center gap-2 py-2">
-                <span className="text-sm text-gray-500">📅</span>
-                <span className="text-sm font-medium text-gray-900">22 Sep 2025</span>
-                <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">2 Appointments</span>
-              </div>
+      {/* Main Content */}
+      <div className="flex-1">
+        <div className="p-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">BookingApp Dashboard</h1>
 
-              {/* Appointment Rows */}
-              <div className="grid grid-cols-6 gap-4 items-center py-3 border-b border-gray-100">
-                <div className="text-sm text-gray-900">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    03:45 pm - 04:15 pm
+          {/* Administrative Actions */}
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Administrative Actions</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link
+                href="/dashboard/staff"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                    <span className="text-purple-600 text-lg">👥</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Staff</h3>
+                    <p className="text-sm text-gray-600">Add, edit, and configure staff members</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-900">SP-00008</div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-purple-100 text-purple-600 rounded text-xs flex items-center justify-center font-medium">A</span>
-                  <span className="text-sm text-gray-900">ADVISE - Post-Reset Goals Review</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                  <span className="text-sm text-gray-900">Michael Rampolla</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">👤</span>
-                  <span className="text-sm text-gray-900">Andrea Kiemen-Rognsvoog</span>
-                </div>
-                <div className="text-sm text-gray-500">Free</div>
-              </div>
+              </Link>
 
-              <div className="grid grid-cols-6 gap-4 items-center py-3 border-b border-gray-100">
-                <div className="text-sm text-gray-900">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    04:30 pm - 05:00 pm
+              <Link
+                href="/dashboard/booking-types"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                    <span className="text-orange-600 text-lg">📋</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Services</h3>
+                    <p className="text-sm text-gray-600">Configure booking types and pricing</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-900">SP-00009</div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-purple-100 text-purple-600 rounded text-xs flex items-center justify-center font-medium">A</span>
-                  <span className="text-sm text-gray-900">ADVISE - Post-Reset Goals Review</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                  <span className="text-sm text-gray-900">Michael Rampolla</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">👤</span>
-                  <span className="text-sm text-gray-900">Chris Luecke</span>
-                </div>
-                <div className="text-sm text-gray-500">Free</div>
-              </div>
+              </Link>
 
-              {/* Date Header */}
-              <div className="flex items-center gap-2 py-2 mt-6">
-                <span className="text-sm text-gray-500">📅</span>
-                <span className="text-sm font-medium text-gray-900">23 Sep 2025</span>
-                <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">2 Appointments</span>
-              </div>
-
-              <div className="grid grid-cols-6 gap-4 items-center py-3 border-b border-gray-100">
-                <div className="text-sm text-gray-900">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    08:30 am - 09:00 am
+              <Link
+                href="/dashboard/booking-types"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                    <span className="text-indigo-600 text-lg">🏷️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Service Types</h3>
+                    <p className="text-sm text-gray-600">Manage different service categories and types</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-900">SP-00010</div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-purple-100 text-purple-600 rounded text-xs flex items-center justify-center font-medium">A</span>
-                  <span className="text-sm text-gray-900">ADVISE - Post-Reset Goals Review</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                  <span className="text-sm text-gray-900">Michael Rampolla</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">👤</span>
-                  <span className="text-sm text-gray-900">Angila Allen</span>
-                </div>
-                <div className="text-sm text-gray-500">Free</div>
-              </div>
+              </Link>
 
-              <div className="grid grid-cols-6 gap-4 items-center py-3 border-b border-gray-100">
-                <div className="text-sm text-gray-900">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    01:00 pm - 01:30 pm
+              <Link
+                href="/admin/settings"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                    <span className="text-gray-600 text-lg">⚙️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
+                    <p className="text-sm text-gray-600">Configure integrations and preferences</p>
                   </div>
                 </div>
-                <div className="text-sm text-gray-900">SP-00012</div>
-                <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded text-xs flex items-center justify-center font-medium">S3</span>
-                  <span className="text-sm text-gray-900">Schedule 30-min Zoom with Michael</span>
+              </Link>
+
+              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                    <span className="text-green-600 text-lg">📊</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics</h3>
+                    <p className="text-sm text-gray-600">View booking statistics and reports</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                  <span className="text-sm text-gray-900">Michael Rampolla</span>
+              </button>
+
+              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <span className="text-blue-600 text-lg">📅</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Availability</h3>
+                    <p className="text-sm text-gray-600">Manage coach schedules and availability</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">👤</span>
-                  <span className="text-sm text-gray-900">Russell Rapant</span>
+              </button>
+
+              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+                    <span className="text-yellow-600 text-lg">🔔</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
+                    <p className="text-sm text-gray-600">Configure email and SMS settings</p>
+                  </div>
                 </div>
-                <div className="text-sm text-gray-500">Free</div>
-              </div>
+              </button>
             </div>
           </div>
         </div>
