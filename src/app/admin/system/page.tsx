@@ -150,35 +150,7 @@ export default async function SystemAdminPage() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <a
-                href="/dashboard/booking-types"
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                📋 Manage Services
-              </a>
-              <a
-                href="/dashboard/staff"
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-              >
-                👥 Manage Staff
-              </a>
-              <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                📅 Availability
-              </button>
-              <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                📊 Bookings
-              </button>
-            </div>
-          </div>
-
-
-          {/* Administrative Actions Section */}
+          {/* Administrative Actions */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Administrative Actions</h2>
 
@@ -242,24 +214,24 @@ export default async function SystemAdminPage() {
 
               <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                    <span className="text-yellow-600 text-lg">🔔</span>
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <span className="text-blue-600 text-lg">📅</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
-                    <p className="text-sm text-gray-600">Configure email and SMS settings</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Availability</h3>
+                    <p className="text-sm text-gray-600">Manage coach schedules and availability</p>
                   </div>
                 </div>
               </button>
 
               <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <span className="text-blue-600 text-lg">🔧</span>
+                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+                    <span className="text-yellow-600 text-lg">🔔</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Maintenance</h3>
-                    <p className="text-sm text-gray-600">Database cleanup and system tools</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
+                    <p className="text-sm text-gray-600">Configure email and SMS settings</p>
                   </div>
                 </div>
               </button>
