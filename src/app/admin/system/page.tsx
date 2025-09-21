@@ -65,8 +65,29 @@ export default async function SystemAdminPage() {
           </div>
         </nav>
 
-        {/* Back Navigation */}
+        {/* System Status */}
         <div className="mt-8 px-4">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">System Status</h4>
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">Clerk: Connected</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                <span className="text-gray-600">Supabase: Pending</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600">Zoho: Connected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Back Navigation */}
+        <div className="mt-4 px-4">
           <Link
             href="/admin"
             className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
@@ -81,26 +102,6 @@ export default async function SystemAdminPage() {
         <div className="p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">BookingApp Dashboard</h1>
 
-          {/* System Status */}
-          <div className="mb-12">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">System Status</h2>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-900 font-medium">Clerk: Connected</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-gray-900 font-medium">Supabase: Pending</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-900 font-medium">Zoho: Connected</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Administrative Actions */}
           <div>
