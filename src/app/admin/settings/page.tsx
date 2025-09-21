@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import AdminLayout from '@/components/AdminLayout'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,77 +13,8 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm">
-        <div className="p-6">
-          <h1 className="text-xl font-bold text-gray-900">BookingApp Admin</h1>
-        </div>
-        <nav className="mt-6">
-          <div className="px-4 space-y-1">
-            <Link
-              href="/admin"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">📅</span>
-              Appointments
-            </Link>
-            <Link
-              href="/dashboard/staff"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">👨‍💼</span>
-              Consultants
-            </Link>
-            <Link
-              href="/dashboard/booking-types"
-              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">📋</span>
-              Consultations
-            </Link>
-            <button className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left">
-              <span className="mr-3">🔄</span>
-              Workflows
-            </button>
-            <button className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-2 py-2 text-sm font-medium rounded-md w-full text-left">
-              <span className="mr-3">📄</span>
-              Booking Pages
-            </button>
-            <Link
-              href="/admin/settings"
-              className="bg-purple-100 text-purple-700 group flex items-center px-2 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">⚙️</span>
-              Settings
-            </Link>
-          </div>
-        </nav>
-
-        {/* Connection Status */}
-        <div className="mt-8 px-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">System Status</h4>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Clerk: Connected</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span className="text-gray-600">Supabase: Pending</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Zoho: Connected</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+    <AdminLayout currentPath="/admin/settings">
+      <div className="flex flex-col">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="px-6 py-4">
@@ -278,6 +210,6 @@ export default async function SettingsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   )
 }
