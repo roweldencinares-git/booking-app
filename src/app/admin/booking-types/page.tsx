@@ -96,7 +96,7 @@ export default async function BookingTypesPage() {
   }
 
   return (
-    <AdminLayout currentPath="/dashboard/booking-types">
+    <AdminLayout currentPath="/admin/booking-types">
       <div className="bg-gray-50 flex-1">
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">

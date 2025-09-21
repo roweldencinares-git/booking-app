@@ -428,7 +428,7 @@ export default function StaffList({ staff }: StaffListProps) {
               <div className="flex items-center space-x-2">
                 <div className="flex flex-col space-y-1">
                   <a
-                    href={`/dashboard/staff/${member.id}/schedule`}
+                    href={`/admin/staff/${member.id}/schedule`}
                     className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     📅 Schedule

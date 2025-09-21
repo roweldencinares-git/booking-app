@@ -18,7 +18,7 @@ export default async function AdminPage() {
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Link
-              href="/dashboard/staff"
+              href="/admin/staff"
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
             >
               <div className="flex items-start gap-4">
@@ -33,7 +33,7 @@ export default async function AdminPage() {
             </Link>
 
             <Link
-              href="/dashboard/booking-types"
+              href="/admin/booking-types"
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
             >
               <div className="flex items-start gap-4">
@@ -48,7 +48,7 @@ export default async function AdminPage() {
             </Link>
 
             <Link
-              href="/dashboard/booking-types"
+              href="/admin/booking-types"
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
             >
               <div className="flex items-start gap-4">

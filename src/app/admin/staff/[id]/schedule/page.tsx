@@ -51,7 +51,7 @@ export default async function StaffSchedulePage({ params }: PageProps) {
           <div className="mb-8">
             <div className="flex items-center space-x-4 mb-4">
               <a 
-                href="/dashboard/staff"
+                href="/admin/staff"
                 className="text-indigo-600 hover:text-indigo-800"
               >
                 ← Back to Staff

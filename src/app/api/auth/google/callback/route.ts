@@ -10,11 +10,11 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('OAuth error:', error)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff?error=oauth_denied`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff?error=oauth_denied`)
     }
 
     if (!code || !state) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff?error=missing_code`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff?error=missing_code`)
     }
 
     // Exchange code for tokens
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', await tokenResponse.text())
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff?error=token_exchange_failed`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff?error=token_exchange_failed`)
     }
 
     const tokens = await tokenResponse.json()
@@ -55,13 +55,13 @@ export async function GET(request: NextRequest) {
 
     if (updateError) {
       console.error('Error storing tokens:', updateError)
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff?error=database_error`)
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff?error=database_error`)
     }
 
     // Redirect back to staff schedule page
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff/${state}/schedule?success=calendar_connected`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff/${state}/schedule?success=calendar_connected`)
   } catch (error) {
     console.error('OAuth callback error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/dashboard/staff?error=callback_error`)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3003'}/admin/staff?error=callback_error`)
   }
 }

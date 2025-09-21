@@ -18,9 +18,9 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
         <nav className="mt-6">
           <div className="px-4 space-y-1">
             <Link
-              href="/dashboard/staff"
+              href="/admin/staff"
               className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                isActive('/dashboard/staff')
+                isActive('/admin/staff')
                   ? 'bg-blue-100 text-blue-700'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
@@ -29,9 +29,9 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
               Manage Staff
             </Link>
             <Link
-              href="/dashboard/booking-types"
+              href="/admin/booking-types"
               className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-                isActive('/dashboard/booking-types')
+                isActive('/admin/booking-types')
                   ? 'bg-blue-100 text-blue-700'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
