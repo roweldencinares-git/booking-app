@@ -21,25 +21,32 @@ export default async function AdminPage() {
         <nav className="mt-6">
           <div className="px-4 space-y-1">
             <Link
-              href="/admin"
-              className="bg-blue-100 text-blue-700 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
-            >
-              <span className="mr-3">🔧</span>
-              Connection Status
-            </Link>
-            <Link
-              href="/admin/system/staff"
+              href="/dashboard/staff"
               className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
             >
               <span className="mr-3">👥</span>
               Manage Staff
             </Link>
             <Link
-              href="/admin/system/booking-types"
+              href="/dashboard/booking-types"
               className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
             >
               <span className="mr-3">📋</span>
-              Booking Types
+              Manage Services
+            </Link>
+            <Link
+              href="/admin/system/booking-types"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">🏷️</span>
+              Service Types
+            </Link>
+            <Link
+              href="/admin/settings"
+              className="text-gray-600 hover:bg-gray-50 hover:text-gray-900 group flex items-center px-3 py-2 text-sm font-medium rounded-md"
+            >
+              <span className="mr-3">⚙️</span>
+              Settings
             </Link>
             <Link
               href="/admin/system/analytics"
