@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import DeleteStaffModal from './DeleteStaffModal'
 
 interface Staff {
   id: string
@@ -24,6 +25,7 @@ export default function StaffList({ staff }: StaffListProps) {
   const [loading, setLoading] = useState<string | null>(null)
   const [editingStaff, setEditingStaff] = useState<string | null>(null)
   const [configuringStaff, setConfiguringStaff] = useState<string | null>(null)
+  const [deletingStaff, setDeletingStaff] = useState<Staff | null>(null)
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
@@ -163,6 +165,50 @@ export default function StaffList({ staff }: StaffListProps) {
     if (status === 'inactive') return '⏸️ Inactive'
     return '✅ Active'
   }
+
+  const handleDeleteStaff = async (options: any) => {
+    if (!deletingStaff) return
+
+    try {
+      setLoading(deletingStaff.id)
+
+      const response = await fetch(`/api/staff/${deletingStaff.id}/delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(options)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete staff member')
+      }
+
+      // Refresh the page to show updated staff list
+      router.refresh()
+      setDeletingStaff(null)
+    } catch (error) {
+      console.error('Error deleting staff:', error)
+      throw error
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const startDelete = (member: Staff) => {
+    setDeletingStaff(member)
+  }
+
+  // Get available staff for transfer (excluding the one being deleted)
+  const availableStaff = staff.filter(member =>
+    member.id !== deletingStaff?.id &&
+    member.status !== 'deleted' &&
+    member.status !== 'inactive'
+  ).map(member => ({
+    id: member.id,
+    first_name: member.first_name,
+    last_name: member.last_name
+  }))
 
   if (staff.length === 0) {
     return (
@@ -448,6 +494,13 @@ export default function StaffList({ staff }: StaffListProps) {
                     >
                       ⚙️ Config
                     </button>
+                    <button
+                      onClick={() => startDelete(member)}
+                      disabled={loading === member.id}
+                      className="inline-flex items-center px-2 py-1 border border-red-300 text-xs leading-4 font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50"
+                    >
+                      🗑️ Delete
+                    </button>
                     {member.status === 'deleted' ? (
                       <button
                         onClick={() => restoreStaff(member.id, `${member.first_name} ${member.last_name}`)}
@@ -476,6 +529,15 @@ export default function StaffList({ staff }: StaffListProps) {
           )}
         </div>
       ))}
+
+      {/* Delete Staff Modal */}
+      <DeleteStaffModal
+        isOpen={!!deletingStaff}
+        onClose={() => setDeletingStaff(null)}
+        staff={deletingStaff || { id: '', first_name: '', last_name: '', email: '' }}
+        onDelete={handleDeleteStaff}
+        availableStaff={availableStaff}
+      />
     </div>
   )
 }
