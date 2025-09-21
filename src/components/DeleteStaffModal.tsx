@@ -59,9 +59,20 @@ export default function DeleteStaffModal({
         body: JSON.stringify({ force: false })
       })
 
-      const data = await response.json()
+      let data
+      try {
+        data = await response.json()
+      } catch (jsonError) {
+        console.error('Failed to parse response as JSON:', jsonError)
+        throw new Error('Invalid response from server')
+      }
 
-      console.log('Delete response:', { status: response.status, data })
+      console.log('Delete response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+        url: response.url
+      })
 
       if (response.status === 409) {
         // Has future bookings - show options
@@ -71,7 +82,9 @@ export default function DeleteStaffModal({
       }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to delete staff member')
+        const errorMessage = data?.error || data?.message || `HTTP ${response.status}: ${response.statusText}`
+        console.error('Delete API error:', errorMessage)
+        throw new Error(errorMessage)
       }
 
       // Success - no conflicts, call parent delete handler

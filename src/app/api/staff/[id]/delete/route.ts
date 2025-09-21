@@ -7,8 +7,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('DELETE request received for staff member')
+
     const { userId } = await auth()
     if (!userId) {
+      console.log('Unauthorized request - no userId')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -18,6 +21,7 @@ export async function DELETE(
     )
 
     const { id: staffId } = await params
+    console.log('Attempting to delete staff member:', staffId)
 
     // Get the staff member to verify it exists
     const { data: staff, error: staffError } = await supabase
@@ -27,8 +31,14 @@ export async function DELETE(
       .single()
 
     if (staffError || !staff) {
-      return NextResponse.json({ error: 'Staff member not found' }, { status: 404 })
+      console.error('Staff member not found:', { staffId, staffError })
+      return NextResponse.json({
+        error: 'Staff member not found',
+        details: staffError?.message
+      }, { status: 404 })
     }
+
+    console.log('Found staff member:', staff.first_name, staff.last_name)
 
     // Check if this staff member has any future bookings
     const { data: futureBookings, error: bookingsError } = await supabase
@@ -40,8 +50,13 @@ export async function DELETE(
 
     if (bookingsError) {
       console.error('Error checking future bookings:', bookingsError)
-      return NextResponse.json({ error: 'Failed to check future bookings' }, { status: 500 })
+      return NextResponse.json({
+        error: 'Failed to check future bookings',
+        details: bookingsError.message
+      }, { status: 500 })
     }
+
+    console.log('Future bookings found:', futureBookings?.length || 0)
 
     // Get delete options from request body
     const body = await request.json()

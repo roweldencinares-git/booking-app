@@ -3,7 +3,10 @@
 // Environment variable validation script
 // This ensures all required environment variables are properly loaded
 
-require('dotenv').config({ path: '.env.local' })
+// Only load .env.local if not in Vercel environment
+if (!process.env.VERCEL) {
+  require('dotenv').config({ path: '.env.local' })
+}
 
 const requiredEnvVars = [
   'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
