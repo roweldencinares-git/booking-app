@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import BookingTypesList from '../../../components/BookingTypesList'
 import CreateBookingTypeForm from '../../../components/CreateBookingTypeForm'
+import AdminLayout from '../../../components/AdminLayout'
 
 // Force dynamic rendering to prevent build-time issues
 export const dynamic = 'force-dynamic'
@@ -95,9 +96,10 @@ export default async function BookingTypesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+    <AdminLayout currentPath="/dashboard/booking-types">
+      <div className="bg-gray-50 flex-1">
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Service Types</h1>
             <p className="mt-2 text-gray-600">
@@ -128,8 +130,9 @@ export default async function BookingTypesPage() {
               </div>
             </div>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   )
 }

@@ -3,13 +3,14 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import StaffList from '../../../components/StaffList'
 import AddStaffForm from '../../../components/AddStaffForm'
+import AdminLayout from '../../../components/AdminLayout'
 
 export const dynamic = 'force-dynamic'
 
 export default async function StaffPage() {
   const { userId } = await auth()
   const user = await currentUser()
-  
+
   if (!userId || !user) {
     redirect('/sign-in')
   }
@@ -26,9 +27,10 @@ export default async function StaffPage() {
     .order('first_name', { ascending: true })
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+    <AdminLayout currentPath="/dashboard/staff">
+      <div className="bg-gray-50 flex-1">
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Staff Management</h1>
             <p className="mt-2 text-gray-600">
@@ -59,8 +61,9 @@ export default async function StaffPage() {
               </div>
             </div>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </AdminLayout>
   )
 }
