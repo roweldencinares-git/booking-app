@@ -79,7 +79,103 @@ export default async function SystemAdminPage() {
       {/* Main Content */}
       <div className="flex-1">
         <div className="p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">System Administration</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">BookingApp Dashboard</h1>
+
+          {/* Dashboard Stats */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">B</span>
+                    </div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">
+                        Total Bookings
+                      </dt>
+                      <dd className="text-lg font-medium text-gray-900">
+                        0
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">A</span>
+                    </div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">
+                        Available Slots
+                      </dt>
+                      <dd className="text-lg font-medium text-gray-900">
+                        Setup Required
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <span className="text-white font-semibold">S</span>
+                    </div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">
+                        System Status
+                      </dt>
+                      <dd className="text-lg font-medium text-gray-900">
+                        Active
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-12">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <a
+                href="/dashboard/booking-types"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                📋 Manage Services
+              </a>
+              <a
+                href="/dashboard/staff"
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                👥 Manage Staff
+              </a>
+              <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                📅 Availability
+              </button>
+              <button className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                📊 Bookings
+              </button>
+            </div>
+          </div>
 
           {/* Connection Status Section */}
           <div className="mb-12">
@@ -153,7 +249,10 @@ export default async function SystemAdminPage() {
                 </div>
               </Link>
 
-              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+              <Link
+                href="/admin/settings"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+              >
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
                     <span className="text-gray-600 text-lg">⚙️</span>
@@ -163,7 +262,7 @@ export default async function SystemAdminPage() {
                     <p className="text-sm text-gray-600">Configure integrations and preferences</p>
                   </div>
                 </div>
-              </button>
+              </Link>
 
               <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
                 <div className="flex items-start gap-4">
