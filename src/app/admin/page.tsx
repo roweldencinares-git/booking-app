@@ -66,26 +66,6 @@ export default async function AdminPage() {
           </div>
         </nav>
 
-        {/* Connection Status */}
-        <div className="mt-8 px-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">System Status</h4>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Clerk: Connected</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                <span className="text-gray-600">Supabase: Pending</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Zoho: Connected</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}

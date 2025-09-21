@@ -81,70 +81,22 @@ export default async function SystemAdminPage() {
         <div className="p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">BookingApp Dashboard</h1>
 
-          {/* Dashboard Stats */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">B</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Bookings
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        0
-                      </dd>
-                    </dl>
-                  </div>
+          {/* System Status */}
+          <div className="mb-12">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">System Status</h2>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-900 font-medium">Clerk: Connected</span>
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">A</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Available Slots
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        Setup Required
-                      </dd>
-                    </dl>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span className="text-gray-900 font-medium">Supabase: Pending</span>
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold">S</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        System Status
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        Active
-                      </dd>
-                    </dl>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-900 font-medium">Zoho: Connected</span>
                 </div>
               </div>
             </div>
