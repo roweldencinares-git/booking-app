@@ -328,36 +328,48 @@ export class CalendarService {
     timezone: string
   ): AvailabilitySlot[] {
     const slots: AvailabilitySlot[] = []
-    
+
     // Parse working hours
     const [startHour, startMinute] = workingHours.startTime.split(':').map(Number)
     const [endHour, endMinute] = workingHours.endTime.split(':').map(Number)
-    
+
     // Create start and end times for the day
     const dayStart = new Date(date)
     dayStart.setHours(startHour, startMinute, 0, 0)
-    
+
     const dayEnd = new Date(date)
     dayEnd.setHours(endHour, endMinute, 0, 0)
-    
+
+    // Check if the selected date is today
+    const now = new Date()
+    const isToday = date.toDateString() === now.toDateString()
+
+    // If it's today, ensure we don't show past time slots
+    let effectiveStart = new Date(dayStart)
+    if (isToday) {
+      // Add 15 minutes buffer to current time to allow for booking preparation
+      const currentTimeWithBuffer = new Date(now.getTime() + (15 * 60 * 1000))
+      effectiveStart = currentTimeWithBuffer > dayStart ? currentTimeWithBuffer : dayStart
+    }
+
     // Generate slots every 15 minutes (or service duration if shorter)
     const slotInterval = Math.min(15, serviceDuration)
     const totalSlotTime = serviceDuration + bufferTime
-    
-    let currentTime = new Date(dayStart)
-    
+
+    let currentTime = new Date(effectiveStart)
+
     while (currentTime.getTime() + (totalSlotTime * 60 * 1000) <= dayEnd.getTime()) {
       const slotEnd = new Date(currentTime.getTime() + (serviceDuration * 60 * 1000))
-      
+
       slots.push({
         start: new Date(currentTime),
         end: slotEnd,
         available: true
       })
-      
+
       currentTime = new Date(currentTime.getTime() + (slotInterval * 60 * 1000))
     }
-    
+
     return slots
   }
 

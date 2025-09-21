@@ -16,104 +16,102 @@ export default async function AdminPage() {
     <AdminLayout currentPath="/admin">
       <div className="p-8">
         <div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link
-                href="/dashboard/staff"
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                    <span className="text-purple-600 text-lg">👥</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Staff</h3>
-                    <p className="text-sm text-gray-600">Add, edit, and configure staff members</p>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Link
+              href="/dashboard/staff"
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                  <span className="text-purple-600 text-lg">👥</span>
                 </div>
-              </Link>
-
-              <Link
-                href="/dashboard/booking-types"
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                    <span className="text-orange-600 text-lg">📋</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Services</h3>
-                    <p className="text-sm text-gray-600">Configure booking types and pricing</p>
-                  </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Staff</h3>
+                  <p className="text-sm text-gray-600">Add, edit, and configure staff members</p>
                 </div>
-              </Link>
+              </div>
+            </Link>
 
-              <Link
-                href="/dashboard/booking-types"
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                    <span className="text-indigo-600 text-lg">🏷️</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Service Types</h3>
-                    <p className="text-sm text-gray-600">Manage different service categories and types</p>
-                  </div>
+            <Link
+              href="/dashboard/booking-types"
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                  <span className="text-orange-600 text-lg">📋</span>
                 </div>
-              </Link>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Services</h3>
+                  <p className="text-sm text-gray-600">Configure booking types and pricing</p>
+                </div>
+              </div>
+            </Link>
 
-              <Link
-                href="/admin/settings"
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                    <span className="text-gray-600 text-lg">⚙️</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
-                    <p className="text-sm text-gray-600">Configure integrations and preferences</p>
-                  </div>
+            <Link
+              href="/dashboard/booking-types"
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                  <span className="text-indigo-600 text-lg">🏷️</span>
                 </div>
-              </Link>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Service Types</h3>
+                  <p className="text-sm text-gray-600">Manage different service categories and types</p>
+                </div>
+              </div>
+            </Link>
 
-              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                    <span className="text-green-600 text-lg">📊</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics</h3>
-                    <p className="text-sm text-gray-600">View booking statistics and reports</p>
-                  </div>
+            <Link
+              href="/admin/settings"
+              className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                  <span className="text-gray-600 text-lg">⚙️</span>
                 </div>
-              </button>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
+                  <p className="text-sm text-gray-600">Configure integrations and preferences</p>
+                </div>
+              </div>
+            </Link>
 
-              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <span className="text-blue-600 text-lg">📅</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Availability</h3>
-                    <p className="text-sm text-gray-600">Manage coach schedules and availability</p>
-                  </div>
+            <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                  <span className="text-green-600 text-lg">📊</span>
                 </div>
-              </button>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics</h3>
+                  <p className="text-sm text-gray-600">View booking statistics and reports</p>
+                </div>
+              </div>
+            </button>
 
-              <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                    <span className="text-yellow-600 text-lg">🔔</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
-                    <p className="text-sm text-gray-600">Configure email and SMS settings</p>
-                  </div>
+            <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <span className="text-blue-600 text-lg">📅</span>
                 </div>
-              </button>
-            </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Availability</h3>
+                  <p className="text-sm text-gray-600">Manage coach schedules and availability</p>
+                </div>
+              </div>
+            </button>
+
+            <button className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group text-left">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+                  <span className="text-yellow-600 text-lg">🔔</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Notifications</h3>
+                  <p className="text-sm text-gray-600">Configure email and SMS settings</p>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </div>
