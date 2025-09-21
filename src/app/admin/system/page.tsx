@@ -179,8 +179,8 @@ export default async function SystemAdminPage() {
                     <span className="text-orange-600 text-lg">📋</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Booking Types</h3>
-                    <p className="text-sm text-gray-600">Configure services and pricing</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Manage Services</h3>
+                    <p className="text-sm text-gray-600">Configure booking types and pricing</p>
                   </div>
                 </div>
               </Link>
