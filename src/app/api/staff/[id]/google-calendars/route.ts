@@ -38,26 +38,61 @@ export async function GET(
       })
     }
 
-    // For now, return a mock calendar list
-    // In a real implementation, you would:
-    // 1. Use the access token to call Google Calendar API
-    // 2. Fetch the user's calendar list
-    // 3. Return the actual calendars
+    // Fetch calendars from Google Calendar API
+    try {
+      const response = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+        headers: {
+          'Authorization': `Bearer ${staff.google_access_token}`,
+          'Content-Type': 'application/json'
+        }
+      })
 
-    const mockCalendars = [
-      {
-        id: 'primary',
-        summary: 'Primary Calendar',
-        description: 'Your main Google Calendar',
-        primary: true
+      if (!response.ok) {
+        // If token is expired, try to refresh it
+        if (response.status === 401) {
+          return NextResponse.json({
+            calendars: [],
+            connected: false,
+            message: 'Access token expired. Please reconnect your Google Calendar.',
+            needsReconnect: true
+          })
+        }
+
+        throw new Error(`Google API error: ${response.status}`)
       }
-    ]
 
-    return NextResponse.json({
-      calendars: mockCalendars,
-      connected: true,
-      message: 'Google Calendar integration ready'
-    })
+      const data = await response.json()
+      const calendars = data.items || []
+
+      return NextResponse.json({
+        calendars: calendars.map((cal: any) => ({
+          id: cal.id,
+          summary: cal.summary,
+          description: cal.description,
+          primary: cal.primary,
+          accessRole: cal.accessRole
+        })),
+        connected: true,
+        message: 'Google Calendar integration ready'
+      })
+    } catch (apiError) {
+      console.error('Google Calendar API error:', apiError)
+
+      // Return fallback with primary calendar
+      return NextResponse.json({
+        calendars: [
+          {
+            id: 'primary',
+            summary: 'Primary Calendar',
+            description: 'Your main Google Calendar',
+            primary: true
+          }
+        ],
+        connected: true,
+        message: 'Using primary calendar (API temporarily unavailable)',
+        fallback: true
+      })
+    }
   } catch (error) {
     console.error('Error fetching Google calendars:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

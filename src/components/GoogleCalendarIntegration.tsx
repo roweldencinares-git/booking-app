@@ -21,6 +21,8 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
   const [loadingCalendars, setLoadingCalendars] = useState(false)
   const [calendars, setCalendars] = useState<any[]>([])
   const [selectedCalendar, setSelectedCalendar] = useState('primary')
+  const [calendarMessage, setCalendarMessage] = useState('')
+  const [needsReconnect, setNeedsReconnect] = useState(false)
 
   const connectGoogleCalendar = async () => {
     setConnecting(true)
@@ -73,13 +75,23 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
 
       if (data.calendars) {
         setCalendars(data.calendars)
+        setCalendarMessage(data.message || '')
+        setNeedsReconnect(data.needsReconnect || false)
       }
     } catch (error) {
       console.error('Error loading calendars:', error)
+      setCalendarMessage('Failed to load calendars')
     } finally {
       setLoadingCalendars(false)
     }
   }
+
+  // Load calendars when component mounts if already connected
+  useEffect(() => {
+    if (staff.google_calendar_connected && calendars.length === 0) {
+      loadCalendars()
+    }
+  }, [staff.google_calendar_connected])
 
   // Only load calendars on user interaction to improve performance
   const handleViewCalendars = () => {
@@ -129,17 +141,54 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Primary Calendar for Bookings
             </label>
-            <select
-              value={selectedCalendar}
-              onChange={(e) => setSelectedCalendar(e.target.value)}
-              className="block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            >
-              {calendars.map((cal) => (
-                <option key={cal.id} value={cal.id}>
-                  {cal.summary || cal.id} {cal.primary && '(Primary)'}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={selectedCalendar}
+                onChange={(e) => setSelectedCalendar(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                disabled={loadingCalendars}
+              >
+                {loadingCalendars ? (
+                  <option>Loading calendars...</option>
+                ) : calendars.length > 0 ? (
+                  calendars.map((cal) => (
+                    <option key={cal.id} value={cal.id}>
+                      {cal.summary || cal.id} {cal.primary && '(Primary)'}
+                    </option>
+                  ))
+                ) : (
+                  <option value="primary">Primary Calendar (Default)</option>
+                )}
+              </select>
+              {loadingCalendars && (
+                <div className="absolute right-3 top-3">
+                  <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                </div>
+              )}
+            </div>
+            {needsReconnect && (
+              <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                <p className="text-sm text-amber-800">
+                  ⚠️ Your Google Calendar connection has expired. Please reconnect to continue syncing.
+                </p>
+                <button
+                  onClick={connectGoogleCalendar}
+                  className="mt-2 text-sm text-amber-700 hover:text-amber-900 underline"
+                >
+                  Reconnect Google Calendar
+                </button>
+              </div>
+            )}
+            {calendarMessage && !needsReconnect && (
+              <p className="text-sm text-gray-600 mt-1">
+                {calendarMessage}
+              </p>
+            )}
+            {calendars.length === 0 && !loadingCalendars && staff.google_calendar_connected && !needsReconnect && !calendarMessage && (
+              <p className="text-sm text-amber-600 mt-1">
+                ⚠️ Could not load calendars. Using primary calendar as default.
+              </p>
+            )}
           </div>
 
           {/* Features List */}

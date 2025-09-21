@@ -3,6 +3,8 @@
 // Environment variable validation script
 // This ensures all required environment variables are properly loaded
 
+require('dotenv').config({ path: '.env.local' })
+
 const requiredEnvVars = [
   'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
   'CLERK_SECRET_KEY',
