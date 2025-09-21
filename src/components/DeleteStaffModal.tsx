@@ -191,7 +191,7 @@ export default function DeleteStaffModal({
                   <ul className="text-sm text-blue-800 space-y-1">
                     {futureBookings.slice(0, 3).map((booking, index) => (
                       <li key={index}>
-                        • {booking.title} - {new Date(booking.start_time).toLocaleDateString()}
+                        • {booking.client_name} - {new Date(booking.start_time).toLocaleDateString()}
                       </li>
                     ))}
                     {futureBookings.length > 3 && (

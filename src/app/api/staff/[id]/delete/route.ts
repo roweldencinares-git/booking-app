@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -17,7 +17,7 @@ export async function DELETE(
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    const staffId = params.id
+    const { id: staffId } = await params
 
     // Get the staff member to verify it exists
     const { data: staff, error: staffError } = await supabase
@@ -33,7 +33,7 @@ export async function DELETE(
     // Check if this staff member has any future bookings
     const { data: futureBookings, error: bookingsError } = await supabase
       .from('bookings')
-      .select('id, title, start_time')
+      .select('id, client_name, start_time')
       .eq('user_id', staffId)
       .gte('start_time', new Date().toISOString())
       .limit(5)
