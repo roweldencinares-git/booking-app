@@ -18,6 +18,9 @@
     "automation": "node scripts/automation-agent.js",
     "automation:daily-summary": "npm run automation daily-summary",
     "automation:follow-up": "npm run automation follow-up",
+    "deploy": "node scripts/deploy.js",
+    "db:migrate": "node scripts/supabase-migrate.js",
+    "deploy:full": "npm run db:migrate && npm run deploy",
     "automation:bulk-reschedule": "npm run automation bulk-reschedule"
   },
   "dependencies": {
