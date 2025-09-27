@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       // Get user's Google Calendar integration
       const { data: integration, error: integrationError } = await supabase
         .from('user_integrations')
-        .select('access_token, refresh_token')
+        .select('access_token, refresh_token, expires_at')
         .eq('user_id', userId)
         .eq('provider', 'google_calendar')
         .single()
@@ -145,7 +145,9 @@ export async function POST(request: NextRequest) {
         console.log('Found Google Calendar integration, creating event...')
         const calendarService = new GoogleCalendarService(
           integration.access_token,
-          integration.refresh_token
+          integration.refresh_token,
+          userId,
+          integration.expires_at ? new Date(integration.expires_at) : undefined
         )
 
         // Create calendar event

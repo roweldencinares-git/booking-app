@@ -47,7 +47,7 @@ export default async function PublicBookingPage() {
                   </h3>
                   
                   <div className="space-y-1 text-sm text-gray-600 mb-3">
-                    <p>⏱️ {service.duration} minutes</p>
+                    <p>⏱️ {service.duration_minutes || service.duration || 30} minutes</p>
                     {service.price && <p>💰 ${service.price}</p>}
                     <p>👤 with {service.users.first_name} {service.users.last_name}</p>
                   </div>
@@ -58,9 +58,12 @@ export default async function PublicBookingPage() {
                     </p>
                   )}
                   
-                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors">
+                  <a
+                    href={`/book/${service.id}`}
+                    className="block w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors text-center"
+                  >
                     Select This Service
-                  </button>
+                  </a>
                 </div>
               ))}
             </div>
@@ -90,12 +93,18 @@ export default async function PublicBookingPage() {
             If you have questions or need to reschedule, please contact our team.
           </p>
           <div className="mt-4 flex space-x-4">
-            <button className="text-blue-600 hover:text-blue-800 font-medium">
+            <a
+              href="mailto:support@spearity.com"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
               📧 Send Email
-            </button>
-            <button className="text-blue-600 hover:text-blue-800 font-medium">
+            </a>
+            <a
+              href="tel:+1-555-123-4567"
+              className="text-blue-600 hover:text-blue-800 font-medium"
+            >
               📞 Call Us
-            </button>
+            </a>
           </div>
         </div>
       </div>

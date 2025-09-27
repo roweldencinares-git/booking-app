@@ -12,8 +12,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const user_id = searchParams.get('user_id')
     const code = searchParams.get('code')
+    const state = searchParams.get('state')
 
-    if (!user_id) {
+    // If no user_id provided, try to use the authenticated userId or state from OAuth callback
+    const targetUserId = user_id || state || userId
+
+    if (!targetUserId) {
       return NextResponse.json({ error: 'Missing user_id parameter' }, { status: 400 })
     }
 
@@ -24,25 +28,22 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Zoom OAuth not configured' }, { status: 500 })
       }
 
-      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/zoom`
-      const scopes = 'meeting:write meeting:read'
-      const state = user_id // Pass user_id as state
+      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`
+      const scopes = 'meeting:write meeting:read user:read'
+      const oauthState = targetUserId // Pass user_id as state
 
       const authUrl = new URL('https://zoom.us/oauth/authorize')
       authUrl.searchParams.set('response_type', 'code')
       authUrl.searchParams.set('client_id', zoomClientId)
       authUrl.searchParams.set('redirect_uri', redirectUri)
       authUrl.searchParams.set('scope', scopes)
-      authUrl.searchParams.set('state', state)
+      authUrl.searchParams.set('state', oauthState)
 
-      return NextResponse.redirect(authUrl.toString())
+      const cleanAuthUrl = authUrl.toString().replace(/[\r\n]/g, '')
+      return NextResponse.redirect(cleanAuthUrl)
     }
 
-    // Handle OAuth callback
-    const state = searchParams.get('state')
-    if (!state) {
-      return NextResponse.json({ error: 'Missing state parameter' }, { status: 400 })
-    }
+    // Handle OAuth callback - targetUserId already contains the state value
 
     // Exchange code for access token
     const tokenResponse = await fetch('https://zoom.us/oauth/token', {
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/zoom`
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`
       })
     })
 
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
     const { error: insertError } = await supabase
       .from('user_integrations')
       .upsert({
-        user_id: state, // user_id from state parameter
+        user_id: targetUserId, // user_id from parameters or state
         provider: 'zoom',
         external_id: userData.id,
         access_token: tokenData.access_token,
@@ -120,7 +121,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Redirect back to staff schedule page
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/staff/${state}/schedule?zoom_connected=true`)
+    const finalRedirectUrl = `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/admin/staff/${targetUserId}/schedule?zoom_connected=true`.replace(/[\r\n]/g, '')
+    return NextResponse.redirect(finalRedirectUrl)
 
   } catch (error) {
     console.error('Error in Zoom OAuth:', error)

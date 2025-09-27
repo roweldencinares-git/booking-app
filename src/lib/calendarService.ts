@@ -43,6 +43,7 @@ export interface Coach {
   calendarId?: string
   accessToken?: string
   refreshToken?: string
+  tokenExpiryDate?: Date
   workingHours?: WorkingHours[]
 }
 
@@ -60,7 +61,9 @@ export class CalendarService {
     if (coach.accessToken && coach.refreshToken) {
       this.googleCalendarService = new GoogleCalendarService(
         coach.accessToken,
-        coach.refreshToken
+        coach.refreshToken,
+        coach.id,
+        coach.tokenExpiryDate
       )
     }
   }
@@ -270,6 +273,7 @@ export class CalendarService {
           last_name,
           google_access_token,
           google_refresh_token,
+          google_token_expires_at,
           working_hours
         `)
         .eq('id', coachId)
@@ -286,6 +290,7 @@ export class CalendarService {
         calendarId: 'primary', // Use primary calendar since we don't store calendar_id
         accessToken: data.google_access_token,
         refreshToken: data.google_refresh_token,
+        tokenExpiryDate: data.google_token_expires_at ? new Date(data.google_token_expires_at) : undefined,
         workingHours: data.working_hours || this.getDefaultWorkingHours(),
         first_name: data.first_name,
         last_name: data.last_name
@@ -451,6 +456,7 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
       last_name,
       google_access_token,
       google_refresh_token,
+      google_token_expires_at,
       working_hours
     `)
     .eq('id', coachId)
@@ -467,6 +473,7 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
     calendarId: 'primary', // Use primary calendar since we don't store calendar_id
     accessToken: data.google_access_token,
     refreshToken: data.google_refresh_token,
+    tokenExpiryDate: data.google_token_expires_at ? new Date(data.google_token_expires_at) : undefined,
     workingHours: data.working_hours
   }
 

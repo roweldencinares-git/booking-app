@@ -48,19 +48,20 @@ export default async function AdminPage() {
             </Link>
 
             <Link
-              href="/admin/booking-types"
+              href="/admin/meetings"
               className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow group"
             >
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                  <span className="text-indigo-600 text-lg">🏷️</span>
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <span className="text-blue-600 text-lg">📅</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Service Types</h3>
-                  <p className="text-sm text-gray-600">Manage different service categories and types</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Upcoming Meetings</h3>
+                  <p className="text-sm text-gray-600">View and manage scheduled appointments</p>
                 </div>
               </div>
             </Link>
+
 
             <Link
               href="/admin/settings"

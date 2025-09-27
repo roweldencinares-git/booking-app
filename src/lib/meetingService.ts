@@ -1,4 +1,5 @@
 import { supabase, type Booking } from './supabase'
+import { ZoomAuth } from './zoomAuth'
 
 export interface ZoomMeetingResponse {
   id: number
@@ -37,14 +38,16 @@ export interface MeetingResult {
 }
 
 export class MeetingService {
-  private zoomAccessToken: string
-
-  constructor(zoomAccessToken: string) {
-    this.zoomAccessToken = zoomAccessToken
-  }
+  constructor(private userId: string) {}
 
   async createZoomMeeting(booking: Booking): Promise<MeetingResult> {
     try {
+      // Get user's Zoom access token
+      const accessToken = await ZoomAuth.getUserZoomToken(this.userId)
+      if (!accessToken) {
+        throw new Error('User has not connected their Zoom account')
+      }
+
       // Get booking type details for meeting title
       const { data: bookingType } = await supabase
         .from('booking_types')
@@ -52,37 +55,15 @@ export class MeetingService {
         .eq('id', booking.booking_type_id)
         .single()
 
-      const meetingRequest: ZoomMeetingRequest = {
+      // Use user's OAuth token to create meeting
+      const meetingData = {
         topic: `${bookingType?.name || 'Appointment'} - ${booking.client_name}`,
-        type: 2,
         start_time: booking.start_time,
         duration: bookingType?.duration || 60,
-        timezone: 'America/New_York',
-        settings: {
-          host_video: true,
-          participant_video: true,
-          join_before_host: false,
-          mute_upon_entry: true,
-          waiting_room: true,
-          auto_recording: 'none'
-        }
+        timezone: 'America/New_York'
       }
 
-      const response = await fetch('https://api.zoom.us/v2/users/me/meetings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.zoomAccessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(meetingRequest)
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(`Zoom API error: ${error.message || response.statusText}`)
-      }
-
-      const meeting: ZoomMeetingResponse = await response.json()
+      const meeting = await ZoomAuth.createMeeting(accessToken, meetingData)
 
       // Update booking with Zoom meeting details
       await supabase
@@ -118,7 +99,12 @@ export class MeetingService {
         .eq('id', booking.booking_type_id)
         .single()
 
-      const meetingRequest: Partial<ZoomMeetingRequest> = {
+      const accessToken = await ZoomAuth.getUserZoomToken(this.userId)
+      if (!accessToken) {
+        throw new Error('User has not connected their Zoom account')
+      }
+
+      const meetingRequest = {
         topic: `${bookingType?.name || 'Appointment'} - ${booking.client_name}`,
         start_time: booking.start_time,
         duration: bookingType?.duration || 60,
@@ -128,7 +114,7 @@ export class MeetingService {
       const response = await fetch(`https://api.zoom.us/v2/meetings/${booking.zoom_meeting_id}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${this.zoomAccessToken}`,
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(meetingRequest)
@@ -142,7 +128,7 @@ export class MeetingService {
       // Get updated meeting details
       const getResponse = await fetch(`https://api.zoom.us/v2/meetings/${booking.zoom_meeting_id}`, {
         headers: {
-          'Authorization': `Bearer ${this.zoomAccessToken}`
+          'Authorization': `Bearer ${accessToken}`
         }
       })
 
@@ -179,10 +165,15 @@ export class MeetingService {
     }
 
     try {
+      const accessToken = await ZoomAuth.getUserZoomToken(this.userId)
+      if (!accessToken) {
+        throw new Error('User has not connected their Zoom account')
+      }
+
       const response = await fetch(`https://api.zoom.us/v2/meetings/${booking.zoom_meeting_id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${this.zoomAccessToken}`
+          'Authorization': `Bearer ${accessToken}`
         }
       })
 
@@ -210,9 +201,14 @@ export class MeetingService {
 
   async getMeetingDetails(meetingId: string): Promise<ZoomMeetingResponse> {
     try {
+      const accessToken = await ZoomAuth.getUserZoomToken(this.userId)
+      if (!accessToken) {
+        throw new Error('User has not connected their Zoom account')
+      }
+
       const response = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}`, {
         headers: {
-          'Authorization': `Bearer ${this.zoomAccessToken}`
+          'Authorization': `Bearer ${accessToken}`
         }
       })
 
@@ -229,19 +225,7 @@ export class MeetingService {
   }
 }
 
-export async function createMeetingService(userId: string): Promise<MeetingService> {
-  // Get Zoom access token from Supabase
-  const { data: zoomToken, error } = await supabase
-    .from('user_integrations')
-    .select('access_token')
-    .eq('user_id', userId)
-    .eq('provider', 'zoom')
-    .eq('is_active', true)
-    .single()
-
-  if (error || !zoomToken?.access_token) {
-    throw new Error('Zoom integration not found or inactive. Please connect your Zoom account.')
-  }
-
-  return new MeetingService(zoomToken.access_token)
+// Factory function - now requires userId for OAuth tokens
+export function createMeetingService(userId: string): MeetingService {
+  return new MeetingService(userId)
 }

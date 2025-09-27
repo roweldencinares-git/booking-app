@@ -28,16 +28,82 @@ export interface CalendarEvent {
 }
 
 export class GoogleCalendarService {
-  constructor(private accessToken: string, private refreshToken: string) {
+  private userId: string
+
+  constructor(
+    private accessToken: string,
+    private refreshToken: string,
+    userId?: string,
+    private expiryDate?: Date
+  ) {
+    this.userId = userId || ''
     oauth2Client.setCredentials({
       access_token: accessToken,
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
+      expiry_date: expiryDate?.getTime()
     })
+  }
+
+  // Check if token is expired and refresh if needed
+  private async ensureValidToken(): Promise<void> {
+    try {
+      const credentials = oauth2Client.credentials
+
+      // If token expires within 5 minutes, refresh it
+      if (credentials.expiry_date && credentials.expiry_date < Date.now() + (5 * 60 * 1000)) {
+        console.log('Token expiring soon, refreshing...')
+        await this.refreshAccessToken()
+      }
+    } catch (error) {
+      console.error('Error checking token validity:', error)
+      throw error
+    }
+  }
+
+  // Refresh the access token using refresh token
+  private async refreshAccessToken(): Promise<void> {
+    try {
+      const { credentials } = await oauth2Client.refreshAccessToken()
+
+      if (credentials.access_token && this.userId) {
+        // Update database with new token
+        await this.updateTokenInDatabase(credentials.access_token, credentials.expiry_date)
+      }
+
+      oauth2Client.setCredentials(credentials)
+    } catch (error) {
+      console.error('Error refreshing token:', error)
+      throw new Error('Failed to refresh Google Calendar access token')
+    }
+  }
+
+  // Update token in database
+  private async updateTokenInDatabase(accessToken: string, expiryDate?: number | null): Promise<void> {
+    if (!this.userId) return
+
+    try {
+      const response = await fetch('/api/auth/google/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: this.userId,
+          accessToken,
+          expiryDate: expiryDate ? new Date(expiryDate).toISOString() : null
+        })
+      })
+
+      if (!response.ok) {
+        console.error('Failed to update token in database')
+      }
+    } catch (error) {
+      console.error('Error updating token in database:', error)
+    }
   }
 
   // Create a calendar event
   async createEvent(calendarId: string = 'primary', event: CalendarEvent) {
     try {
+      await this.ensureValidToken()
       const response = await calendar.events.insert({
         auth: oauth2Client,
         calendarId,
@@ -55,6 +121,7 @@ export class GoogleCalendarService {
   // Update an existing event
   async updateEvent(calendarId: string = 'primary', eventId: string, event: CalendarEvent) {
     try {
+      await this.ensureValidToken()
       const response = await calendar.events.update({
         auth: oauth2Client,
         calendarId,
@@ -73,6 +140,7 @@ export class GoogleCalendarService {
   // Delete an event
   async deleteEvent(calendarId: string = 'primary', eventId: string) {
     try {
+      await this.ensureValidToken()
       await calendar.events.delete({
         auth: oauth2Client,
         calendarId,
@@ -90,6 +158,7 @@ export class GoogleCalendarService {
   // Get busy times (for conflict detection)
   async getBusyTimes(calendarId: string = 'primary', timeMin: string, timeMax: string) {
     try {
+      await this.ensureValidToken()
       const response = await calendar.freebusy.query({
         auth: oauth2Client,
         requestBody: {
@@ -109,6 +178,7 @@ export class GoogleCalendarService {
   // List upcoming events
   async listEvents(calendarId: string = 'primary', timeMin?: string, timeMax?: string, maxResults: number = 10) {
     try {
+      await this.ensureValidToken()
       const response = await calendar.events.list({
         auth: oauth2Client,
         calendarId,
@@ -129,6 +199,7 @@ export class GoogleCalendarService {
   // Get user's calendar list
   async getCalendars() {
     try {
+      await this.ensureValidToken()
       const response = await calendar.calendarList.list({
         auth: oauth2Client
       })
@@ -149,10 +220,11 @@ export function getGoogleAuthUrl(userId: string): string {
   ]
 
   return oauth2Client.generateAuthUrl({
-    access_type: 'offline',
+    access_type: 'offline', // Request offline access for refresh tokens
     scope: scopes,
     state: userId, // Pass user ID to link account
-    prompt: 'consent' // Force consent screen to get refresh token
+    prompt: 'consent', // Force consent screen to get refresh token
+    include_granted_scopes: true // Include previously granted scopes
   })
 }
 

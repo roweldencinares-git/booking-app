@@ -1,6 +1,6 @@
 import { supabase, type Booking } from './supabase'
 import { GoogleCalendarService, type CalendarEvent } from './google-calendar'
-import { MeetingService } from './meetingService'
+import { createMeetingService } from './meetingService'
 import { addMinutes, isAfter, isBefore, parseISO, format } from 'date-fns'
 
 // Input types for booking operations
@@ -28,19 +28,20 @@ export interface BookingResult {
 
 export class BookingService {
   private googleCalendar?: GoogleCalendarService
-  private meetingService?: MeetingService
 
   constructor(
     private userId: string,
     googleAccessToken?: string,
     googleRefreshToken?: string,
-    zoomAccessToken?: string
+    googleTokenExpiryDate?: string
   ) {
     if (googleAccessToken && googleRefreshToken) {
-      this.googleCalendar = new GoogleCalendarService(googleAccessToken, googleRefreshToken)
-    }
-    if (zoomAccessToken) {
-      this.meetingService = new MeetingService(zoomAccessToken)
+      this.googleCalendar = new GoogleCalendarService(
+        googleAccessToken,
+        googleRefreshToken,
+        userId,
+        googleTokenExpiryDate ? new Date(googleTokenExpiryDate) : undefined
+      )
     }
   }
 
@@ -138,16 +139,15 @@ export class BookingService {
       }
     }
 
-    // Create Zoom meeting if available
+    // Create Zoom meeting using user's OAuth token
     let zoomMeetingId: string | undefined
-    if (this.meetingService) {
-      try {
-        const meetingResult = await this.meetingService.createZoomMeeting(booking)
-        zoomMeetingId = meetingResult.meetingId
-      } catch (meetingError) {
-        console.error('Failed to create Zoom meeting:', meetingError)
-        // Don't fail the entire booking if meeting creation fails
-      }
+    try {
+      const meetingService = createMeetingService(this.userId)
+      const meetingResult = await meetingService.createZoomMeeting(booking)
+      zoomMeetingId = meetingResult.meetingId
+    } catch (meetingError) {
+      console.error('Failed to create Zoom meeting:', meetingError)
+      // Don't fail the entire booking if meeting creation fails
     }
 
     return {
@@ -207,9 +207,10 @@ export class BookingService {
     }
 
     // Cancel Zoom meeting if exists
-    if (this.meetingService && booking.zoom_meeting_id) {
+    if (booking.zoom_meeting_id) {
       try {
-        await this.meetingService.deleteZoomMeeting(booking)
+        const meetingService = createMeetingService(this.userId)
+        await meetingService.deleteZoomMeeting(booking)
       } catch (meetingError) {
         console.error('Failed to cancel Zoom meeting:', meetingError)
         // Don't fail if meeting cancellation fails
@@ -314,9 +315,10 @@ export class BookingService {
 
     // Update Zoom meeting if exists
     let zoomMeetingId: string | undefined
-    if (this.meetingService && booking.zoom_meeting_id) {
+    if (booking.zoom_meeting_id) {
       try {
-        const meetingResult = await this.meetingService.updateZoomMeeting(updatedBooking)
+        const meetingService = createMeetingService(this.userId)
+        const meetingResult = await meetingService.updateZoomMeeting(updatedBooking)
         zoomMeetingId = meetingResult.meetingId
       } catch (meetingError) {
         console.error('Failed to update Zoom meeting:', meetingError)
@@ -496,16 +498,14 @@ export async function createBookingService(clerkUserId: string): Promise<Booking
 
   let googleAccessToken: string | undefined
   let googleRefreshToken: string | undefined
-  let zoomAccessToken: string | undefined
 
   integrations?.forEach((integration) => {
     if (integration.provider === 'google') {
       googleAccessToken = integration.access_token
       googleRefreshToken = integration.refresh_token
-    } else if (integration.provider === 'zoom') {
-      zoomAccessToken = integration.access_token
     }
+    // Zoom now uses Server-to-Server OAuth, no user tokens needed
   })
 
-  return new BookingService(user.id, googleAccessToken, googleRefreshToken, zoomAccessToken)
+  return new BookingService(user.id, googleAccessToken, googleRefreshToken)
 }
