@@ -66,6 +66,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               Recaps
             </Link>
             <Link
+              href="/dashboard/availability"
+              className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                isActive('/dashboard/availability')
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <span className="mr-3">🕒</span>
+              Availability
+            </Link>
+            <Link
               href="/dashboard/profile"
               className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                 isActive('/dashboard/profile')
