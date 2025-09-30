@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       }
 
       const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`
-      const scopes = 'meeting:write meeting:read user:read'
+      const scopes = 'meeting:write:meeting meeting:read:meeting user:read:user'
       const oauthState = targetUserId // Pass user_id as state
 
       const authUrl = new URL('https://zoom.us/oauth/authorize')
@@ -84,8 +84,14 @@ export async function GET(request: NextRequest) {
     })
 
     if (!userResponse.ok) {
-      console.error('Failed to get Zoom user info')
-      return NextResponse.json({ error: 'Failed to get user information' }, { status: 500 })
+      const userError = await userResponse.text()
+      console.error('Failed to get Zoom user info:', userError)
+      console.error('Status:', userResponse.status)
+      return NextResponse.json({
+        error: 'Failed to get user information',
+        details: userError,
+        status: userResponse.status
+      }, { status: 500 })
     }
 
     const userData = await userResponse.json()
