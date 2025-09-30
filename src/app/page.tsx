@@ -13,7 +13,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
               <SignedOut>
-                <SignInButton mode="modal">
+                <SignInButton>
                   <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Sign In
                   </button>
@@ -21,16 +21,10 @@ export default function Home() {
               </SignedOut>
               <SignedIn>
                 <Link
-                  href="/dashboard"
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2"
-                >
-                  Dashboard
-                </Link>
-                <Link
                   href="/admin"
                   className="text-gray-700 hover:text-gray-900 px-3 py-2"
                 >
-                  Admin
+                  Admin Panel
                 </Link>
                 <UserButton afterSignOutUrl="/" />
               </SignedIn>
@@ -113,12 +107,6 @@ export default function Home() {
           <div className="text-center border-t pt-8">
             <p className="text-gray-600 mb-4">Staff or Admin?</p>
             <div className="flex justify-center gap-4">
-              <Link
-                href="/dashboard"
-                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Dashboard
-              </Link>
               <Link
                 href="/admin"
                 className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"

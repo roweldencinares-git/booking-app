@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import ServiceSelector from '../../components/ServiceSelector'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PublicBookingPage() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

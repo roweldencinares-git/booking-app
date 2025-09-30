@@ -64,7 +64,14 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       const error = await tokenResponse.text()
       console.error('Zoom token exchange failed:', error)
-      return NextResponse.json({ error: 'Failed to exchange code for token' }, { status: 500 })
+      console.error('Status:', tokenResponse.status)
+      console.error('Redirect URI used:', `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`)
+      return NextResponse.json({
+        error: 'Failed to exchange code for token',
+        details: error,
+        status: tokenResponse.status,
+        redirectUri: `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`
+      }, { status: 500 })
     }
 
     const tokenData = await tokenResponse.json()

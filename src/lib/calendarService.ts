@@ -4,11 +4,13 @@ import { createClient } from '@supabase/supabase-js'
 
 const calendar = google.calendar('v3')
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Helper function to create Supabase client
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export interface Booking {
   id?: string
@@ -263,6 +265,7 @@ export class CalendarService {
 
   private async getCoachById(coachId: string): Promise<Coach | null> {
     try {
+      const supabase = getSupabaseClient()
       const { data, error } = await supabase
         .from('users')
         .select(`
@@ -303,6 +306,7 @@ export class CalendarService {
 
   private async getServiceById(serviceId: string): Promise<Service | null> {
     try {
+      const supabase = getSupabaseClient()
       const { data, error } = await supabase
         .from('booking_types')
         .select('id, name, duration_minutes, buffer_time_minutes')
@@ -421,6 +425,7 @@ export class CalendarService {
 
   private async updateBookingCalendarEventId(bookingId: string, eventId: string | null): Promise<void> {
     try {
+      const supabase = getSupabaseClient()
       await supabase
         .from('bookings')
         .update({ calendar_event_id: eventId })
@@ -446,6 +451,7 @@ export class CalendarService {
 
 // Factory function to create CalendarService with coach data
 export async function createCalendarService(coachId: string): Promise<CalendarService> {
+  const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from('users')
     .select(`

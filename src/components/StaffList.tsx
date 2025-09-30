@@ -173,7 +173,7 @@ export default function StaffList({ staff }: StaffListProps) {
       setLoading(deletingStaff.id)
       console.log('Deleting staff with options:', options)
 
-      const response = await fetch(`/api/staff/${deletingStaff.id}/delete`, {
+      const response = await fetch(`/api/staff/${deletingStaff.id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(options)
