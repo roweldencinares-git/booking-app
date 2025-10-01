@@ -266,29 +266,31 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
             {/* Right Side - Time & Duration Selection */}
             <div>
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-accent-grey-900 mb-4">How long do you need?</h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    onClick={() => setSelectedDuration(15)}
-                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 15 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
-                  >
-                    15 mins
-                  </button>
-                  <button
-                    onClick={() => setSelectedDuration(30)}
-                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 30 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
-                  >
-                    30 mins
-                  </button>
-                  <button
-                    onClick={() => setSelectedDuration(60)}
-                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 60 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
-                  >
-                    1 hour
-                  </button>
+              {service.duration !== 60 && (
+                <div className="mb-8">
+                  <h3 className="text-xl font-semibold text-accent-grey-900 mb-4">How long do you need?</h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button
+                      onClick={() => setSelectedDuration(15)}
+                      className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 15 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                    >
+                      15 mins
+                    </button>
+                    <button
+                      onClick={() => setSelectedDuration(30)}
+                      className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 30 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                    >
+                      30 mins
+                    </button>
+                    <button
+                      onClick={() => setSelectedDuration(60)}
+                      className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 60 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                    >
+                      1 hour
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div>
                 <div className="flex justify-between items-center mb-4">
