@@ -266,7 +266,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
             {/* Right Side - Time & Duration Selection */}
             <div>
-              {service.duration !== 60 && (
+              {!service.duration && (
                 <div className="mb-8">
                   <h3 className="text-xl font-semibold text-accent-grey-900 mb-4">How long do you need?</h3>
                   <div className="grid grid-cols-3 gap-3">
