@@ -1,0 +1,122 @@
+{
+  "connections": [
+    {
+      "from": "CLIENT-NODE",
+      "to": "BOOKING-NODE",
+      "relationship": "initiates",
+      "dataFlow": "client_name, client_email, client_phone, preferences",
+      "sphereSync": "Client satisfaction feeds into booking optimization"
+    },
+    {
+      "from": "STAFF-NODE",
+      "to": "BOOKING-NODE",
+      "relationship": "provides_availability",
+      "dataFlow": "availability_windows, integration_status, capacity",
+      "sphereSync": "Staff availability constraints guide booking validation"
+    },
+    {
+      "from": "BOOKING-NODE",
+      "to": "CALENDAR-NODE",
+      "relationship": "creates_events",
+      "dataFlow": "start_time, end_time, booking_details, attendees",
+      "sphereSync": "Booking creation triggers calendar event with self-healing retry",
+      "selfHealing": "Continue booking if calendar fails (non-critical)"
+    },
+    {
+      "from": "BOOKING-NODE",
+      "to": "MEETING-NODE",
+      "relationship": "generates_meetings",
+      "dataFlow": "start_time, duration, client_email, booking_type",
+      "sphereSync": "Booking creation triggers Zoom meeting with self-healing retry",
+      "selfHealing": "Continue booking if Zoom fails (non-critical)"
+    },
+    {
+      "from": "BOOKING-NODE",
+      "to": "COMMUNICATION-NODE",
+      "relationship": "triggers_notifications",
+      "dataFlow": "booking_id, client_email, event_type, meeting_links",
+      "sphereSync": "Booking lifecycle events trigger targeted communications"
+    },
+    {
+      "from": "GUARDRAIL-NODE",
+      "to": "BOOKING-NODE",
+      "relationship": "validates",
+      "dataFlow": "validation_rules, business_constraints, conflict_detection",
+      "sphereSync": "Guardrails prevent invalid bookings before database commit"
+    },
+    {
+      "from": "GUARDRAIL-NODE",
+      "to": "STAFF-NODE",
+      "relationship": "validates",
+      "dataFlow": "availability_constraints, capacity_limits, integration_health",
+      "sphereSync": "Guardrails enforce staff availability and prevent overload"
+    },
+    {
+      "from": "CALENDAR-NODE",
+      "to": "STAFF-NODE",
+      "relationship": "syncs_availability",
+      "dataFlow": "busy_periods, free_slots, calendar_events",
+      "sphereSync": "Real-time calendar availability updates staff node state"
+    },
+    {
+      "from": "COMMUNICATION-NODE",
+      "to": "CLIENT-NODE",
+      "relationship": "sends_notifications",
+      "dataFlow": "confirmation_emails, reminders, updates, satisfaction_surveys",
+      "sphereSync": "Communications track client engagement and satisfaction"
+    },
+    {
+      "from": "CLIENT-NODE",
+      "to": "GUARDRAIL-NODE",
+      "relationship": "informs_rules",
+      "dataFlow": "booking_patterns, preferences, satisfaction_scores",
+      "sphereSync": "Client behavior evolves guardrail intelligence"
+    },
+    {
+      "from": "STAFF-NODE",
+      "to": "CALENDAR-NODE",
+      "relationship": "provides_credentials",
+      "dataFlow": "google_access_token, google_refresh_token, calendar_ids",
+      "sphereSync": "Staff OAuth tokens enable calendar operations with auto-refresh"
+    },
+    {
+      "from": "STAFF-NODE",
+      "to": "MEETING-NODE",
+      "relationship": "provides_credentials",
+      "dataFlow": "zoom_access_token, zoom_refresh_token",
+      "sphereSync": "Staff OAuth tokens enable Zoom operations with auto-refresh"
+    }
+  ],
+  "emergentBehaviors": [
+    {
+      "name": "Self-Healing Booking Pipeline",
+      "description": "When calendar or Zoom creation fails, system continues booking and logs for retry",
+      "involvedNodes": ["BOOKING-NODE", "CALENDAR-NODE", "MEETING-NODE", "GUARDRAIL-NODE"],
+      "spherePhase": "HEAL + REINFORCE"
+    },
+    {
+      "name": "Intelligent Conflict Prevention",
+      "description": "Real-time availability checking prevents double-bookings atomically",
+      "involvedNodes": ["BOOKING-NODE", "GUARDRAIL-NODE", "CALENDAR-NODE", "STAFF-NODE"],
+      "spherePhase": "SCAN + REINFORCE"
+    },
+    {
+      "name": "OAuth Token Lifecycle Management",
+      "description": "Automatic token refresh before expiry prevents integration failures",
+      "involvedNodes": ["STAFF-NODE", "CALENDAR-NODE", "MEETING-NODE"],
+      "spherePhase": "SCAN + HEAL + REINFORCE"
+    },
+    {
+      "name": "Client Satisfaction Optimization",
+      "description": "Track booking patterns and preferences to optimize future scheduling",
+      "involvedNodes": ["CLIENT-NODE", "BOOKING-NODE", "COMMUNICATION-NODE"],
+      "spherePhase": "EXAMINE + EVOLVE"
+    },
+    {
+      "name": "Multi-System Transaction Safety",
+      "description": "Coordinate DB, Calendar, and Zoom changes with rollback capabilities",
+      "involvedNodes": ["BOOKING-NODE", "CALENDAR-NODE", "MEETING-NODE", "GUARDRAIL-NODE"],
+      "spherePhase": "HEAL + REINFORCE"
+    }
+  ]
+}

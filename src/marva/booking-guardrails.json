@@ -1,0 +1,203 @@
+{
+  "guardrails": [
+    {
+      "id": "GR-001",
+      "name": "No Past Bookings",
+      "category": "temporal",
+      "rule": "Booking start_time must be in the future",
+      "enforcement": "Pre-validation before database insert",
+      "errorMessage": "Cannot book time slots in the past",
+      "selfHealing": "Auto-adjust to next available slot if requested time is past",
+      "currentImplementation": "bookingService.ts:444"
+    },
+    {
+      "id": "GR-002",
+      "name": "Availability Window Validation",
+      "category": "temporal",
+      "rule": "Booking must fall within staff availability hours",
+      "enforcement": "Check availability table before booking",
+      "errorMessage": "Time slot is outside available hours",
+      "selfHealing": "Suggest nearest available slots within working hours",
+      "currentImplementation": "bookingService.ts:418-441"
+    },
+    {
+      "id": "GR-003",
+      "name": "Conflict Detection",
+      "category": "capacity",
+      "rule": "No overlapping bookings for same staff member",
+      "enforcement": "Atomic check-and-insert with database constraints",
+      "errorMessage": "Time slot is already booked",
+      "selfHealing": "Automatically find and suggest next available slot",
+      "currentImplementation": "bookingService.ts:452-476"
+    },
+    {
+      "id": "GR-004",
+      "name": "Booking Type Duration Match",
+      "category": "integrity",
+      "rule": "Booking duration must match booking type configuration",
+      "enforcement": "Calculate end_time from booking_type.duration",
+      "errorMessage": "Invalid booking duration",
+      "selfHealing": "Auto-calculate correct end_time from booking type",
+      "currentImplementation": "bookingService.ts:64-66"
+    },
+    {
+      "id": "GR-005",
+      "name": "Email Validation",
+      "category": "data_quality",
+      "rule": "Client email must be valid format",
+      "enforcement": "Regex validation before database insert",
+      "errorMessage": "Invalid email format",
+      "selfHealing": "Auto-correct common typos (gmial.com → gmail.com)",
+      "currentImplementation": "Planned"
+    },
+    {
+      "id": "GR-006",
+      "name": "Phone Number Format",
+      "category": "data_quality",
+      "rule": "Client phone should follow international format",
+      "enforcement": "Optional field with format validation",
+      "errorMessage": "Invalid phone format",
+      "selfHealing": "Auto-format to E.164 standard (+1234567890)",
+      "currentImplementation": "Planned"
+    },
+    {
+      "id": "GR-007",
+      "name": "Timezone Validation",
+      "category": "temporal",
+      "rule": "Timezone must be valid IANA timezone string",
+      "enforcement": "Validate against timezone database",
+      "errorMessage": "Invalid timezone",
+      "selfHealing": "Default to America/New_York if invalid",
+      "currentImplementation": "bookingService.ts:112"
+    },
+    {
+      "id": "GR-008",
+      "name": "Active Booking Type",
+      "category": "integrity",
+      "rule": "Booking type must exist and be active",
+      "enforcement": "Check booking_types.is_active = true",
+      "errorMessage": "Booking type not found or inactive",
+      "selfHealing": "Suggest similar active booking types",
+      "currentImplementation": "bookingService.ts:53-62"
+    },
+    {
+      "id": "GR-009",
+      "name": "Cancel Already Cancelled",
+      "category": "state",
+      "rule": "Cannot cancel a booking that is already cancelled",
+      "enforcement": "Check booking.status before cancellation",
+      "errorMessage": "Booking is already cancelled",
+      "selfHealing": "Return success if already cancelled (idempotent)",
+      "currentImplementation": "bookingService.ts:182-184"
+    },
+    {
+      "id": "GR-010",
+      "name": "Reschedule Cancelled Booking",
+      "category": "state",
+      "rule": "Cannot reschedule a cancelled booking",
+      "enforcement": "Check booking.status before reschedule",
+      "errorMessage": "Cannot reschedule a cancelled booking",
+      "selfHealing": "Suggest creating new booking instead",
+      "currentImplementation": "bookingService.ts:242-244"
+    },
+    {
+      "id": "GR-011",
+      "name": "Transaction Safety",
+      "category": "integrity",
+      "rule": "All multi-system operations must be atomic or compensatable",
+      "enforcement": "Database first, then calendar/zoom with rollback on failure",
+      "errorMessage": "Booking operation failed, changes rolled back",
+      "selfHealing": "Auto-retry transient failures, compensate on permanent failures",
+      "currentImplementation": "bookingService.ts:83-163 (partial)"
+    },
+    {
+      "id": "GR-012",
+      "name": "OAuth Token Freshness",
+      "category": "integration",
+      "rule": "OAuth tokens must be valid and not expired",
+      "enforcement": "Check token expiry before API calls",
+      "errorMessage": "Integration credentials expired",
+      "selfHealing": "Auto-refresh tokens before expiry",
+      "currentImplementation": "google-calendar.ts:ensureValidToken"
+    },
+    {
+      "id": "GR-013",
+      "name": "Minimum Booking Notice",
+      "category": "temporal",
+      "rule": "Bookings must be made at least X hours in advance",
+      "enforcement": "Compare start_time with current time + notice period",
+      "errorMessage": "Bookings require 24 hours advance notice",
+      "selfHealing": "Suggest earliest available slot meeting notice requirement",
+      "currentImplementation": "Planned"
+    },
+    {
+      "id": "GR-014",
+      "name": "Maximum Booking Horizon",
+      "category": "temporal",
+      "rule": "Cannot book more than X months in advance",
+      "enforcement": "Compare start_time with current time + max horizon",
+      "errorMessage": "Cannot book more than 6 months in advance",
+      "selfHealing": "Suggest slots within booking horizon",
+      "currentImplementation": "Planned"
+    },
+    {
+      "id": "GR-015",
+      "name": "Concurrent Booking Limit",
+      "category": "capacity",
+      "rule": "Client cannot have more than X confirmed bookings",
+      "enforcement": "Count confirmed bookings per client_email",
+      "errorMessage": "Maximum concurrent bookings reached",
+      "selfHealing": "Suggest rescheduling existing bookings",
+      "currentImplementation": "Planned"
+    }
+  ],
+  "guardrailLevels": {
+    "CRITICAL": {
+      "description": "Violations prevent operation entirely",
+      "action": "Reject with error",
+      "examples": ["GR-003", "GR-011"]
+    },
+    "WARNING": {
+      "description": "Violations trigger warnings but may proceed",
+      "action": "Log warning and continue",
+      "examples": ["GR-006", "GR-007"]
+    },
+    "HEALING": {
+      "description": "Violations trigger automatic correction",
+      "action": "Auto-correct and log fix",
+      "examples": ["GR-005", "GR-012"]
+    }
+  },
+  "autoHealingStrategies": [
+    {
+      "strategy": "Exponential Backoff Retry",
+      "applicableGuardrails": ["GR-011", "GR-012"],
+      "description": "Retry failed operations with increasing delays (1s, 2s, 4s)",
+      "maxAttempts": 3
+    },
+    {
+      "strategy": "Graceful Degradation",
+      "applicableGuardrails": ["GR-011"],
+      "description": "Continue core operation (DB booking) even if auxiliary systems fail (calendar, zoom)",
+      "fallback": "Log failures for manual reconciliation"
+    },
+    {
+      "strategy": "Proactive Token Refresh",
+      "applicableGuardrails": ["GR-012"],
+      "description": "Refresh OAuth tokens 5 minutes before expiry",
+      "trigger": "Pre-operation token check"
+    },
+    {
+      "strategy": "Data Normalization",
+      "applicableGuardrails": ["GR-005", "GR-006"],
+      "description": "Auto-correct common data format issues",
+      "examples": ["gmial.com→gmail.com", "1234567890→+11234567890"]
+    },
+    {
+      "strategy": "Intelligent Suggestion",
+      "applicableGuardrails": ["GR-002", "GR-003", "GR-013"],
+      "description": "When validation fails, suggest nearest valid alternative",
+      "algorithm": "Find next available slot matching constraints"
+    }
+  ]
+}

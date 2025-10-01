@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 interface PersonalizedBookingProps {
@@ -34,23 +34,49 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
   const [step, setStep] = useState<'time' | 'info'>('time')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isConfirmed, setIsConfirmed] = useState(false)
+  const [timeSlots, setTimeSlots] = useState<{ value: string; display: string }[]>([])
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false)
 
-  // Generate available time slots
-  const generateTimeSlots = () => {
-    const slots = []
-    for (let hour = 4; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
-        const ampm = hour >= 12 ? 'pm' : 'am'
-        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-        const displayTime = `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`
-        slots.push({ value: time, display: displayTime })
+  // Fetch available time slots when date or duration changes
+  useEffect(() => {
+    if (!selectedDate) {
+      setTimeSlots([])
+      return
+    }
+
+    const fetchAvailableSlots = async () => {
+      setIsLoadingSlots(true)
+      try {
+        const dateStr = selectedDate.toISOString().split('T')[0]
+        const response = await fetch(
+          `/api/booking/available-slots?userId=${service.users.id}&date=${dateStr}&duration=${selectedDuration}`
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          const formattedSlots = data.slots.map((time: string) => {
+            const [hourStr, minuteStr] = time.split(':')
+            const hour = parseInt(hourStr)
+            const minute = parseInt(minuteStr)
+            const ampm = hour >= 12 ? 'pm' : 'am'
+            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+            const displayTime = `${displayHour}:${minuteStr} ${ampm}`
+            return { value: time, display: displayTime }
+          })
+          setTimeSlots(formattedSlots)
+        } else {
+          setTimeSlots([])
+        }
+      } catch (error) {
+        console.error('Error fetching available slots:', error)
+        setTimeSlots([])
+      } finally {
+        setIsLoadingSlots(false)
       }
     }
-    return slots
-  }
 
-  const timeSlots = generateTimeSlots()
+    fetchAvailableSlots()
+  }, [selectedDate, selectedDuration, service.users.id])
 
   // Calendar generation
   const getDaysInMonth = (date: Date) => {
@@ -274,18 +300,38 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   </p>
                 )}
 
-                <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                  {timeSlots.map(slot => (
-                    <button
-                      key={slot.value}
-                      onClick={() => handleTimeSelect(slot.value)}
-                      disabled={!selectedDate}
-                      className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${selectedTime === slot.value ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium' : 'border-accent-grey-200 hover:border-primary-blue disabled:opacity-50 disabled:cursor-not-allowed'}`}
-                    >
-                      {slot.display}
-                    </button>
-                  ))}
-                </div>
+                {!selectedDate && (
+                  <div className="text-center py-8 text-accent-grey-500">
+                    Please select a date first
+                  </div>
+                )}
+
+                {selectedDate && isLoadingSlots && (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue mx-auto"></div>
+                    <p className="text-sm text-accent-grey-600 mt-2">Loading available times...</p>
+                  </div>
+                )}
+
+                {selectedDate && !isLoadingSlots && timeSlots.length === 0 && (
+                  <div className="text-center py-8 text-accent-grey-500">
+                    No available times for this date. Please select another date.
+                  </div>
+                )}
+
+                {selectedDate && !isLoadingSlots && timeSlots.length > 0 && (
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                    {timeSlots.map(slot => (
+                      <button
+                        key={slot.value}
+                        onClick={() => handleTimeSelect(slot.value)}
+                        className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${selectedTime === slot.value ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                      >
+                        {slot.display}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {selectedDate && selectedTime && (

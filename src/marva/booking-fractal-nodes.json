@@ -1,0 +1,270 @@
+{
+  "fractalNodes": [
+    {
+      "id": "CLIENT-NODE",
+      "name": "Client Management Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Client data management (name, email, phone)",
+        "Booking history tracking",
+        "Preference learning from past bookings",
+        "Satisfaction scoring based on completion rates",
+        "Timezone and communication preferences"
+      ],
+      "sphereCapabilities": {
+        "scan": "Analyze client booking patterns and preferences",
+        "plan": "Predict preferred times and booking types",
+        "heal": "Auto-fill client info from previous bookings",
+        "examine": "Track booking completion and no-show rates",
+        "reinforce": "Build client profiles for better recommendations",
+        "evolve": "Learn optimal booking patterns per client"
+      },
+      "dataModel": {
+        "storage": "bookings table (client_name, client_email, client_phone)",
+        "historicalData": "All past bookings per email",
+        "satisfactionMetrics": "completion_rate, reschedule_count, cancellation_rate"
+      },
+      "selfHealing": [
+        "Auto-correct email formats",
+        "Validate phone number formats",
+        "Deduplicate client records by email",
+        "Merge booking histories for same client"
+      ],
+      "apiEndpoints": [
+        "GET /api/clients/[email]/history",
+        "GET /api/clients/[email]/preferences",
+        "POST /api/clients/[email]/satisfaction"
+      ]
+    },
+    {
+      "id": "STAFF-NODE",
+      "name": "Staff & Provider Management Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Staff availability management",
+        "Integration credentials (Google, Zoom)",
+        "Calendar synchronization",
+        "Working hours and break times",
+        "Provider preferences and booking types"
+      ],
+      "sphereCapabilities": {
+        "scan": "Monitor staff availability and integration health",
+        "plan": "Optimize schedule distribution across staff",
+        "heal": "Auto-refresh expired OAuth tokens",
+        "examine": "Analyze booking load per staff member",
+        "reinforce": "Strengthen integration error handling",
+        "evolve": "Learn optimal capacity per provider"
+      },
+      "dataModel": {
+        "storage": "users, user_integrations, availability tables",
+        "integrations": "google_access_token, google_refresh_token, zoom_tokens",
+        "schedule": "availability (day_of_week, start_time, end_time)"
+      },
+      "selfHealing": [
+        "Auto-refresh Google OAuth tokens before expiry",
+        "Retry failed calendar operations with exponential backoff",
+        "Fallback to manual calendar entry if API fails",
+        "Alert staff when integrations need reconnection"
+      ],
+      "apiEndpoints": [
+        "GET /api/staff",
+        "POST /api/staff/[id]/google-auth",
+        "GET /api/staff/[id]/schedule",
+        "POST /api/staff/[id]/availability"
+      ],
+      "currentImplementation": "booking-app/src/lib/google-calendar.ts, zoomAuth.ts"
+    },
+    {
+      "id": "BOOKING-NODE",
+      "name": "Booking Engine Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Transaction-safe booking creation",
+        "Smart conflict detection and resolution",
+        "Booking lifecycle management (create, reschedule, cancel)",
+        "Availability validation",
+        "Multi-system coordination (DB + Calendar + Zoom)"
+      ],
+      "sphereCapabilities": {
+        "scan": "Analyze time slot availability and conflicts",
+        "plan": "Test booking strategies with dry-run mode",
+        "heal": "Execute atomic bookings with rollback on failure",
+        "examine": "Validate booking success across all systems",
+        "reinforce": "Add guardrails to prevent future conflicts",
+        "evolve": "Optimize booking algorithm from patterns"
+      },
+      "dataModel": {
+        "storage": "bookings table",
+        "fields": "id, booking_type_id, user_id, client_*, start_time, end_time, status",
+        "status": "confirmed | cancelled | completed",
+        "references": "google_calendar_event_id, zoom_meeting_id, zoho_contact_id"
+      },
+      "selfHealing": [
+        "Rollback DB on calendar creation failure",
+        "Continue booking if Zoom creation fails (non-critical)",
+        "Auto-retry on transient failures (3 attempts)",
+        "Orphan cleanup for abandoned bookings"
+      ],
+      "apiEndpoints": [
+        "POST /api/booking/create",
+        "POST /api/booking/cancel",
+        "POST /api/booking/reschedule",
+        "GET /api/booking/[id]",
+        "GET /api/booking/list",
+        "POST /api/booking/availability"
+      ],
+      "currentImplementation": "booking-app/src/lib/bookingService.ts"
+    },
+    {
+      "id": "CALENDAR-NODE",
+      "name": "Calendar Integration Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Google Calendar event management",
+        "Real-time availability checking",
+        "Event creation/update/deletion",
+        "OAuth token management",
+        "Multi-calendar support"
+      ],
+      "sphereCapabilities": {
+        "scan": "Check calendar availability across all calendars",
+        "plan": "Design optimal calendar event structure",
+        "heal": "Create/update/delete calendar events with retry",
+        "examine": "Verify event synchronization success",
+        "reinforce": "Handle OAuth token refresh proactively",
+        "evolve": "Learn from calendar API patterns"
+      },
+      "dataModel": {
+        "storage": "user_integrations table (provider='google')",
+        "tokens": "access_token, refresh_token, token_expiry_date",
+        "eventLinks": "bookings.google_calendar_event_id"
+      },
+      "selfHealing": [
+        "Auto-refresh tokens before expiry",
+        "Retry event creation on 5xx errors",
+        "Continue booking if calendar fails (log error)",
+        "Periodic sync to fix drift"
+      ],
+      "apiEndpoints": [
+        "GET /api/calendar/events",
+        "GET /api/calendar/availability",
+        "POST /api/auth/google/callback",
+        "POST /api/auth/google/refresh"
+      ],
+      "currentImplementation": "booking-app/src/lib/google-calendar.ts"
+    },
+    {
+      "id": "MEETING-NODE",
+      "name": "Meeting Platform Integration Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Zoom meeting creation/update/deletion",
+        "Meeting link generation",
+        "OAuth integration with Zoom",
+        "Meeting details management (password, join URL)"
+      ],
+      "sphereCapabilities": {
+        "scan": "Monitor Zoom integration health",
+        "plan": "Design meeting creation workflow",
+        "heal": "Create/update/delete Zoom meetings with retry",
+        "examine": "Verify meeting link validity",
+        "reinforce": "Handle Zoom API errors gracefully",
+        "evolve": "Optimize meeting settings based on usage"
+      },
+      "dataModel": {
+        "storage": "bookings table",
+        "fields": "zoom_meeting_id, zoom_join_url, zoom_password",
+        "integration": "user_integrations (provider='zoom')"
+      },
+      "selfHealing": [
+        "Continue booking if Zoom fails (non-critical)",
+        "Auto-retry on transient API errors",
+        "Log failures for manual intervention",
+        "Clear stale meeting IDs on deletion errors"
+      ],
+      "apiEndpoints": [
+        "POST /api/auth/zoom",
+        "GET /api/staff/[id]/zoom-integration"
+      ],
+      "currentImplementation": "booking-app/src/lib/meetingService.ts, zoomAuth.ts"
+    },
+    {
+      "id": "COMMUNICATION-NODE",
+      "name": "Communication & Notification Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Booking confirmation emails",
+        "Reminder notifications (24h, 1h before)",
+        "Cancellation/reschedule notifications",
+        "Follow-up emails post-booking",
+        "Targeted messaging to specific clients"
+      ],
+      "sphereCapabilities": {
+        "scan": "Identify communication triggers and timing",
+        "plan": "Design email templates and delivery schedules",
+        "heal": "Send emails with delivery tracking and retry",
+        "examine": "Track email delivery and open rates",
+        "reinforce": "Build preference-based communication rules",
+        "evolve": "Optimize email timing from engagement data"
+      },
+      "dataModel": {
+        "storage": "communications table (planned)",
+        "fields": "booking_id, type, sent_at, delivered_at, opened_at, status",
+        "types": "confirmation | reminder | cancellation | follow_up"
+      },
+      "selfHealing": [
+        "Retry failed email delivery with exponential backoff",
+        "Fallback to alternative email service on failure",
+        "Queue emails for later retry on temporary failures",
+        "Track bounce rates and update client email status"
+      ],
+      "apiEndpoints": [
+        "POST /api/communication/send",
+        "GET /api/communication/[bookingId]/status",
+        "POST /api/automation/daily-summary",
+        "POST /api/automation/follow-up"
+      ],
+      "currentImplementation": "Planned - SendGrid integration"
+    },
+    {
+      "id": "GUARDRAIL-NODE",
+      "name": "Guardrails & Validation Node",
+      "fractalDimension": 0.580,
+      "responsibilities": [
+        "Business rules enforcement",
+        "Data validation and sanitization",
+        "Conflict detection algorithms",
+        "Constraint checking (availability, capacity)",
+        "Error boundary implementation"
+      ],
+      "sphereCapabilities": {
+        "scan": "Monitor for rule violations and data anomalies",
+        "plan": "Design validation strategies and test cases",
+        "heal": "Auto-correct data issues and prevent conflicts",
+        "examine": "Analyze validation failures and patterns",
+        "reinforce": "Strengthen rules based on edge cases",
+        "evolve": "Adapt guardrails from real-world usage"
+      },
+      "dataModel": {
+        "rules": "availability constraints, booking limits, time validations",
+        "validation": "email format, phone format, timezone validity",
+        "constraints": "no past bookings, no double-booking, within working hours"
+      },
+      "selfHealing": [
+        "Auto-correct email and phone formats",
+        "Prevent bookings outside availability hours",
+        "Reject conflicting time slots atomically",
+        "Validate timezone conversions",
+        "Enforce minimum booking notice (e.g., 24h advance)"
+      ],
+      "businessRules": [
+        "Cannot book in the past",
+        "Time slot must be within staff availability",
+        "No overlapping bookings for same staff",
+        "Booking duration must match booking type",
+        "Client email must be valid and unique per booking"
+      ],
+      "currentImplementation": "booking-app/src/lib/bookingService.ts (validateTimeSlot, checkForConflicts)"
+    }
+  ]
+}

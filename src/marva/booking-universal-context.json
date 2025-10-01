@@ -1,0 +1,42 @@
+{
+  "systemName": "Spearity Booking System",
+  "version": "1.0.0",
+  "fractalDimension": 0.580,
+  "architecture": "MARVA-powered coaching business booking platform",
+  "mission": "Transform chaotic scheduling into intelligent, self-managing system that maximizes client satisfaction while minimizing conflicts automatically",
+  "sphereMethodology": {
+    "S": "SCAN + HYPOTHESIZE - Analyze booking patterns, availability, client preferences",
+    "P": "PLAN + TEST - Design scheduling experiments, test conflict resolution strategies",
+    "H": "HEAL - Execute bookings with self-healing transaction safety",
+    "E": "EXAMINE + VALIDATE - Analyze booking success, verify client satisfaction",
+    "R": "REINFORCE - Prevent future conflicts, strengthen availability guardrails",
+    "E2": "EVOLVE - Continuous improvement from booking patterns and client feedback"
+  },
+  "coreNodes": [
+    "CLIENT-NODE",
+    "STAFF-NODE",
+    "BOOKING-NODE",
+    "CALENDAR-NODE",
+    "MEETING-NODE",
+    "COMMUNICATION-NODE",
+    "GUARDRAIL-NODE"
+  ],
+  "infrastructure": {
+    "frontend": "Next.js 14 (Vercel deployment to meetings.spearity.com)",
+    "database": "Supabase PostgreSQL",
+    "auth": "Clerk passwordless authentication",
+    "calendar": "Google Calendar OAuth integration",
+    "meetings": "Zoom OAuth integration",
+    "email": "SendGrid (planned)",
+    "crm": "Zoho CRM (planned)"
+  },
+  "businessRules": {
+    "transactionSafety": "Prevent double-bookings with atomic operations",
+    "conflictResolution": "Real-time availability checking before confirmation",
+    "selfHealing": "Auto-retry failed calendar/meeting operations",
+    "clientSatisfaction": "Track booking success and reschedule patterns",
+    "providerOptimization": "Intelligent scheduling based on provider preferences"
+  },
+  "deploymentStatus": "Production-ready on meetings.spearity.com",
+  "lastUpdated": "2025-10-01"
+}
