@@ -104,20 +104,20 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
       <div className="text-center py-8">
         <div className="mb-4">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-            <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-primary-teal mb-2">
           Booking Confirmed!
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-accent-grey-700 mb-6">
           Your appointment has been scheduled. You should receive a confirmation email shortly.
         </p>
         <button
           onClick={() => setSuccess(false)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+          className="bg-primary-blue text-white px-4 py-2 rounded-md hover:bg-primary-teal transition-colors"
         >
           Book Another Session
         </button>
@@ -131,15 +131,15 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="bg-red-50 border border-error rounded-md p-4">
+          <p className="text-error text-sm">{error}</p>
         </div>
       )}
 
       {/* Personal Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-accent-grey-700 mb-1">
             Full Name *
           </label>
           <input
@@ -147,12 +147,12 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
             required
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-accent-grey-700 mb-1">
             Email Address *
           </label>
           <input
@@ -160,27 +160,27 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
             required
             value={formData.email}
             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-accent-grey-700 mb-1">
           Phone Number (Optional)
         </label>
         <input
           type="tel"
           value={formData.phone}
           onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
         />
       </div>
 
       {/* Date and Time Selection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-accent-grey-700 mb-1">
             Select Date *
           </label>
           <input
@@ -189,12 +189,12 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
             min={today}
             value={formData.date}
             onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value, time: '' }))}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-accent-grey-700 mb-1">
             Select Time *
           </label>
           <select
@@ -202,7 +202,7 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
             value={formData.time}
             onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
             disabled={!formData.date}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-100"
+            className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent disabled:bg-accent-grey-100"
           >
             <option value="">
               {formData.date ? 'Select a time' : 'Select date first'}
@@ -218,7 +218,7 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
 
       {/* Additional Notes */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-accent-grey-700 mb-1">
           Additional Notes (Optional)
         </label>
         <textarea
@@ -226,7 +226,7 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
           value={formData.notes}
           onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
           placeholder="Any specific topics you'd like to discuss or questions you have..."
-          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="w-full border border-accent-grey-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
         />
       </div>
 
@@ -235,17 +235,17 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          className="w-full bg-primary-blue text-white py-3 px-4 rounded-md hover:bg-primary-teal disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
         >
           {loading ? 'Booking...' : 'Confirm Booking'}
         </button>
       </div>
 
-      <div className="text-center text-sm text-gray-500">
+      <div className="text-center text-sm text-accent-grey-500">
         By booking this session, you agree to our{' '}
-        <a href="/terms" className="text-indigo-600 hover:text-indigo-700">terms of service</a>
+        <a href="/terms" className="text-primary-blue hover:text-primary-teal transition-colors">terms of service</a>
         {' '}and{' '}
-        <a href="/privacy" className="text-indigo-600 hover:text-indigo-700">privacy policy</a>.
+        <a href="/privacy" className="text-primary-blue hover:text-primary-teal transition-colors">privacy policy</a>.
       </div>
     </form>
   )
