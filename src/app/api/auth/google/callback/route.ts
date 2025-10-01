@@ -49,7 +49,8 @@ export async function GET(request: NextRequest) {
         google_calendar_connected: true,
         google_access_token: tokens.access_token,
         google_refresh_token: tokens.refresh_token,
-        google_token_expires_at: new Date(Date.now() + (tokens.expires_in * 1000)).toISOString()
+        google_token_expires_at: new Date(Date.now() + (tokens.expires_in * 1000)).toISOString(),
+        google_connected_at: new Date().toISOString()
       })
       .eq('id', state)
 
