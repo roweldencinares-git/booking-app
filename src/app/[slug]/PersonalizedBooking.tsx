@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import DateTimePicker from '../../components/DateTimePicker'
+import Image from 'next/image'
 
 interface PersonalizedBookingProps {
   service: {
@@ -21,28 +21,83 @@ interface PersonalizedBookingProps {
 }
 
 export default function PersonalizedBooking({ service, slug }: PersonalizedBookingProps) {
-  const [selectedDateTime, setSelectedDateTime] = useState<{
-    date: Date
-    time: string
-    duration: number
-  } | null>(null)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [selectedDuration, setSelectedDuration] = useState<number>(service.duration || 60)
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     email: '',
     phone: '',
     notes: ''
   })
-  const [step, setStep] = useState<'datetime' | 'details' | 'confirmation'>('datetime')
+  const [step, setStep] = useState<'time' | 'info'>('time')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isConfirmed, setIsConfirmed] = useState(false)
 
-  const handleDateTimeSelect = (date: Date, time: string, duration: number) => {
-    setSelectedDateTime({ date, time, duration })
-    setStep('details')
+  // Generate available time slots
+  const generateTimeSlots = () => {
+    const slots = []
+    for (let hour = 4; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+        const ampm = hour >= 12 ? 'pm' : 'am'
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+        const displayTime = `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`
+        slots.push({ value: time, display: displayTime })
+      }
+    }
+    return slots
+  }
+
+  const timeSlots = generateTimeSlots()
+
+  // Calendar generation
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const daysInMonth = lastDay.getDate()
+    const startingDayOfWeek = firstDay.getDay()
+
+    const days = []
+    // Add empty cells for days before month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null)
+    }
+    // Add days of month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day))
+    }
+    return days
+  }
+
+  const previousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+  }
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+  }
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date)
+  }
+
+  const handleTimeSelect = (time: string) => {
+    setSelectedTime(time)
+  }
+
+  const handleNextToInfo = () => {
+    if (selectedDate && selectedTime) {
+      setStep('info')
+    }
   }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedDateTime) return
+    if (!selectedDate || !selectedTime) return
 
     setIsSubmitting(true)
 
@@ -55,9 +110,9 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
         body: JSON.stringify({
           serviceId: service.id,
           userId: service.users.id,
-          date: selectedDateTime.date.toISOString().split('T')[0],
-          time: selectedDateTime.time,
-          duration: selectedDateTime.duration,
+          date: selectedDate.toISOString().split('T')[0],
+          time: selectedTime,
+          duration: selectedDuration,
           customerName: customerInfo.name,
           customerEmail: customerInfo.email,
           customerPhone: customerInfo.phone,
@@ -66,7 +121,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       })
 
       if (response.ok) {
-        setStep('confirmation')
+        setIsConfirmed(true)
       } else {
         alert('Booking failed. Please try again.')
       }
@@ -78,39 +133,14 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     }
   }
 
-  if (step === 'confirmation') {
+  if (isConfirmed) {
     return (
-      <div className="min-h-screen bg-accent-grey-50 py-12">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow p-6">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-accent-grey-900 mb-2">Booking Confirmed!</h2>
-            <p className="text-accent-grey-600 mb-6">
-              Your appointment has been scheduled successfully.
-            </p>
-            <div className="bg-accent-grey-50 rounded-lg p-4 text-left mb-6">
-              <h3 className="font-medium text-accent-grey-900 mb-2">Appointment Details:</h3>
-              <p className="text-sm text-accent-grey-600 mb-1">
-                <strong>Service:</strong> {service.name}
-              </p>
-              <p className="text-sm text-accent-grey-600 mb-1">
-                <strong>With:</strong> {service.users.first_name} {service.users.last_name}
-              </p>
-              <p className="text-sm text-accent-grey-600 mb-1">
-                <strong>Date:</strong> {selectedDateTime?.date.toLocaleDateString()}
-              </p>
-              <p className="text-sm text-accent-grey-600 mb-1">
-                <strong>Time:</strong> {selectedDateTime?.time}
-              </p>
-              <p className="text-sm text-accent-grey-600">
-                <strong>Duration:</strong> {selectedDateTime?.duration} minutes
-              </p>
-            </div>
-            <p className="text-sm text-accent-grey-500">
+      <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="mb-8">
+            <div className="text-6xl mb-4">✓</div>
+            <h2 className="text-3xl font-bold text-primary-teal mb-2">Booking Confirmed!</h2>
+            <p className="text-accent-grey-600">
               You'll receive a confirmation email shortly with meeting details.
             </p>
           </div>
@@ -119,147 +149,238 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     )
   }
 
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+
   return (
-    <div className="min-h-screen bg-accent-grey-50">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-accent-grey-900">
-                Book with {service.users.first_name}
-              </h1>
-              <p className="text-accent-grey-600">{service.name}</p>
+    <div className="min-h-screen bg-white">
+      {/* Progress Steps */}
+      <div className="border-b border-accent-grey-200">
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step === 'time' ? 'bg-primary-orange text-white' : 'bg-white border-2 border-accent-grey-300 text-accent-grey-500'}`}>
+                1
+              </div>
+              <span className={`text-sm ${step === 'time' ? 'text-primary-teal font-medium' : 'text-accent-grey-500'}`}>CHOOSE TIME</span>
             </div>
-            <div className="text-right text-sm text-accent-grey-500">
-              <p>⏱️ {service.duration} minutes</p>
-              {service.price && <p>💰 ${service.price}</p>}
+            <div className="w-32 h-0.5 bg-accent-grey-300"></div>
+            <div className="flex items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium ${step === 'info' ? 'bg-primary-orange text-white' : 'bg-white border-2 border-accent-grey-300 text-accent-grey-500'}`}>
+                2
+              </div>
+              <span className={`text-sm ${step === 'info' ? 'text-primary-teal font-medium' : 'text-accent-grey-500'}`}>YOUR INFO</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {step === 'datetime' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-accent-grey-900 mb-6">
-              Select Date & Time
-            </h2>
-            <DateTimePicker
-              onDateTimeSelect={handleDateTimeSelect}
-              serviceId={service.id}
-              defaultDuration={service.duration}
-              serviceName={service.name}
-            />
-          </div>
-        )}
+      {/* Spearity Logo */}
+      <div className="text-center py-8">
+        <div className="inline-block">
+          <h1 className="text-4xl font-bold text-primary-teal mb-1">spearity</h1>
+          <p className="text-sm text-primary-orange font-medium">business growth community</p>
+        </div>
+      </div>
 
-        {step === 'details' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-accent-grey-900">
-                Your Details
-              </h2>
+      {step === 'time' && (
+        <div className="max-w-6xl mx-auto px-4 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Side - Calendar */}
+            <div className="bg-primary-teal rounded-2xl p-8 text-white">
+              <div className="text-center mb-8">
+                <div className="w-24 h-24 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                  <span className="text-4xl">👤</span>
+                </div>
+                <h2 className="text-2xl font-semibold mb-2">
+                  Meet with {service.users.first_name} {service.users.last_name}
+                </h2>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <button onClick={previousMonth} className="text-white/80 hover:text-white">
+                    ←
+                  </button>
+                  <h3 className="text-xl font-semibold">
+                    {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                  </h3>
+                  <button onClick={nextMonth} className="text-white/80 hover:text-white">
+                    →
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-2 mb-2">
+                  {dayNames.map(day => (
+                    <div key={day} className="text-center text-xs font-medium text-white/70 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-2">
+                  {getDaysInMonth(currentMonth).map((date, index) => (
+                    <button
+                      key={index}
+                      onClick={() => date && handleDateSelect(date)}
+                      disabled={!date || date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      className={`
+                        aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-colors
+                        ${!date ? 'invisible' : ''}
+                        ${date && date < new Date(new Date().setHours(0, 0, 0, 0)) ? 'text-white/30 cursor-not-allowed' : ''}
+                        ${selectedDate?.toDateString() === date?.toDateString() ? 'bg-white text-primary-teal' : 'hover:bg-white/20 text-white'}
+                      `}
+                    >
+                      {date?.getDate()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Time & Duration Selection */}
+            <div>
+              <div className="mb-8">
+                <h3 className="text-xl font-semibold text-accent-grey-900 mb-4">How long do you need?</h3>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => setSelectedDuration(15)}
+                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 15 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                  >
+                    15 mins
+                  </button>
+                  <button
+                    onClick={() => setSelectedDuration(30)}
+                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 30 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                  >
+                    30 mins
+                  </button>
+                  <button
+                    onClick={() => setSelectedDuration(60)}
+                    className={`py-3 px-4 rounded-lg border-2 transition-colors ${selectedDuration === 60 ? 'border-primary-blue bg-accent-light-blue text-primary-teal' : 'border-accent-grey-200 hover:border-primary-blue'}`}
+                  >
+                    1 hour
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-accent-grey-900">What time works best?</h3>
+                </div>
+                {selectedDate && (
+                  <p className="text-sm text-accent-grey-600 mb-4">
+                    Showing times for {selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </p>
+                )}
+
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                  {timeSlots.map(slot => (
+                    <button
+                      key={slot.value}
+                      onClick={() => handleTimeSelect(slot.value)}
+                      disabled={!selectedDate}
+                      className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${selectedTime === slot.value ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium' : 'border-accent-grey-200 hover:border-primary-blue disabled:opacity-50 disabled:cursor-not-allowed'}`}
+                    >
+                      {slot.display}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {selectedDate && selectedTime && (
+                <button
+                  onClick={handleNextToInfo}
+                  className="w-full mt-6 bg-primary-blue text-white py-4 rounded-lg hover:bg-primary-teal transition-colors font-medium"
+                >
+                  Continue →
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 'info' && (
+        <div className="max-w-2xl mx-auto px-4 pb-12">
+          <div className="bg-accent-grey-50 border border-accent-grey-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-accent-grey-700">
+              <strong>Selected:</strong> {selectedDate?.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {selectedTime} ({selectedDuration} minutes)
+              <button onClick={() => setStep('time')} className="text-primary-blue hover:text-primary-teal ml-2">Change</button>
+            </p>
+          </div>
+
+          <form onSubmit={handleBookingSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-accent-grey-700 mb-2">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={customerInfo.name}
+                onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                className="w-full border border-accent-grey-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-accent-grey-700 mb-2">
+                Email Address *
+              </label>
+              <input
+                type="email"
+                required
+                value={customerInfo.email}
+                onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                className="w-full border border-accent-grey-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-accent-grey-700 mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={customerInfo.phone}
+                onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                className="w-full border border-accent-grey-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-accent-grey-700 mb-2">
+                Additional Notes
+              </label>
+              <textarea
+                rows={4}
+                value={customerInfo.notes}
+                onChange={(e) => setCustomerInfo({ ...customerInfo, notes: e.target.value })}
+                placeholder="Anything you'd like to mention..."
+                className="w-full border border-accent-grey-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-blue"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
               <button
-                onClick={() => setStep('datetime')}
-                className="text-primary-blue hover:text-primary-teal transition-colors text-sm"
+                type="button"
+                onClick={() => setStep('time')}
+                className="flex-1 bg-accent-grey-200 text-accent-grey-700 py-3 px-4 rounded-lg hover:bg-accent-grey-300 transition-colors font-medium"
               >
-                ← Change Time
+                ← Back
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-primary-blue text-white py-3 px-4 rounded-lg hover:bg-primary-teal transition-colors disabled:opacity-50 font-medium"
+              >
+                {isSubmitting ? 'Booking...' : 'Confirm Booking'}
               </button>
             </div>
-
-            {/* Selected time summary */}
-            <div className="bg-accent-light-blue border border-primary-blue rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-primary-blue mb-2">Selected Appointment:</h3>
-              <p className="text-primary-blue text-sm">
-                {selectedDateTime?.date.toLocaleDateString()} at {selectedDateTime?.time}
-                ({selectedDateTime?.duration} minutes)
-              </p>
-            </div>
-
-            <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-accent-grey-700 mb-1">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  required
-                  value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-accent-grey-700 mb-1">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  value={customerInfo.email}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-accent-grey-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-accent-grey-700 mb-1">
-                  Additional Notes
-                </label>
-                <textarea
-                  id="notes"
-                  rows={3}
-                  value={customerInfo.notes}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, notes: e.target.value })}
-                  placeholder="Anything you'd like to mention about this appointment..."
-                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
-                />
-              </div>
-
-              {service.description && (
-                <div className="bg-accent-grey-50 rounded-lg p-4">
-                  <h4 className="font-medium text-accent-grey-900 mb-2">About this service:</h4>
-                  <p className="text-sm text-accent-grey-600">{service.description}</p>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setStep('datetime')}
-                  className="flex-1 bg-accent-grey-100 text-accent-grey-700 py-3 px-4 rounded-lg hover:bg-accent-grey-200 transition-colors"
-                >
-                  Back
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 bg-primary-blue text-white py-3 px-4 rounded-lg hover:bg-primary-teal transition-colors disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Booking...' : 'Confirm Booking'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
+          </form>
+        </div>
+      )}
     </div>
   )
 }
