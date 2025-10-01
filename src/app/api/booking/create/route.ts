@@ -131,23 +131,22 @@ export async function POST(request: NextRequest) {
     try {
       console.log('Looking for Google Calendar integration for userId:', userId)
 
-      // Get user's Google Calendar integration
-      const { data: integration, error: integrationError } = await supabase
-        .from('user_integrations')
-        .select('access_token, refresh_token, expires_at')
-        .eq('user_id', userId)
-        .eq('provider', 'google_calendar')
+      // Get user's Google Calendar integration from users table
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('google_calendar_connected, google_access_token, google_refresh_token, google_token_expires_at')
+        .eq('id', userId)
         .single()
 
-      console.log('Integration query result:', { integration, integrationError })
+      console.log('User query result:', { user, userError })
 
-      if (integration) {
+      if (user && user.google_calendar_connected && user.google_access_token) {
         console.log('Found Google Calendar integration, creating event...')
         const calendarService = new GoogleCalendarService(
-          integration.access_token,
-          integration.refresh_token,
+          user.google_access_token,
+          user.google_refresh_token,
           userId,
-          integration.expires_at ? new Date(integration.expires_at) : undefined
+          user.google_token_expires_at ? new Date(user.google_token_expires_at) : undefined
         )
 
         // Create calendar event
