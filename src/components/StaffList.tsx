@@ -215,19 +215,19 @@ export default function StaffList({ staff }: StaffListProps) {
   if (staff.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="text-gray-400 mb-2">
+        <div className="text-accent-grey-400 mb-2">
           <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No team members yet</h3>
-        <p className="text-gray-500">Add your first team member to get started.</p>
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-2">No team members yet</h3>
+        <p className="text-accent-grey-500">Add your first team member to get started.</p>
       </div>
     )
   }
 
   return (
-    <div className="divide-y divide-gray-200">
+    <div className="divide-y divide-accent-grey-200">
       {staff.map((member) => (
         <div key={member.id} className="p-6">
           {editingStaff === member.id ? (
@@ -235,41 +235,41 @@ export default function StaffList({ staff }: StaffListProps) {
             <form onSubmit={(e) => handleEditSubmit(e, member.id)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">First Name</label>
+                  <label className="block text-sm font-medium text-accent-grey-700">First Name</label>
                   <input
                     type="text"
                     value={editForm.first_name}
                     onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                  <label className="block text-sm font-medium text-accent-grey-700">Last Name</label>
                   <input
                     type="text"
                     value={editForm.last_name}
                     onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <label className="block text-sm font-medium text-accent-grey-700">Email</label>
                   <input
                     type="email"
                     value={editForm.email}
                     onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Timezone</label>
+                  <label className="block text-sm font-medium text-accent-grey-700">Timezone</label>
                   <select
                     value={editForm.timezone}
                     onChange={(e) => setEditForm({...editForm, timezone: e.target.value})}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                   >
                     <option value="UTC">UTC</option>
                     <option value="America/New_York">Eastern Time</option>
@@ -281,11 +281,11 @@ export default function StaffList({ staff }: StaffListProps) {
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Role</label>
+                  <label className="block text-sm font-medium text-accent-grey-700">Role</label>
                   <select
                     value={editForm.role}
                     onChange={(e) => setEditForm({...editForm, role: e.target.value})}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                   >
                     {roles.map(role => (
                       <option key={role.value} value={role.value}>
@@ -299,14 +299,14 @@ export default function StaffList({ staff }: StaffListProps) {
                 <button
                   type="button"
                   onClick={() => setEditingStaff(null)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="px-4 py-2 border border-accent-grey-300 rounded-md text-sm font-medium text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading === member.id}
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors disabled:opacity-50"
                 >
                   {loading === member.id ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -315,18 +315,18 @@ export default function StaffList({ staff }: StaffListProps) {
           ) : configuringStaff === member.id ? (
             // Configuration Form
             <form onSubmit={(e) => handleConfigSubmit(e, member.id)} className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium text-blue-900 mb-2">
+              <div className="bg-accent-light-blue p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-primary-blue mb-2">
                   ⚙️ Configuration for {member.first_name} {member.last_name}
                 </h3>
-                <p className="text-blue-700 text-sm">
+                <p className="text-primary-blue text-sm">
                   Set working hours, booking preferences, and availability settings
                 </p>
               </div>
 
               {/* Working Hours */}
               <div className="bg-white border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-3">🕒 Working Hours</h4>
+                <h4 className="font-medium text-accent-grey-900 mb-3">🕒 Working Hours</h4>
                 <div className="space-y-2">
                   {Object.entries(configForm.working_hours).map(([day, settings]) => (
                     <div key={day} className="flex items-center space-x-3">
@@ -342,9 +342,9 @@ export default function StaffList({ staff }: StaffListProps) {
                                 [day]: { ...settings, enabled: e.target.checked }
                               }
                             })}
-                            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                            className="h-4 w-4 text-primary-blue border-accent-grey-300 rounded"
                           />
-                          <span className="ml-2 text-sm text-gray-700 capitalize">{day}</span>
+                          <span className="ml-2 text-sm text-accent-grey-700 capitalize">{day}</span>
                         </label>
                       </div>
                       {settings.enabled && (
@@ -359,9 +359,9 @@ export default function StaffList({ staff }: StaffListProps) {
                                 [day]: { ...settings, start: e.target.value }
                               }
                             })}
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
+                            className="border border-accent-grey-300 rounded px-2 py-1 text-sm"
                           />
-                          <span className="text-gray-500">to</span>
+                          <span className="text-accent-grey-500">to</span>
                           <input
                             type="time"
                             value={settings.end}
@@ -372,7 +372,7 @@ export default function StaffList({ staff }: StaffListProps) {
                                 [day]: { ...settings, end: e.target.value }
                               }
                             })}
-                            className="border border-gray-300 rounded px-2 py-1 text-sm"
+                            className="border border-accent-grey-300 rounded px-2 py-1 text-sm"
                           />
                         </>
                       )}
@@ -383,10 +383,10 @@ export default function StaffList({ staff }: StaffListProps) {
 
               {/* Booking Settings */}
               <div className="bg-white border rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-3">📅 Booking Settings</h4>
+                <h4 className="font-medium text-accent-grey-900 mb-3">📅 Booking Settings</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-accent-grey-700">
                       Buffer Time (minutes)
                     </label>
                     <input
@@ -395,12 +395,12 @@ export default function StaffList({ staff }: StaffListProps) {
                       max="60"
                       value={configForm.buffer_minutes}
                       onChange={(e) => setConfigForm({ ...configForm, buffer_minutes: parseInt(e.target.value) })}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Time between bookings</p>
+                    <p className="text-xs text-accent-grey-500 mt-1">Time between bookings</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-accent-grey-700">
                       Advance Booking (days)
                     </label>
                     <input
@@ -409,9 +409,9 @@ export default function StaffList({ staff }: StaffListProps) {
                       max="365"
                       value={configForm.advance_booking_days}
                       onChange={(e) => setConfigForm({ ...configForm, advance_booking_days: parseInt(e.target.value) })}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                      className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2"
                     />
-                    <p className="text-xs text-gray-500 mt-1">How far ahead bookings allowed</p>
+                    <p className="text-xs text-accent-grey-500 mt-1">How far ahead bookings allowed</p>
                   </div>
                 </div>
               </div>
@@ -420,13 +420,13 @@ export default function StaffList({ staff }: StaffListProps) {
                 <button
                   type="button"
                   onClick={() => setConfiguringStaff(null)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="px-4 py-2 border border-accent-grey-300 rounded-md text-sm font-medium text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors"
                 >
                   Save Configuration
                 </button>
@@ -438,23 +438,23 @@ export default function StaffList({ staff }: StaffListProps) {
               <div className="flex-1">
                 <div className="flex items-center space-x-3">
                   <div className="flex-shrink-0">
-                    <div className="h-12 w-12 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-full bg-primary-blue flex items-center justify-center">
                       <span className="text-sm font-medium text-white">
                         {member.first_name?.charAt(0)}{member.last_name?.charAt(0)}
                       </span>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-accent-grey-900">
                       {member.first_name} {member.last_name}
                     </h3>
-                    <p className="text-sm text-gray-500">{member.email}</p>
+                    <p className="text-sm text-accent-grey-500">{member.email}</p>
                     <div className="mt-1 flex items-center space-x-3 text-xs">
-                      <span className="text-gray-400">
+                      <span className="text-accent-grey-400">
                         Joined {new Date(member.created_at).toLocaleDateString()}
                       </span>
                       {member.last_login && (
-                        <span className="text-gray-400">
+                        <span className="text-accent-grey-400">
                           Last active {new Date(member.last_login).toLocaleDateString()}
                         </span>
                       )}
@@ -466,10 +466,10 @@ export default function StaffList({ staff }: StaffListProps) {
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(member.status)}`}>
                     {getStatusLabel(member.status)}
                   </span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-light-blue text-primary-blue">
                     {getRoleDisplay(member.role)}
                   </span>
-                  <span className="text-sm text-gray-500">🌍 {member.timezone}</span>
+                  <span className="text-sm text-accent-grey-500">🌍 {member.timezone}</span>
                 </div>
               </div>
 
@@ -477,7 +477,7 @@ export default function StaffList({ staff }: StaffListProps) {
                 <div className="flex flex-col space-y-1">
                   <a
                     href={`/admin/staff/${member.id}/schedule`}
-                    className="inline-flex items-center px-3 py-1 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-3 py-1 border border-accent-grey-300 text-sm leading-4 font-medium rounded-md text-accent-grey-700 bg-white hover:bg-accent-grey-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue transition-colors"
                   >
                     📅 Schedule
                   </a>
@@ -485,14 +485,14 @@ export default function StaffList({ staff }: StaffListProps) {
                     <button
                       onClick={() => startEdit(member)}
                       disabled={loading === member.id}
-                      className="inline-flex items-center px-2 py-1 border border-gray-300 text-xs leading-4 font-medium rounded text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                      className="inline-flex items-center px-2 py-1 border border-accent-grey-300 text-xs leading-4 font-medium rounded text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors disabled:opacity-50"
                     >
                       ✏️ Edit
                     </button>
                     <button
                       onClick={() => startConfig(member)}
                       disabled={loading === member.id}
-                      className="inline-flex items-center px-2 py-1 border border-blue-300 text-xs leading-4 font-medium rounded text-blue-700 bg-blue-50 hover:bg-blue-100 disabled:opacity-50"
+                      className="inline-flex items-center px-2 py-1 border border-primary-blue text-xs leading-4 font-medium rounded text-primary-blue bg-accent-light-blue hover:bg-primary-teal hover:text-white transition-colors disabled:opacity-50"
                     >
                       ⚙️ Config
                     </button>

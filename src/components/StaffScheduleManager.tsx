@@ -122,13 +122,13 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
       {/* Quick Actions */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-medium text-gray-900">Set Weekly Hours</h3>
-          <p className="text-sm text-gray-500">Configure when {staff.first_name} is available for bookings</p>
+          <h3 className="text-lg font-medium text-accent-grey-900">Set Weekly Hours</h3>
+          <p className="text-sm text-accent-grey-500">Configure when {staff.first_name} is available for bookings</p>
         </div>
         <div className="space-x-2">
           <button
             onClick={setDefaultHours}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-3 py-2 border border-accent-grey-300 shadow-sm text-sm leading-4 font-medium rounded-md text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue"
           >
             📅 Set 9-5 M-F
           </button>
@@ -138,10 +138,10 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
       {/* Schedule Grid */}
       <div className="space-y-4">
         {DAYS.map((day) => (
-          <div key={day.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
+          <div key={day.id} className="flex items-center space-x-4 p-4 border border-accent-grey-200 rounded-lg">
             {/* Day Name */}
             <div className="w-24 flex-shrink-0">
-              <span className="text-sm font-medium text-gray-900">{day.name}</span>
+              <span className="text-sm font-medium text-accent-grey-900">{day.name}</span>
             </div>
 
             {/* Available Toggle */}
@@ -150,9 +150,9 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
                 type="checkbox"
                 checked={schedule[day.id]?.available || false}
                 onChange={(e) => updateSchedule(day.id, 'available', e.target.checked)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-blue focus:ring-primary-blue border-accent-grey-300 rounded"
               />
-              <label className="ml-2 text-sm text-gray-600">
+              <label className="ml-2 text-sm text-accent-grey-600">
                 Available
               </label>
             </div>
@@ -161,21 +161,21 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
             {schedule[day.id]?.available && (
               <>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">from</span>
+                  <span className="text-sm text-accent-grey-500">from</span>
                   <input
                     type="time"
                     value={schedule[day.id]?.start || '09:00'}
                     onChange={(e) => updateSchedule(day.id, 'start', e.target.value)}
-                    className="block w-24 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="block w-24 border border-accent-grey-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                   />
-                  <span className="text-sm text-gray-500">to</span>
+                  <span className="text-sm text-accent-grey-500">to</span>
                   <input
                     type="time"
                     value={schedule[day.id]?.end || '17:00'}
                     onChange={(e) => updateSchedule(day.id, 'end', e.target.value)}
-                    className="block w-24 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    className="block w-24 border border-accent-grey-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                   />
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-accent-grey-500">
                     ({staff.timezone})
                   </span>
                 </div>
@@ -184,7 +184,7 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
 
             {/* Unavailable Message */}
             {!schedule[day.id]?.available && (
-              <span className="text-sm text-gray-400 italic">Not available</span>
+              <span className="text-sm text-accent-grey-400 italic">Not available</span>
             )}
           </div>
         ))}
@@ -195,7 +195,7 @@ export default function StaffScheduleManager({ staffId, staff, availability }: S
         <button
           onClick={saveSchedule}
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-blue hover:bg-primary-teal transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:opacity-50"
         >
           {loading ? 'Saving...' : '💾 Save Schedule'}
         </button>

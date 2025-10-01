@@ -84,38 +84,38 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
   if (bookingTypes.length === 0) {
     return (
       <div className="p-6 text-center">
-        <div className="text-gray-400 mb-2">
+        <div className="text-accent-grey-400 mb-2">
           <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No services yet</h3>
-        <p className="text-gray-500">Create your first service to get started with bookings.</p>
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-2">No services yet</h3>
+        <p className="text-accent-grey-500">Create your first service to get started with bookings.</p>
       </div>
     )
   }
 
   return (
-    <div className="divide-y divide-gray-200">
+    <div className="divide-y divide-accent-grey-200">
       {bookingTypes.map((type) => (
         <div key={type.id} className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-accent-grey-900">
                   {type.name}
                 </h3>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  type.is_active 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
+                  type.is_active
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-accent-grey-100 text-accent-grey-800'
                 }`}>
                   {type.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              
+
               <div className="mt-2 space-y-1">
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center space-x-4 text-sm text-accent-grey-500">
                   <span>{type.duration} minutes</span>
                   {type.price && <span>${type.price}</span>}
                   <span>Created by {type.users.first_name} {type.users.last_name}</span>
@@ -123,18 +123,18 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
 
                 {/* Personalized URL */}
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-500">URL:</span>
+                  <span className="text-sm text-accent-grey-500">URL:</span>
                   <a
                     href={`https://meetings.spearity.com/${type.name}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-800 underline font-mono"
+                    className="text-sm text-primary-blue hover:text-primary-teal transition-colors underline font-mono"
                   >
                     meetings.spearity.com/{type.name}
                   </a>
                   <button
                     onClick={() => navigator.clipboard.writeText(`https://meetings.spearity.com/${type.name}`)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-accent-grey-400 hover:text-accent-grey-600 transition-colors"
                     title="Copy URL"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,9 +143,9 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
                   </button>
                 </div>
               </div>
-              
+
               {type.description && (
-                <p className="mt-2 text-sm text-gray-600">{type.description}</p>
+                <p className="mt-2 text-sm text-accent-grey-600">{type.description}</p>
               )}
             </div>
 
@@ -153,11 +153,11 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
               <button
                 onClick={() => toggleActive(type.id, type.is_active)}
                 disabled={loading === type.id}
-                className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md ${
+                className={`inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md transition-colors ${
                   type.is_active
                     ? 'text-yellow-700 bg-yellow-100 hover:bg-yellow-200'
                     : 'text-green-700 bg-green-100 hover:bg-green-200'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50`}
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:opacity-50`}
               >
                 {loading === type.id ? '...' : type.is_active ? 'Disable' : 'Enable'}
               </button>
@@ -165,7 +165,7 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
               <button
                 onClick={() => deleteBookingType(type.id, type.name)}
                 disabled={loading === type.id}
-                className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                className="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
               >
                 {loading === type.id ? '...' : 'Delete'}
               </button>

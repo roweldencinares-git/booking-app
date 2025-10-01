@@ -80,7 +80,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
   if (step === 'confirmation') {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-accent-grey-50 py-12">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow p-6">
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
@@ -88,29 +88,29 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-accent-grey-900 mb-2">Booking Confirmed!</h2>
+            <p className="text-accent-grey-600 mb-6">
               Your appointment has been scheduled successfully.
             </p>
-            <div className="bg-gray-50 rounded-lg p-4 text-left mb-6">
-              <h3 className="font-medium text-gray-900 mb-2">Appointment Details:</h3>
-              <p className="text-sm text-gray-600 mb-1">
+            <div className="bg-accent-grey-50 rounded-lg p-4 text-left mb-6">
+              <h3 className="font-medium text-accent-grey-900 mb-2">Appointment Details:</h3>
+              <p className="text-sm text-accent-grey-600 mb-1">
                 <strong>Service:</strong> {service.name}
               </p>
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-accent-grey-600 mb-1">
                 <strong>With:</strong> {service.users.first_name} {service.users.last_name}
               </p>
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-accent-grey-600 mb-1">
                 <strong>Date:</strong> {selectedDateTime?.date.toLocaleDateString()}
               </p>
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-accent-grey-600 mb-1">
                 <strong>Time:</strong> {selectedDateTime?.time}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-accent-grey-600">
                 <strong>Duration:</strong> {selectedDateTime?.duration} minutes
               </p>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-accent-grey-500">
               You'll receive a confirmation email shortly with meeting details.
             </p>
           </div>
@@ -120,18 +120,18 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-accent-grey-50">
       {/* Header */}
       <div className="bg-white shadow">
         <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-accent-grey-900">
                 Book with {service.users.first_name}
               </h1>
-              <p className="text-gray-600">{service.name}</p>
+              <p className="text-accent-grey-600">{service.name}</p>
             </div>
-            <div className="text-right text-sm text-gray-500">
+            <div className="text-right text-sm text-accent-grey-500">
               <p>⏱️ {service.duration} minutes</p>
               {service.price && <p>💰 ${service.price}</p>}
             </div>
@@ -142,7 +142,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {step === 'datetime' && (
           <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            <h2 className="text-xl font-semibold text-accent-grey-900 mb-6">
               Select Date & Time
             </h2>
             <DateTimePicker
@@ -157,21 +157,21 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
         {step === 'details' && (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-accent-grey-900">
                 Your Details
               </h2>
               <button
                 onClick={() => setStep('datetime')}
-                className="text-blue-600 hover:text-blue-800 text-sm"
+                className="text-primary-blue hover:text-primary-teal transition-colors text-sm"
               >
                 ← Change Time
               </button>
             </div>
 
             {/* Selected time summary */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-blue-900 mb-2">Selected Appointment:</h3>
-              <p className="text-blue-800 text-sm">
+            <div className="bg-accent-light-blue border border-primary-blue rounded-lg p-4 mb-6">
+              <h3 className="font-medium text-primary-blue mb-2">Selected Appointment:</h3>
+              <p className="text-primary-blue text-sm">
                 {selectedDateTime?.date.toLocaleDateString()} at {selectedDateTime?.time}
                 ({selectedDateTime?.duration} minutes)
               </p>
@@ -179,7 +179,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
             <form onSubmit={handleBookingSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="name" className="block text-sm font-medium text-accent-grey-700 mb-1">
                   Full Name *
                 </label>
                 <input
@@ -188,12 +188,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   required
                   value={customerInfo.name}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                 />
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-accent-grey-700 mb-1">
                   Email Address *
                 </label>
                 <input
@@ -202,12 +202,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   required
                   value={customerInfo.email}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                 />
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-accent-grey-700 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -215,12 +215,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   id="phone"
                   value={customerInfo.phone}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                 />
               </div>
 
               <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="notes" className="block text-sm font-medium text-accent-grey-700 mb-1">
                   Additional Notes
                 </label>
                 <textarea
@@ -229,14 +229,14 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   value={customerInfo.notes}
                   onChange={(e) => setCustomerInfo({ ...customerInfo, notes: e.target.value })}
                   placeholder="Anything you'd like to mention about this appointment..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-accent-grey-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                 />
               </div>
 
               {service.description && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">About this service:</h4>
-                  <p className="text-sm text-gray-600">{service.description}</p>
+                <div className="bg-accent-grey-50 rounded-lg p-4">
+                  <h4 className="font-medium text-accent-grey-900 mb-2">About this service:</h4>
+                  <p className="text-sm text-accent-grey-600">{service.description}</p>
                 </div>
               )}
 
@@ -244,14 +244,14 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                 <button
                   type="button"
                   onClick={() => setStep('datetime')}
-                  className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                  className="flex-1 bg-accent-grey-100 text-accent-grey-700 py-3 px-4 rounded-lg hover:bg-accent-grey-200 transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-primary-blue text-white py-3 px-4 rounded-lg hover:bg-primary-teal transition-colors disabled:opacity-50"
                 >
                   {isSubmitting ? 'Booking...' : 'Confirm Booking'}
                 </button>

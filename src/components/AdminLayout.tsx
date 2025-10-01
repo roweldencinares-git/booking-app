@@ -28,26 +28,26 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-accent-grey-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-accent-grey-50 flex">
       {/* Left Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r">
+      <div className="w-64 bg-white shadow-sm border-r-4 border-primary-teal">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
-          <Link href="/" className="text-xl font-bold text-gray-900">
+        <div className="p-6 border-b-2 border-primary-teal bg-gradient-to-r from-primary-teal to-primary-blue">
+          <Link href="/" className="text-xl font-bold text-white">
             Admin Dashboard
           </Link>
-          <p className="text-sm text-gray-600 mt-1">Management Console</p>
+          <p className="text-sm text-white/90 mt-1">Management Console</p>
         </div>
 
         {/* User Profile Section */}
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+        <div className="p-4 border-b border-accent-grey-200 bg-accent-grey-50">
           <div className="flex items-center gap-3">
             <UserButton
               afterSignOutUrl="/"
@@ -58,10 +58,10 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
               }}
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-primary-teal truncate">
                 {user?.firstName || user?.emailAddresses[0]?.emailAddress}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-accent-grey-500 truncate">
                 Administrator
               </p>
             </div>
@@ -75,10 +75,10 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
             <div className="space-y-1">
               <Link
                 href="/admin"
-                className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                   isActive('/admin')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">🏠</span>
@@ -95,8 +95,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/meetings"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/meetings')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">📅</span>
@@ -106,8 +106,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/recaps"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/recaps')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">📊</span>
@@ -124,8 +124,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/staff"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/staff')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">👥</span>
@@ -135,8 +135,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/booking-types"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/booking-types')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">📋</span>
@@ -146,8 +146,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/availability"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/availability')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">🕒</span>
@@ -164,8 +164,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/analytics"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/analytics')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">📈</span>
@@ -182,8 +182,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/notifications"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/notifications')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">🔔</span>
@@ -193,8 +193,8 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 href="/admin/settings"
                 className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md ${
                   isActive('/admin/settings')
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-primary-blue text-white'
+                    : 'text-accent-grey-700 hover:bg-accent-light-blue hover:text-primary-teal'
                 }`}
               >
                 <span className="mr-3">⚙️</span>
@@ -206,30 +206,30 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
 
         {/* System Status */}
         <div className="mt-8 px-4">
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">System Status</h4>
+          <div className="bg-accent-grey-50 rounded-lg p-4 border border-accent-grey-200">
+            <h4 className="text-sm font-medium text-primary-teal mb-3">System Status</h4>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Clerk: Connected</span>
+                <div className="w-2 h-2 bg-success rounded-full"></div>
+                <span className="text-accent-grey-700">Clerk: Connected</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Supabase: Connected</span>
+                <div className="w-2 h-2 bg-success rounded-full"></div>
+                <span className="text-accent-grey-700">Supabase: Connected</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-gray-600">Zoom: Connected</span>
+                <div className="w-2 h-2 bg-success rounded-full"></div>
+                <span className="text-accent-grey-700">Zoom: Connected</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Quick Links */}
-        <div className="mt-4 px-4 pb-4 border-t border-gray-200 pt-4">
+        <div className="mt-4 px-4 pb-4 border-t border-accent-grey-200 pt-4">
           <Link
             href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+            className="text-sm text-accent-grey-500 hover:text-primary-teal flex items-center gap-2 transition-colors"
           >
             ← Back to Site
           </Link>

@@ -80,17 +80,17 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
     <div className="space-y-8">
       {/* Header */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-accent-grey-900 mb-2">
           Configuration for {staff.first_name} {staff.last_name}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-accent-grey-600">
           Manage availability, permissions, and notification settings
         </p>
       </div>
 
       {/* Working Hours */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-4">
           🕒 Working Hours
         </h3>
         <div className="space-y-4">
@@ -108,9 +108,9 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
                         [day]: { ...config.working_hours[day], enabled: e.target.checked }
                       }
                     })}
-                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                    className="h-4 w-4 text-primary-blue border-accent-grey-300 rounded"
                   />
-                  <span className="ml-2 text-sm text-gray-700">{dayLabels[index]}</span>
+                  <span className="ml-2 text-sm text-accent-grey-700">{dayLabels[index]}</span>
                 </label>
               </div>
 
@@ -126,9 +126,9 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
                         [day]: { ...config.working_hours[day], start: e.target.value }
                       }
                     })}
-                    className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+                    className="border border-accent-grey-300 rounded-md px-3 py-1 text-sm"
                   />
-                  <span className="text-gray-500">to</span>
+                  <span className="text-accent-grey-500">to</span>
                   <input
                     type="time"
                     value={config.working_hours[day].end}
@@ -139,7 +139,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
                         [day]: { ...config.working_hours[day], end: e.target.value }
                       }
                     })}
-                    className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+                    className="border border-accent-grey-300 rounded-md px-3 py-1 text-sm"
                   />
                 </>
               )}
@@ -149,7 +149,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
           <button
             onClick={() => updateConfiguration('working_hours', config.working_hours)}
             disabled={loading === 'working_hours'}
-            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors disabled:opacity-50"
           >
             {loading === 'working_hours' ? 'Saving...' : 'Save Working Hours'}
           </button>
@@ -158,12 +158,12 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
 
       {/* Booking Settings */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-4">
           📅 Booking Settings
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-accent-grey-700">
               Buffer Time (minutes)
             </label>
             <input
@@ -172,13 +172,13 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
               max="60"
               value={config.booking_buffer}
               onChange={(e) => setConfig({ ...config, booking_buffer: parseInt(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
             />
-            <p className="mt-1 text-xs text-gray-500">Time between bookings</p>
+            <p className="mt-1 text-xs text-accent-grey-500">Time between bookings</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-accent-grey-700">
               Advance Booking (days)
             </label>
             <input
@@ -187,13 +187,13 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
               max="365"
               value={config.advance_booking_days}
               onChange={(e) => setConfig({ ...config, advance_booking_days: parseInt(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
             />
-            <p className="mt-1 text-xs text-gray-500">How far ahead bookings allowed</p>
+            <p className="mt-1 text-xs text-accent-grey-500">How far ahead bookings allowed</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-accent-grey-700">
               Minimum Notice (minutes)
             </label>
             <input
@@ -202,9 +202,9 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
               max="1440"
               value={config.min_booking_notice}
               onChange={(e) => setConfig({ ...config, min_booking_notice: parseInt(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
             />
-            <p className="mt-1 text-xs text-gray-500">Required notice for bookings</p>
+            <p className="mt-1 text-xs text-accent-grey-500">Required notice for bookings</p>
           </div>
         </div>
 
@@ -215,7 +215,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
             min_booking_notice: config.min_booking_notice
           })}
           disabled={loading === 'booking_settings'}
-          className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+          className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors disabled:opacity-50"
         >
           {loading === 'booking_settings' ? 'Saving...' : 'Save Booking Settings'}
         </button>
@@ -223,7 +223,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
 
       {/* Notifications */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-4">
           🔔 Notification Preferences
         </h3>
         <div className="space-y-4">
@@ -236,9 +236,9 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
                   ...config,
                   notifications: { ...config.notifications, [key]: e.target.checked }
                 })}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-blue border-accent-grey-300 rounded"
               />
-              <span className="ml-2 text-sm text-gray-700 capitalize">
+              <span className="ml-2 text-sm text-accent-grey-700 capitalize">
                 {key.replace(/_/g, ' ')}
               </span>
             </label>
@@ -247,7 +247,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
           <button
             onClick={() => updateConfiguration('notifications', config.notifications)}
             disabled={loading === 'notifications'}
-            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors disabled:opacity-50"
           >
             {loading === 'notifications' ? 'Saving...' : 'Save Notification Settings'}
           </button>
@@ -256,7 +256,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
 
       {/* Permissions */}
       <div className="bg-white shadow rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <h3 className="text-lg font-medium text-accent-grey-900 mb-4">
           🔐 Permissions
         </h3>
         <div className="space-y-4">
@@ -269,14 +269,14 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
                   ...config,
                   permissions: { ...config.permissions, [key]: e.target.checked }
                 })}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-blue border-accent-grey-300 rounded"
                 disabled={staff.role === 'admin'} // Admins always have all permissions
               />
-              <span className="ml-2 text-sm text-gray-700 capitalize">
+              <span className="ml-2 text-sm text-accent-grey-700 capitalize">
                 {key.replace(/_/g, ' ')}
               </span>
               {staff.role === 'admin' && key === 'can_view_all_bookings' && (
-                <span className="ml-2 text-xs text-gray-500">(Admin always enabled)</span>
+                <span className="ml-2 text-xs text-accent-grey-500">(Admin always enabled)</span>
               )}
             </label>
           ))}
@@ -284,7 +284,7 @@ export default function StaffConfiguration({ staffId, staff }: StaffConfiguratio
           <button
             onClick={() => updateConfiguration('permissions', config.permissions)}
             disabled={loading === 'permissions'}
-            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+            className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-blue hover:bg-primary-teal transition-colors disabled:opacity-50"
           >
             {loading === 'permissions' ? 'Saving...' : 'Save Permissions'}
           </button>

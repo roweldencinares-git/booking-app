@@ -113,8 +113,8 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Google Calendar</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-lg font-medium text-accent-grey-900">Google Calendar</h3>
+            <p className="text-sm text-accent-grey-500">
               Sync appointments with {staff.first_name}'s Google Calendar
             </p>
           </div>
@@ -138,14 +138,14 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
         <div className="space-y-4">
           {/* Calendar Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-accent-grey-700 mb-2">
               Primary Calendar for Bookings
             </label>
             <div className="relative">
               <select
                 value={selectedCalendar}
                 onChange={(e) => setSelectedCalendar(e.target.value)}
-                className="block w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full border border-accent-grey-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-primary-blue focus:border-primary-blue"
                 disabled={loadingCalendars}
               >
                 {loadingCalendars ? (
@@ -173,14 +173,14 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
                 </p>
                 <button
                   onClick={connectGoogleCalendar}
-                  className="mt-2 text-sm text-amber-700 hover:text-amber-900 underline"
+                  className="mt-2 text-sm text-amber-700 hover:text-amber-900 underline transition-colors"
                 >
                   Reconnect Google Calendar
                 </button>
               </div>
             )}
             {calendarMessage && !needsReconnect && (
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-accent-grey-600 mt-1">
                 {calendarMessage}
               </p>
             )}
@@ -203,10 +203,10 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
           </div>
 
           {/* Disconnect Button */}
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-accent-grey-200">
             <button
               onClick={disconnectGoogleCalendar}
-              className="text-sm text-red-600 hover:text-red-800"
+              className="text-sm text-red-600 hover:text-red-800 transition-colors"
             >
               Disconnect Google Calendar
             </button>
@@ -214,20 +214,20 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
         </div>
       ) : (
         <div className="text-center py-6">
-          <p className="text-gray-600 mb-4">
+          <p className="text-accent-grey-600 mb-4">
             Connect {staff.first_name}'s Google Calendar to:
           </p>
-          <ul className="text-sm text-gray-600 space-y-1 mb-6">
+          <ul className="text-sm text-accent-grey-600 space-y-1 mb-6">
             <li>• Automatically create calendar events for new bookings</li>
             <li>• Send calendar invites to clients</li>
             <li>• Prevent double-booking conflicts</li>
             <li>• Keep schedules synchronized</li>
           </ul>
-          
+
           <button
             onClick={connectGoogleCalendar}
             disabled={connecting}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-blue hover:bg-primary-teal transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:opacity-50"
           >
             {connecting ? (
               <>🔄 Connecting...</>
@@ -235,8 +235,8 @@ export default function GoogleCalendarIntegration({ staff }: GoogleCalendarInteg
               <>📅 Connect Google Calendar</>
             )}
           </button>
-          
-          <p className="text-xs text-gray-500 mt-2">
+
+          <p className="text-xs text-accent-grey-500 mt-2">
             You'll be redirected to Google to authorize access
           </p>
         </div>

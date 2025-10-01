@@ -105,8 +105,8 @@ export default function ZoomIntegration({ staff }: ZoomIntegrationProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-4">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
-        <span className="ml-2 text-sm text-gray-600">Loading Zoom integration...</span>
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-blue"></div>
+        <span className="ml-2 text-sm text-accent-grey-600">Loading Zoom integration...</span>
       </div>
     )
   }
@@ -136,8 +136,8 @@ export default function ZoomIntegration({ staff }: ZoomIntegrationProps) {
             </svg>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-900">Zoom Integration</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-sm font-medium text-accent-grey-900">Zoom Integration</h3>
+            <p className="text-sm text-accent-grey-500">
               {isConnected && !isExpired ? (
                 <>Connected • Meetings will be created automatically</>
               ) : isExpired ? (
@@ -158,7 +158,7 @@ export default function ZoomIntegration({ staff }: ZoomIntegrationProps) {
               <button
                 onClick={disconnectZoom}
                 disabled={disconnecting}
-                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="inline-flex items-center px-3 py-1.5 border border-accent-grey-300 shadow-sm text-xs font-medium rounded text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:opacity-50"
               >
                 {disconnecting ? 'Disconnecting...' : 'Disconnect'}
               </button>
@@ -167,7 +167,7 @@ export default function ZoomIntegration({ staff }: ZoomIntegrationProps) {
             <button
               onClick={connectZoom}
               disabled={connecting}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-blue hover:bg-primary-teal transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue disabled:opacity-50"
             >
               {connecting ? (
                 <>
@@ -183,19 +183,19 @@ export default function ZoomIntegration({ staff }: ZoomIntegrationProps) {
       </div>
 
       {isConnected && zoomIntegration && (
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Integration Details</h4>
+        <div className="bg-accent-grey-50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-accent-grey-900 mb-2">Integration Details</h4>
           <dl className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
             <div>
-              <dt className="text-xs font-medium text-gray-500">Connected</dt>
-              <dd className="text-sm text-gray-900">
+              <dt className="text-xs font-medium text-accent-grey-500">Connected</dt>
+              <dd className="text-sm text-accent-grey-900">
                 {new Date(zoomIntegration.created_at).toLocaleDateString()}
               </dd>
             </div>
             {zoomIntegration.expires_at && (
               <div>
-                <dt className="text-xs font-medium text-gray-500">Expires</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="text-xs font-medium text-accent-grey-500">Expires</dt>
+                <dd className="text-sm text-accent-grey-900">
                   {new Date(zoomIntegration.expires_at).toLocaleDateString()}
                 </dd>
               </div>
