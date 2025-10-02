@@ -1,5 +1,11 @@
 {
   "buildCommand": "npm run check-env && npm run build",
+  "crons": [
+    {
+      "path": "/api/admin/cleanup",
+      "schedule": "0 2 * * 0"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

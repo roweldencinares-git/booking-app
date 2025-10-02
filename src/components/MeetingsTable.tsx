@@ -23,6 +23,7 @@ export default function MeetingsTable({ meetings }: MeetingsTableProps) {
   const [selectedMeeting, setSelectedMeeting] = useState<Booking | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const formatDateTime = (dateTime: string) => {
@@ -62,6 +63,37 @@ export default function MeetingsTable({ meetings }: MeetingsTableProps) {
   const handleCancelClick = (meeting: Booking) => {
     setSelectedMeeting(meeting)
     setShowCancelModal(true)
+  }
+
+  const handleDeleteClick = (meeting: Booking) => {
+    setSelectedMeeting(meeting)
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteBooking = async () => {
+    if (!selectedMeeting) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch(`/api/booking/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: selectedMeeting.id })
+      })
+
+      if (response.ok) {
+        alert('Booking deleted successfully')
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(`Failed to delete booking: ${error.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      alert('Failed to delete booking')
+    } finally {
+      setIsLoading(false)
+      setShowDeleteModal(false)
+    }
   }
 
   const handleCancelBooking = async () => {
@@ -162,19 +194,25 @@ export default function MeetingsTable({ meetings }: MeetingsTableProps) {
                           onClick={() => handleViewDetails(meeting)}
                           className="text-indigo-600 hover:text-indigo-900"
                         >
-                          View Details
+                          View
                         </button>
                         <a
                           href={`/admin/meetings/${meeting.id}/reschedule`}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-blue-600 hover:text-blue-900"
                         >
                           Reschedule
                         </a>
                         <button
                           onClick={() => handleCancelClick(meeting)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-orange-600 hover:text-orange-900"
                         >
                           Cancel
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(meeting)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Delete
                         </button>
                       </div>
                     </td>
@@ -287,9 +325,45 @@ export default function MeetingsTable({ meetings }: MeetingsTableProps) {
               <button
                 onClick={handleCancelBooking}
                 disabled={isLoading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 disabled:opacity-50"
               >
                 {isLoading ? 'Cancelling...' : 'Yes, Cancel Booking'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedMeeting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-red-900 mb-4">⚠️ Delete Booking Permanently?</h2>
+
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to <strong className="text-red-600">permanently delete</strong> the booking with <strong>{selectedMeeting.client_name}</strong>?
+            </p>
+
+            <div className="bg-red-50 border border-red-200 rounded p-3 mb-6">
+              <p className="text-sm text-red-800">
+                <strong>Warning:</strong> This action cannot be undone. The booking will be completely removed from the database.
+              </p>
+            </div>
+
+            <div className="flex space-x-3 justify-end">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isLoading}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 disabled:opacity-50"
+              >
+                No, Keep It
+              </button>
+              <button
+                onClick={handleDeleteBooking}
+                disabled={isLoading}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {isLoading ? 'Deleting...' : 'Yes, Delete Permanently'}
               </button>
             </div>
           </div>
