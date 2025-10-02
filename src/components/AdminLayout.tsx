@@ -38,7 +38,7 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
   return (
     <div className="min-h-screen bg-accent-grey-50 flex">
       {/* Left Sidebar */}
-      <div className={`bg-white shadow-sm border-r-4 border-primary-teal transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
+      <div className={`bg-white shadow-lg transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
         {/* Header with Toggle */}
         <div className="p-6 border-b-2 border-primary-teal bg-gradient-to-r from-primary-teal to-primary-blue relative">
           {!isCollapsed && (
