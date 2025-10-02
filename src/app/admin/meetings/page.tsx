@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import AdminLayout from '@/components/AdminLayout'
+import MeetingsTable from '@/components/MeetingsTable'
 import { supabase } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -53,35 +54,6 @@ export default async function MeetingsPage() {
     service_duration: booking.booking_types?.duration
   }))
 
-  const formatDateTime = (dateTime: string) => {
-    const date = new Date(dateTime)
-    return {
-      date: date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-      }),
-      time: date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      })
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
-
   return (
     <AdminLayout currentPath="/admin/meetings">
       <div className="p-8">
@@ -99,90 +71,7 @@ export default async function MeetingsPage() {
             <p className="text-gray-600">When clients book appointments, they'll appear here.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Meeting Details
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Client
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date & Time
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {upcomingMeetings.map((meeting) => {
-                    const dateTime = formatDateTime(meeting.start_time)
-                    const endTime = formatDateTime(meeting.end_time)
-
-                    return (
-                      <tr key={meeting.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {meeting.service_type}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {meeting.service_duration || 30} minutes
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {meeting.client_name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {meeting.client_email}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {dateTime.date}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {dateTime.time} - {endTime.time}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(meeting.status)}`}>
-                            {meeting.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button className="text-indigo-600 hover:text-indigo-900">
-                              View Details
-                            </button>
-                            <button className="text-gray-600 hover:text-gray-900">
-                              Reschedule
-                            </button>
-                            <button className="text-red-600 hover:text-red-900">
-                              Cancel
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <MeetingsTable meetings={upcomingMeetings} />
         )}
       </div>
     </AdminLayout>

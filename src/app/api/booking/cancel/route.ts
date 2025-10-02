@@ -4,7 +4,7 @@ import { createBookingService } from '@/lib/bookingService'
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = auth()
+    const { userId } = await auth()
     
     if (!userId) {
       return NextResponse.json(
