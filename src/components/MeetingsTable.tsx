@@ -17,9 +17,10 @@ interface Booking {
 
 interface MeetingsTableProps {
   meetings: Booking[]
+  showDeleteOnly?: boolean
 }
 
-export default function MeetingsTable({ meetings }: MeetingsTableProps) {
+export default function MeetingsTable({ meetings, showDeleteOnly = false }: MeetingsTableProps) {
   const [selectedMeeting, setSelectedMeeting] = useState<Booking | null>(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
@@ -190,30 +191,49 @@ export default function MeetingsTable({ meetings }: MeetingsTableProps) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleViewDetails(meeting)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          View
-                        </button>
-                        <a
-                          href={`/admin/meetings/${meeting.id}/reschedule`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Reschedule
-                        </a>
-                        <button
-                          onClick={() => handleCancelClick(meeting)}
-                          className="text-orange-600 hover:text-orange-900"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(meeting)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                        {showDeleteOnly ? (
+                          <>
+                            <button
+                              onClick={() => handleViewDetails(meeting)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              View
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(meeting)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleViewDetails(meeting)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              View
+                            </button>
+                            <a
+                              href={`/admin/meetings/${meeting.id}/reschedule`}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              Reschedule
+                            </a>
+                            <button
+                              onClick={() => handleCancelClick(meeting)}
+                              className="text-orange-600 hover:text-orange-900"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(meeting)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
