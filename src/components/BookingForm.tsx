@@ -21,13 +21,17 @@ interface BookingFormProps {
 }
 
 export default function BookingForm({ service, coach }: BookingFormProps) {
+  // Detect user's timezone
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     date: '',
     time: '',
-    notes: ''
+    notes: '',
+    timezone: userTimezone
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -55,8 +59,8 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
     setError('')
 
     try {
-      // Create the booking
-      const startDateTime = new Date(`${formData.date}T${formData.time}`)
+      // Create the booking - interpret the selected time as UTC
+      const startDateTime = new Date(`${formData.date}T${formData.time}:00Z`)
 
       const response = await fetch('/api/booking/create', {
         method: 'POST',
@@ -69,7 +73,7 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
           customerPhone: formData.phone,
           startTime: startDateTime.toISOString(),
           notes: formData.notes,
-          timezone: coach.timezone || 'America/New_York'
+          timezone: formData.timezone
         })
       })
 
@@ -88,7 +92,8 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
         phone: '',
         date: '',
         time: '',
-        notes: ''
+        notes: '',
+        timezone: userTimezone
       })
 
     } catch (error) {
@@ -195,7 +200,7 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
 
         <div>
           <label className="block text-sm font-medium text-accent-grey-700 mb-1">
-            Select Time *
+            Select Time (UTC) *
           </label>
           <select
             required
@@ -209,10 +214,40 @@ export default function BookingForm({ service, coach }: BookingFormProps) {
             </option>
             {timeSlots.map(slot => (
               <option key={slot} value={slot}>
-                {slot}
+                {slot} UTC
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      {/* Timezone Info */}
+      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div className="flex items-start">
+          <svg className="h-5 w-5 text-blue-400 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          <div className="flex-1">
+            <p className="text-sm text-blue-700">
+              <strong>Your timezone:</strong> {formData.timezone}
+            </p>
+            <p className="text-sm text-blue-600 mt-1">
+              All times shown are in UTC. Your local time is currently: {new Date().toLocaleTimeString('en-US', { timeZone: formData.timezone, hour: '2-digit', minute: '2-digit', hour12: true })}
+            </p>
+            {formData.date && formData.time && (
+              <p className="text-sm text-blue-600 mt-2 font-medium">
+                Selected time in your timezone: {new Date(`${formData.date}T${formData.time}:00Z`).toLocaleString('en-US', {
+                  timeZone: formData.timezone,
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: true
+                })}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
