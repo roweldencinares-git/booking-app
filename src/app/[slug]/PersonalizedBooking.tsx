@@ -21,9 +21,27 @@ interface PersonalizedBookingProps {
 }
 
 export default function PersonalizedBooking({ service, slug }: PersonalizedBookingProps) {
-  // Detect user's timezone
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  // Common timezones
+  const commonTimezones = [
+    { value: 'America/Chicago', label: 'Central Time (Wisconsin)' },
+    { value: 'America/New_York', label: 'Eastern Time' },
+    { value: 'America/Denver', label: 'Mountain Time' },
+    { value: 'America/Los_Angeles', label: 'Pacific Time' },
+    { value: 'America/Phoenix', label: 'Arizona' },
+    { value: 'America/Anchorage', label: 'Alaska' },
+    { value: 'Pacific/Honolulu', label: 'Hawaii' },
+    { value: 'Europe/London', label: 'London (GMT)' },
+    { value: 'Europe/Paris', label: 'Central Europe' },
+    { value: 'Asia/Dubai', label: 'Dubai' },
+    { value: 'Asia/Kolkata', label: 'India' },
+    { value: 'Asia/Singapore', label: 'Singapore' },
+    { value: 'Asia/Manila', label: 'Philippines' },
+    { value: 'Asia/Tokyo', label: 'Tokyo' },
+    { value: 'Australia/Sydney', label: 'Sydney' },
+    { value: 'UTC', label: 'UTC' },
+  ]
 
+  const [selectedTimezone, setSelectedTimezone] = useState('America/Chicago') // Default to Wisconsin
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -67,16 +85,17 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
             const displayTime = `${displayHour}:${minuteStr} ${ampm} UTC`
 
-            // Local time display
+            // Local time display in selected timezone
             const dateStr = selectedDate.toISOString().split('T')[0]
             const utcDateTime = new Date(`${dateStr}T${time}:00Z`)
             const localTime = utcDateTime.toLocaleTimeString('en-US', {
-              timeZone: userTimezone,
+              timeZone: selectedTimezone,
               hour: 'numeric',
               minute: '2-digit',
               hour12: true
             })
-            const localDisplay = `${localTime} (your time)`
+            const timezoneName = commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone
+            const localDisplay = `${localTime} ${timezoneName}`
 
             return { value: time, display: displayTime, localDisplay }
           })
@@ -93,7 +112,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     }
 
     fetchAvailableSlots()
-  }, [selectedDate, selectedDuration, service.users.id])
+  }, [selectedDate, selectedDuration, selectedTimezone, service.users.id])
 
   // Calendar generation
   const getDaysInMonth = (date: Date) => {
@@ -310,6 +329,23 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
               )}
 
               <div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-accent-grey-900 mb-2">
+                    Select your timezone
+                  </label>
+                  <select
+                    value={selectedTimezone}
+                    onChange={(e) => setSelectedTimezone(e.target.value)}
+                    className="w-full border border-accent-grey-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                  >
+                    {commonTimezones.map(tz => (
+                      <option key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold text-accent-grey-900">What time works best?</h3>
                 </div>
@@ -320,10 +356,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                     </p>
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs text-blue-700">
-                        <strong>Your timezone:</strong> {userTimezone}
-                      </p>
-                      <p className="text-xs text-blue-600 mt-1">
-                        Times shown in UTC and your local time
+                        Times shown in UTC and {commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone}
                       </p>
                     </div>
                   </div>
