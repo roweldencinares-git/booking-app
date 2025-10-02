@@ -21,6 +21,9 @@ interface PersonalizedBookingProps {
 }
 
 export default function PersonalizedBooking({ service, slug }: PersonalizedBookingProps) {
+  // Detect user's timezone
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -34,7 +37,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
   const [step, setStep] = useState<'time' | 'info'>('time')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isConfirmed, setIsConfirmed] = useState(false)
-  const [timeSlots, setTimeSlots] = useState<{ value: string; display: string }[]>([])
+  const [timeSlots, setTimeSlots] = useState<{ value: string; display: string; localDisplay: string }[]>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
 
   // Fetch available time slots when date or duration changes
@@ -58,10 +61,24 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const [hourStr, minuteStr] = time.split(':')
             const hour = parseInt(hourStr)
             const minute = parseInt(minuteStr)
+
+            // UTC time display
             const ampm = hour >= 12 ? 'pm' : 'am'
             const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-            const displayTime = `${displayHour}:${minuteStr} ${ampm}`
-            return { value: time, display: displayTime }
+            const displayTime = `${displayHour}:${minuteStr} ${ampm} UTC`
+
+            // Local time display
+            const dateStr = selectedDate.toISOString().split('T')[0]
+            const utcDateTime = new Date(`${dateStr}T${time}:00Z`)
+            const localTime = utcDateTime.toLocaleTimeString('en-US', {
+              timeZone: userTimezone,
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            })
+            const localDisplay = `${localTime} (your time)`
+
+            return { value: time, display: displayTime, localDisplay }
           })
           setTimeSlots(formattedSlots)
         } else {
@@ -297,9 +314,19 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   <h3 className="text-xl font-semibold text-accent-grey-900">What time works best?</h3>
                 </div>
                 {selectedDate && (
-                  <p className="text-sm text-accent-grey-600 mb-4">
-                    Showing times for {selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </p>
+                  <div className="mb-4">
+                    <p className="text-sm text-accent-grey-600">
+                      Showing times for {selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-700">
+                        <strong>Your timezone:</strong> {userTimezone}
+                      </p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        Times shown in UTC and your local time
+                      </p>
+                    </div>
+                  </div>
                 )}
 
                 {!selectedDate && (
@@ -329,7 +356,10 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                         onClick={() => handleTimeSelect(slot.value)}
                         className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${selectedTime === slot.value ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium' : 'border-accent-grey-200 hover:border-primary-blue'}`}
                       >
-                        {slot.display}
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium">{slot.display}</span>
+                          <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
