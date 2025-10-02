@@ -80,12 +80,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const hour = parseInt(hourStr)
             const minute = parseInt(minuteStr)
 
-            // UTC time display
-            const ampm = hour >= 12 ? 'pm' : 'am'
-            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-            const displayTime = `${displayHour}:${minuteStr} ${ampm} UTC`
-
-            // Local time display in selected timezone
+            // Local time display in selected timezone (MAIN DISPLAY)
             const dateStr = selectedDate.toISOString().split('T')[0]
             const utcDateTime = new Date(`${dateStr}T${time}:00Z`)
             const localTime = utcDateTime.toLocaleTimeString('en-US', {
@@ -95,9 +90,14 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
               hour12: true
             })
             const timezoneName = commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone
-            const localDisplay = `${localTime} ${timezoneName}`
+            const displayTime = `${localTime}` // Main display time in selected timezone
 
-            return { value: time, display: displayTime, localDisplay }
+            // UTC time display (SECONDARY)
+            const ampm = hour >= 12 ? 'pm' : 'am'
+            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+            const utcDisplay = `${displayHour}:${minuteStr} ${ampm} UTC`
+
+            return { value: time, display: displayTime, localDisplay: utcDisplay }
           })
           setTimeSlots(formattedSlots)
         } else {
@@ -356,7 +356,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                     </p>
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs text-blue-700">
-                        Times shown in UTC and {commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone}
+                        Times shown in {commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone} (UTC on right)
                       </p>
                     </div>
                   </div>
