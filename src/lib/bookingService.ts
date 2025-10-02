@@ -433,11 +433,13 @@ export class BookingService {
       throw new Error('No availability set for this day')
     }
 
-    const availableStart = parseISO(`${format(start, 'yyyy-MM-dd')}T${availability.start_time}`)
-    const availableEnd = parseISO(`${format(start, 'yyyy-MM-dd')}T${availability.end_time}`)
+    // Parse availability times as UTC to match the booking times
+    const dateStr = format(start, 'yyyy-MM-dd')
+    const availableStart = new Date(`${dateStr}T${availability.start_time}Z`)
+    const availableEnd = new Date(`${dateStr}T${availability.end_time}Z`)
 
     if (isBefore(start, availableStart) || isAfter(end, availableEnd)) {
-      throw new Error('Time slot is outside available hours')
+      throw new Error(`Time slot is outside available hours (${availability.start_time} - ${availability.end_time} UTC)`)
     }
 
     // Ensure booking is not in the past

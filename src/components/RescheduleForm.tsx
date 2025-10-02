@@ -74,10 +74,8 @@ export default function RescheduleForm({
     }
 
     try {
-      // Combine date and time
-      const [hours, minutes] = selectedTime.split(':')
-      const newStartTime = new Date(selectedDate)
-      newStartTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+      // Combine date and time as UTC (append 'Z' to ensure UTC interpretation)
+      const newStartTime = new Date(selectedDate + 'T' + selectedTime + ':00Z')
 
       const response = await fetch('/api/booking/reschedule', {
         method: 'POST',
