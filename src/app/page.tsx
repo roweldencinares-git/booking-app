@@ -46,7 +46,8 @@ export default function Home() {
         </div>
 
         {/* Coaches/Staff Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mb-16">
           {/* Sample Coach Cards - In real app, this would be dynamic from database */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-t-4 border-primary-teal">
             <div className="p-6">
@@ -99,7 +100,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-
+          </div>
         </div>
       </main>
     </div>
