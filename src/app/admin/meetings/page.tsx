@@ -26,7 +26,10 @@ export default async function MeetingsPage() {
     redirect('/sign-in')
   }
 
-  // Fetch upcoming bookings
+  // Fetch upcoming bookings (from start of today)
+  const startOfToday = new Date()
+  startOfToday.setUTCHours(0, 0, 0, 0)
+
   const { data: bookings, error } = await supabase
     .from('bookings')
     .select(`
@@ -40,7 +43,7 @@ export default async function MeetingsPage() {
       notes,
       booking_types(name, duration)
     `)
-    .gte('start_time', new Date().toISOString())
+    .gte('start_time', startOfToday.toISOString())
     .order('start_time', { ascending: true })
     .limit(20)
 
@@ -58,8 +61,8 @@ export default async function MeetingsPage() {
     <AdminLayout currentPath="/admin/meetings">
       <div className="p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Upcoming Meetings</h1>
-          <p className="text-gray-600 mt-2">Manage and view all scheduled meetings</p>
+          <h1 className="text-3xl font-bold text-gray-900">Today's & Upcoming Meetings</h1>
+          <p className="text-gray-600 mt-2">Manage and view all scheduled meetings from today onwards</p>
         </div>
 
         {upcomingMeetings.length === 0 ? (
