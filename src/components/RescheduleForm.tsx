@@ -91,10 +91,12 @@ export default function RescheduleForm({
         router.push('/admin/meetings?success=rescheduled')
       } else {
         const data = await response.json()
+        console.error('Reschedule error response:', data)
         setError(data.error || 'Failed to reschedule booking')
       }
     } catch (err) {
-      setError('Failed to reschedule booking')
+      console.error('Reschedule error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to reschedule booking')
     } finally {
       setIsLoading(false)
     }

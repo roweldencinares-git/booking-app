@@ -46,9 +46,15 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Booking reschedule error:', error)
-    
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    
+
+    // Log full error details for debugging
+    console.error('Full error details:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined
+    })
+
     // Handle specific error types
     if (errorMessage.includes('not found')) {
       return NextResponse.json(
@@ -57,7 +63,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (errorMessage.includes('Time slot is already booked') || 
+    if (errorMessage.includes('Time slot is already booked') ||
         errorMessage.includes('outside available hours') ||
         errorMessage.includes('in the past') ||
         errorMessage.includes('Cannot reschedule a cancelled booking')) {
@@ -67,8 +73,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Return the actual error message for debugging
     return NextResponse.json(
-      { error: 'Failed to reschedule booking' },
+      { error: errorMessage || 'Failed to reschedule booking' },
       { status: 500 }
     )
   }
