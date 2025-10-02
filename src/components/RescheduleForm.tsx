@@ -34,8 +34,9 @@ export default function RescheduleForm({
   const getAvailableTimeSlots = () => {
     if (!selectedDate) return []
 
-    const date = new Date(selectedDate)
-    const dayOfWeek = date.getDay()
+    // Parse date in UTC to match the availability day_of_week
+    const date = new Date(selectedDate + 'T00:00:00Z')
+    const dayOfWeek = date.getUTCDay()
 
     const dayAvailability = availability.find(a => a.day_of_week === dayOfWeek)
     if (!dayAvailability) return []
@@ -47,7 +48,15 @@ export default function RescheduleForm({
     let currentHour = startHour
     let currentMinute = startMinute
 
-    while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+    // Generate slots up to (but not including) end time
+    const endTimeInMinutes = endHour * 60 + endMinute
+
+    while (true) {
+      const currentTimeInMinutes = currentHour * 60 + currentMinute
+
+      // Stop if we've reached or passed the end time
+      if (currentTimeInMinutes >= endTimeInMinutes) break
+
       const timeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`
       slots.push(timeString)
 
@@ -104,8 +113,16 @@ export default function RescheduleForm({
 
   const timeSlots = getAvailableTimeSlots()
 
-  // Get minimum date (today)
-  const minDate = new Date().toISOString().split('T')[0]
+  // Get minimum date (today in UTC)
+  const now = new Date()
+  const minDate = now.toISOString().split('T')[0]
+
+  // Debug logging
+  if (selectedDate && timeSlots.length > 0) {
+    console.log('Selected date:', selectedDate)
+    console.log('Day of week:', new Date(selectedDate + 'T00:00:00Z').getUTCDay())
+    console.log('Available slots:', timeSlots.length)
+  }
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
