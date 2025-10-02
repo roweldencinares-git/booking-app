@@ -7,14 +7,15 @@ export const dynamic = 'force-dynamic'
 
 interface Booking {
   id: string
-  title: string
   start_time: string
   end_time: string
   client_name: string
   client_email: string
+  client_phone?: string
   status: string
-  meeting_url?: string
+  notes?: string
   service_type: string
+  service_duration?: number
 }
 
 export default async function MeetingsPage() {
@@ -29,14 +30,14 @@ export default async function MeetingsPage() {
     .from('bookings')
     .select(`
       id,
-      title,
       start_time,
       end_time,
       client_name,
       client_email,
+      client_phone,
       status,
-      meeting_url,
-      booking_types(name)
+      notes,
+      booking_types(name, duration)
     `)
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
@@ -48,7 +49,8 @@ export default async function MeetingsPage() {
 
   const upcomingMeetings: Booking[] = (bookings || []).map(booking => ({
     ...booking,
-    service_type: booking.booking_types?.name || 'Unknown Service'
+    service_type: booking.booking_types?.name || 'Unknown Service',
+    service_duration: booking.booking_types?.duration
   }))
 
   const formatDateTime = (dateTime: string) => {
@@ -129,10 +131,10 @@ export default async function MeetingsPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {meeting.title || meeting.service_type}
+                              {meeting.service_type}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {meeting.service_type}
+                              {meeting.service_duration || 30} minutes
                             </div>
                           </div>
                         </td>
@@ -163,18 +165,11 @@ export default async function MeetingsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
-                            {meeting.meeting_url && (
-                              <a
-                                href={meeting.meeting_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                Join
-                              </a>
-                            )}
+                            <button className="text-indigo-600 hover:text-indigo-900">
+                              View Details
+                            </button>
                             <button className="text-gray-600 hover:text-gray-900">
-                              Edit
+                              Reschedule
                             </button>
                             <button className="text-red-600 hover:text-red-900">
                               Cancel
