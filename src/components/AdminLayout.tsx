@@ -222,19 +222,6 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
             </div>
           </div>
         </nav>
-
-        {/* Bottom Section - Hidden when collapsed */}
-        {!isCollapsed && (
-          <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-4">
-            <Link
-              href="/"
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <span>←</span>
-              <span>Back to Site</span>
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Main Content */}
