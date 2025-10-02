@@ -22,9 +22,9 @@ export default function Home() {
               <SignedIn>
                 <Link
                   href="/admin"
-                  className="text-accent-grey-700 hover:text-primary-teal px-3 py-2 transition-colors"
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  Admin Panel
+                  Dashboard
                 </Link>
                 <UserButton afterSignOutUrl="/" />
               </SignedIn>
@@ -101,21 +101,6 @@ export default function Home() {
           </div>
 
         </div>
-
-        {/* Admin Access */}
-        <SignedIn>
-          <div className="text-center border-t border-accent-grey-200 pt-8">
-            <p className="text-accent-grey-700 mb-4">Staff or Admin?</p>
-            <div className="flex justify-center gap-4">
-              <Link
-                href="/admin"
-                className="bg-primary-orange text-white px-6 py-2 rounded-lg hover:bg-primary-teal transition-colors"
-              >
-                Admin Panel
-              </Link>
-            </div>
-          </div>
-        </SignedIn>
       </main>
     </div>
   )
