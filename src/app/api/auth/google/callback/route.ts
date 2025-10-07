@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get('state') // Clerk user ID
     const error = searchParams.get('error')
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://meetings.spearity.com';
+    const appUrl = 'https://meetings.spearity.com';
+    const redirectUri = 'https://meetings.spearity.com/api/auth/google/callback';
 
     if (error) {
       console.error('OAuth error:', error)
@@ -19,6 +20,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${appUrl}/admin/integrations?error=missing_code`)
     }
 
+    console.log('Exchanging code for tokens with redirect_uri:', redirectUri);
+
     // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -28,7 +31,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
         code,
         grant_type: 'authorization_code',
-        redirect_uri: `${appUrl}/api/auth/google/callback`
+        redirect_uri: redirectUri
       })
     })
 
