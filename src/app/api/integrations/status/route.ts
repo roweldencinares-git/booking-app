@@ -18,23 +18,32 @@ export async function GET(request: NextRequest) {
     // Get user integrations
     const { data: user, error } = await supabase
       .from('users')
-      .select('google_connected_at, google_calendar_email, zoom_connected_at, zoom_account_name')
+      .select('google_connected_at, google_calendar_email, google_access_token, zoom_connected_at, zoom_account_name, zoom_access_token')
       .eq('clerk_user_id', userId)
       .single();
 
     if (error) {
       console.error('Error fetching integrations:', error);
+
+      // If user not found, return empty integrations (not connected)
+      if (error.code === 'PGRST116') {
+        return NextResponse.json({
+          google: { connected: false },
+          zoom: { connected: false }
+        });
+      }
+
       return NextResponse.json({ error: 'Failed to fetch integrations' }, { status: 500 });
     }
 
     return NextResponse.json({
       google: {
-        connected: !!user?.google_connected_at,
+        connected: !!user?.google_access_token,
         connectedAt: user?.google_connected_at,
         email: user?.google_calendar_email
       },
       zoom: {
-        connected: !!user?.zoom_connected_at,
+        connected: !!user?.zoom_access_token,
         connectedAt: user?.zoom_connected_at,
         accountName: user?.zoom_account_name
       }
