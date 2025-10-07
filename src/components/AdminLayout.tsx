@@ -103,6 +103,18 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
             {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Sessions</h3>}
             <div className="space-y-1">
               <Link
+                href="/admin/coach-dashboard"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/admin/coach-dashboard')
+                    ? 'bg-indigo-50 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'Coach Dashboard' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>👨‍💼</span>
+                {!isCollapsed && 'Coach Dashboard'}
+              </Link>
+              <Link
                 href="/admin/meetings"
                 className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
                   isActive('/admin/meetings')
@@ -125,6 +137,37 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
               >
                 <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>📊</span>
                 {!isCollapsed && 'Session Recaps'}
+              </Link>
+            </div>
+          </div>
+
+          {/* NEXUS Section */}
+          <div className="px-3 mb-6">
+            {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">NEXUS Framework</h3>}
+            <div className="space-y-1">
+              <Link
+                href="/admin/nexus-demo"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/admin/nexus-demo')
+                    ? 'bg-purple-50 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'NEXUS Demo' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🌌</span>
+                {!isCollapsed && 'NEXUS Demo'}
+              </Link>
+              <Link
+                href="/admin/nexus-test"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/admin/nexus-test')
+                    ? 'bg-purple-50 text-purple-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'NEXUS Test' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🧪</span>
+                {!isCollapsed && 'NEXUS Test'}
               </Link>
             </div>
           </div>

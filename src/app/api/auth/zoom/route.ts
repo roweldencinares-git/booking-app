@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       }
 
       const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL?.trim()}/api/auth/zoom`
-      const scopes = 'meeting:write:meeting meeting:read:meeting user:read:user'
+      const scopes = 'meeting:write meeting:read meeting:update meeting:delete'
       const oauthState = targetUserId // Pass user_id as state
 
       const authUrl = new URL('https://zoom.us/oauth/authorize')
