@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Get user integrations
     const { data: user, error } = await supabase
       .from('users')
-      .select('google_connected_at, google_calendar_email, google_access_token, zoom_connected_at, zoom_account_name, zoom_access_token')
+      .select('google_connected_at, google_calendar_connected, google_access_token, zoom_connected, zoom_access_token, email')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -40,12 +40,12 @@ export async function GET(request: NextRequest) {
       google: {
         connected: !!user?.google_access_token,
         connectedAt: user?.google_connected_at,
-        email: user?.google_calendar_email
+        email: user?.email
       },
       zoom: {
         connected: !!user?.zoom_access_token,
-        connectedAt: user?.zoom_connected_at,
-        accountName: user?.zoom_account_name
+        connectedAt: user?.zoom_connected ? new Date().toISOString() : null,
+        accountName: user?.email
       }
     });
   } catch (error) {

@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
         .update({
           google_access_token: tokens.access_token,
           google_refresh_token: tokens.refresh_token,
-          google_calendar_email: calendarEmail,
+          google_calendar_connected: true,
           google_connected_at: new Date().toISOString()
         })
         .eq('clerk_user_id', state);
