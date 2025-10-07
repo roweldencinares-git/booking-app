@@ -39,11 +39,25 @@ export async function GET(request: NextRequest) {
 
     const tokens = await tokenResponse.json()
 
-    // Get user's email from Google
-    const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-      headers: { Authorization: `Bearer ${tokens.access_token}` }
-    });
-    const userInfo = await userInfoResponse.json();
+    // Get user's calendar/email from Google Calendar API
+    let calendarEmail = null;
+    try {
+      const calendarResponse = await fetch('https://www.googleapis.com/calendar/v3/users/me/settings/timezone', {
+        headers: { Authorization: `Bearer ${tokens.access_token}` }
+      });
+      if (calendarResponse.ok) {
+        // Get primary calendar to extract email
+        const primaryCalendarResponse = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary', {
+          headers: { Authorization: `Bearer ${tokens.access_token}` }
+        });
+        if (primaryCalendarResponse.ok) {
+          const calendarData = await primaryCalendarResponse.json();
+          calendarEmail = calendarData.id; // Calendar ID is usually the email
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching calendar info:', e);
+    }
 
     // Store tokens in database
     const supabase = createClient(
@@ -56,7 +70,7 @@ export async function GET(request: NextRequest) {
       .update({
         google_access_token: tokens.access_token,
         google_refresh_token: tokens.refresh_token,
-        google_calendar_email: userInfo.email,
+        google_calendar_email: calendarEmail,
         google_connected_at: new Date().toISOString()
       })
       .eq('clerk_user_id', state)
