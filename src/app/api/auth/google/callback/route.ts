@@ -5,22 +5,33 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const code = searchParams.get('code')
-    const state = searchParams.get('state') // Clerk user ID
+    const state = searchParams.get('state') // Could be Clerk user ID or staff UUID
     const error = searchParams.get('error')
 
     const appUrl = 'https://meetings.spearity.com';
     const redirectUri = 'https://meetings.spearity.com/api/auth/google/callback';
 
+    // Determine if this is a staff OAuth flow (UUID) or user integrations flow (Clerk ID)
+    const isStaffFlow = state && state.length === 36 && state.includes('-'); // UUID format
+    const isUserFlow = state && state.startsWith('user_'); // Clerk user ID format
+
     if (error) {
       console.error('OAuth error:', error)
-      return NextResponse.redirect(`${appUrl}/admin/integrations?error=oauth_denied`)
+      const errorRedirect = isStaffFlow
+        ? `${appUrl}/admin/staff?error=oauth_denied`
+        : `${appUrl}/admin/integrations?error=oauth_denied`;
+      return NextResponse.redirect(errorRedirect)
     }
 
     if (!code || !state) {
-      return NextResponse.redirect(`${appUrl}/admin/integrations?error=missing_code`)
+      const errorRedirect = isStaffFlow
+        ? `${appUrl}/admin/staff?error=missing_code`
+        : `${appUrl}/admin/integrations?error=missing_code`;
+      return NextResponse.redirect(errorRedirect)
     }
 
     console.log('Exchanging code for tokens with redirect_uri:', redirectUri);
+    console.log('Flow type:', isStaffFlow ? 'staff' : 'user integrations');
 
     // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -68,39 +79,60 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // First check if user exists
-    const { data: existingUser, error: userCheckError } = await supabase
-      .from('users')
-      .select('id, clerk_user_id')
-      .eq('clerk_user_id', state)
-      .single();
+    // Handle staff flow (UUID) vs user integrations flow (Clerk ID)
+    if (isStaffFlow) {
+      // Staff OAuth flow - update by staff UUID
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          google_calendar_connected: true,
+          google_access_token: tokens.access_token,
+          google_refresh_token: tokens.refresh_token,
+          google_token_expires_at: new Date(Date.now() + (tokens.expires_in * 1000)).toISOString(),
+          google_connected_at: new Date().toISOString()
+        })
+        .eq('id', state);
 
-    console.log('User lookup:', { state, existingUser, userCheckError });
+      if (updateError) {
+        console.error('Error storing tokens for staff:', updateError);
+        return NextResponse.redirect(`${appUrl}/admin/staff?error=database_error`);
+      }
 
-    if (!existingUser) {
-      console.error('User not found with clerk_user_id:', state);
-      return NextResponse.redirect(`${appUrl}/admin/integrations?error=user_not_found`);
+      console.log('Successfully stored Google tokens for staff:', state);
+      return NextResponse.redirect(`${appUrl}/admin/staff/${state}/schedule?success=calendar_connected`);
+    } else {
+      // User integrations flow - update by Clerk user ID
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from('users')
+        .select('id, clerk_user_id')
+        .eq('clerk_user_id', state)
+        .single();
+
+      console.log('User lookup:', { state, existingUser, userCheckError });
+
+      if (!existingUser) {
+        console.error('User not found with clerk_user_id:', state);
+        return NextResponse.redirect(`${appUrl}/admin/integrations?error=user_not_found`);
+      }
+
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          google_access_token: tokens.access_token,
+          google_refresh_token: tokens.refresh_token,
+          google_calendar_email: calendarEmail,
+          google_connected_at: new Date().toISOString()
+        })
+        .eq('clerk_user_id', state);
+
+      if (updateError) {
+        console.error('Error storing tokens:', updateError);
+        return NextResponse.redirect(`${appUrl}/admin/integrations?error=database_error`);
+      }
+
+      console.log('Successfully stored Google tokens for user:', state);
+      return NextResponse.redirect(`${appUrl}/admin/integrations?success=google_connected`);
     }
-
-    const { error: updateError } = await supabase
-      .from('users')
-      .update({
-        google_access_token: tokens.access_token,
-        google_refresh_token: tokens.refresh_token,
-        google_calendar_email: calendarEmail,
-        google_connected_at: new Date().toISOString()
-      })
-      .eq('clerk_user_id', state)
-
-    if (updateError) {
-      console.error('Error storing tokens:', updateError)
-      return NextResponse.redirect(`${appUrl}/admin/integrations?error=database_error`)
-    }
-
-    console.log('Successfully stored Google tokens for user:', state);
-
-    // Redirect back to integrations page
-    return NextResponse.redirect(`${appUrl}/admin/integrations?success=google_connected`)
   } catch (error) {
     console.error('OAuth callback error:', error)
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL || 'https://meetings.spearity.com'}/admin/integrations?error=callback_error`)
