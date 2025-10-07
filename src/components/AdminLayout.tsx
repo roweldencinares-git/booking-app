@@ -95,18 +95,6 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                 <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🏠</span>
                 {!isCollapsed && 'Overview'}
               </Link>
-              <Link
-                href="/admin/integrations"
-                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                  isActive('/admin/integrations')
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                title={isCollapsed ? 'Integrations' : ''}
-              >
-                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🔗</span>
-                {!isCollapsed && 'Integrations'}
-              </Link>
             </div>
           </div>
 
@@ -145,6 +133,18 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
           <div className="px-3 mb-6">
             {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Management</h3>}
             <div className="space-y-1">
+              <Link
+                href="/admin/integrations"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/admin/integrations')
+                    ? 'bg-indigo-50 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'Integrations' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🔗</span>
+                {!isCollapsed && 'Integrations'}
+              </Link>
               <Link
                 href="/admin/staff"
                 className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
