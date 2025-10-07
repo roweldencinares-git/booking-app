@@ -6,14 +6,16 @@ export async function GET(request: NextRequest) {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in`);
+      return NextResponse.redirect('https://meetings.spearity.com/sign-in');
     }
 
     // Build Google OAuth URL
     const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 
+    const redirectUri = 'https://meetings.spearity.com/api/auth/google/callback';
+
     googleAuthUrl.searchParams.append('client_id', process.env.GOOGLE_CLIENT_ID!);
-    googleAuthUrl.searchParams.append('redirect_uri', `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`);
+    googleAuthUrl.searchParams.append('redirect_uri', redirectUri);
     googleAuthUrl.searchParams.append('response_type', 'code');
     googleAuthUrl.searchParams.append('scope', [
       'https://www.googleapis.com/auth/calendar',
@@ -26,6 +28,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(googleAuthUrl.toString());
   } catch (error) {
     console.error('Error initiating Google OAuth:', error);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/integrations?error=oauth_init_failed`);
+    return NextResponse.redirect('https://meetings.spearity.com/admin/integrations?error=oauth_init_failed');
   }
 }
