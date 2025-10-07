@@ -20,12 +20,11 @@ export async function POST(request: NextRequest) {
 
     if (service === 'google') {
       updateData.google_connected_at = null;
-      updateData.google_calendar_email = null;
+      updateData.google_calendar_connected = false;
       updateData.google_access_token = null;
       updateData.google_refresh_token = null;
     } else if (service === 'zoom') {
-      updateData.zoom_connected_at = null;
-      updateData.zoom_account_name = null;
+      updateData.zoom_connected = false;
       updateData.zoom_access_token = null;
       updateData.zoom_refresh_token = null;
     } else {
