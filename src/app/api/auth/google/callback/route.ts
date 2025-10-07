@@ -65,6 +65,20 @@ export async function GET(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    // First check if user exists
+    const { data: existingUser, error: userCheckError } = await supabase
+      .from('users')
+      .select('id, clerk_user_id')
+      .eq('clerk_user_id', state)
+      .single();
+
+    console.log('User lookup:', { state, existingUser, userCheckError });
+
+    if (!existingUser) {
+      console.error('User not found with clerk_user_id:', state);
+      return NextResponse.redirect(`${appUrl}/admin/integrations?error=user_not_found`);
+    }
+
     const { error: updateError } = await supabase
       .from('users')
       .update({
@@ -79,6 +93,8 @@ export async function GET(request: NextRequest) {
       console.error('Error storing tokens:', updateError)
       return NextResponse.redirect(`${appUrl}/admin/integrations?error=database_error`)
     }
+
+    console.log('Successfully stored Google tokens for user:', state);
 
     // Redirect back to integrations page
     return NextResponse.redirect(`${appUrl}/admin/integrations?success=google_connected`)
