@@ -359,17 +359,57 @@ export default function UnifiedAvailability({ staffId, staff, initialAvailabilit
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Time Off & Blocked Dates
+                  Time Off & Holidays
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  Block specific dates when you're unavailable
+                  Manage holidays and blocked dates when you're unavailable
                 </p>
               </div>
 
-              <div className="text-center py-12 text-gray-500">
-                <div className="text-6xl mb-4">🏖️</div>
-                <p className="text-lg font-medium">Time Off Management</p>
-                <p className="text-sm mt-2">Coming soon - block specific dates and holidays</p>
+              {/* US Federal Holidays 2025 */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">🇺🇸 US Federal Holidays 2025</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Bookings are automatically blocked on these dates
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { name: "New Year's Day", date: "January 1" },
+                    { name: "Martin Luther King Jr. Day", date: "January 20" },
+                    { name: "Presidents Day", date: "February 17" },
+                    { name: "Memorial Day", date: "May 26" },
+                    { name: "Independence Day", date: "July 4" },
+                    { name: "Labor Day", date: "September 1" },
+                    { name: "Columbus Day", date: "October 13" },
+                    { name: "Veterans Day", date: "November 11" },
+                    { name: "Thanksgiving", date: "November 27" },
+                    { name: "Christmas Day", date: "December 25" },
+                  ].map((holiday) => (
+                    <div
+                      key={holiday.name}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">{holiday.name}</p>
+                        <p className="text-sm text-gray-600">{holiday.date}</p>
+                      </div>
+                      <span className="text-green-600">✓</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom Time Off */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">📅 Custom Time Off</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Add specific dates when you'll be unavailable (vacations, personal days, etc.)
+                </p>
+                <div className="text-center py-8 text-gray-400">
+                  <div className="text-4xl mb-2">🏖️</div>
+                  <p className="text-sm">Custom date blocking coming soon</p>
+                  <p className="text-xs mt-1">You'll be able to block specific date ranges</p>
+                </div>
               </div>
             </div>
           )}

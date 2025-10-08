@@ -1,6 +1,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import AdminLayout from '@/components/AdminLayout'
 import UnifiedAvailability from '@/components/UnifiedAvailability'
 
 export const dynamic = 'force-dynamic'
@@ -36,22 +37,20 @@ export default async function AvailabilityPage() {
     .order('day_of_week', { ascending: true })
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
-        <UnifiedAvailability
-          staffId={user.id}
-          staff={{
-            id: user.id,
-            first_name: user.first_name || '',
-            last_name: user.last_name || '',
-            email: user.email || '',
-            timezone: user.timezone || 'America/Chicago',
-            google_calendar_connected: user.google_calendar_connected || false,
-            zoom_connected: user.zoom_connected || false
-          }}
-          initialAvailability={availability || []}
-        />
-      </div>
-    </div>
+    <AdminLayout currentPath="/admin/availability">
+      <UnifiedAvailability
+        staffId={user.id}
+        staff={{
+          id: user.id,
+          first_name: user.first_name || '',
+          last_name: user.last_name || '',
+          email: user.email || '',
+          timezone: user.timezone || 'America/Chicago',
+          google_calendar_connected: user.google_calendar_connected || false,
+          zoom_connected: user.zoom_connected || false
+        }}
+        initialAvailability={availability || []}
+      />
+    </AdminLayout>
   )
 }
