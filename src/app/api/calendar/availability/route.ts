@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createCalendarService } from '@/lib/calendarService'
 import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
@@ -16,15 +15,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const calendarService = await createCalendarService(coachId)
-    const availability = await calendarService.getAvailability(
-      coachId,
-      serviceId,
-      new Date(date)
-    )
-
-    return NextResponse.json({ availability })
-
+    // Use the simple availability logic
+    return getAvailabilitySlots(coachId, date)
   } catch (error) {
     console.error('Calendar availability error:', error)
     return NextResponse.json(
@@ -38,51 +30,34 @@ export async function POST(request: NextRequest) {
   try {
     const { date, duration, serviceId } = await request.json()
 
-    if (!date || !duration || !serviceId) {
+    if (!date || !serviceId) {
       return NextResponse.json(
-        { error: 'Missing required parameters: date, duration, serviceId' },
+        { error: 'Missing required parameters: date, serviceId' },
         { status: 400 }
       )
     }
 
-    // For now, use demo coach ID. In real app, get from service or auth
-    const coachId = '1'
-
-    const calendarService = await createCalendarService(coachId)
-    const availability = await calendarService.getAvailability(
-      coachId,
-      serviceId,
-      new Date(date)
-    )
-
-    // Get coach timezone
+    // Get coach ID from service
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-    const { data: coach } = await supabase
-      .from('users')
-      .select('timezone')
-      .eq('id', coachId)
+
+    const { data: service } = await supabase
+      .from('booking_types')
+      .select('user_id')
+      .eq('id', serviceId)
       .single()
 
-    const coachTimezone = coach?.timezone || 'America/Chicago'
+    if (!service) {
+      return NextResponse.json(
+        { error: 'Service not found' },
+        { status: 404 }
+      )
+    }
 
-    // Format the availability data to match expected format
-    const availableSlots = availability.map((slot: any) => {
-      return new Date(slot.time).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: coachTimezone // Use coach's actual timezone
-      })
-    })
-
-    return NextResponse.json({
-      success: true,
-      availableSlots: availableSlots.slice(0, 10) // Limit to 10 slots
-    })
-
+    // Get availability slots
+    return getAvailabilitySlots(service.user_id, date)
   } catch (error) {
     console.error('Calendar availability error:', error)
 
@@ -93,4 +68,75 @@ export async function POST(request: NextRequest) {
       message: 'Using fallback availability (calendar service unavailable)'
     })
   }
+}
+
+async function getAvailabilitySlots(coachId: string, dateStr: string) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // Get coach timezone
+  const { data: coach } = await supabase
+    .from('users')
+    .select('timezone')
+    .eq('id', coachId)
+    .single()
+
+  const timezone = coach?.timezone || 'America/Chicago'
+
+  // Get day of week (0 = Sunday, 1 = Monday, etc.)
+  const selectedDate = new Date(dateStr)
+  const dayOfWeek = selectedDate.getDay()
+
+  // Get availability for that day
+  const { data: availability } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('user_id', coachId)
+    .eq('day_of_week', dayOfWeek)
+    .eq('is_available', true)
+    .single()
+
+  if (!availability) {
+    return NextResponse.json({
+      success: true,
+      availableSlots: [],
+      message: 'No availability for this day'
+    })
+  }
+
+  // Generate time slots (every 15 minutes)
+  const slots = []
+  const [startHour, startMinute] = availability.start_time.split(':').map(Number)
+  const [endHour, endMinute] = availability.end_time.split(':').map(Number)
+
+  let currentHour = startHour
+  let currentMinute = startMinute
+
+  while (
+    currentHour < endHour ||
+    (currentHour === endHour && currentMinute < endMinute)
+  ) {
+    // Format time in 12-hour format
+    const hour12 = currentHour % 12 || 12
+    const ampm = currentHour < 12 ? 'AM' : 'PM'
+    const minuteStr = currentMinute.toString().padStart(2, '0')
+    const timeStr = `${hour12}:${minuteStr} ${ampm}`
+
+    slots.push(timeStr)
+
+    // Increment by 15 minutes
+    currentMinute += 15
+    if (currentMinute >= 60) {
+      currentMinute = 0
+      currentHour += 1
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    availableSlots: slots,
+    timezone
+  })
 }
