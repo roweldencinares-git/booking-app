@@ -289,7 +289,7 @@ export class CalendarService {
       return {
         id: data.id,
         email: data.email,
-        timezone: data.timezone || 'America/Chicago' // Default to Central Time,
+        timezone: data.timezone || 'America/Chicago', // Default to Central Time
         calendarId: 'primary', // Use primary calendar since we don't store calendar_id
         accessToken: data.google_access_token,
         refreshToken: data.google_refresh_token,
