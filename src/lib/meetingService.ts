@@ -55,12 +55,19 @@ export class MeetingService {
         .eq('id', booking.booking_type_id)
         .single()
 
+      // Get coach's timezone from user record
+      const { data: coach } = await supabase
+        .from('users')
+        .select('timezone')
+        .eq('id', booking.user_id)
+        .single()
+
       // Use user's OAuth token to create meeting
       const meetingData = {
         topic: `${bookingType?.name || 'Appointment'} - ${booking.client_name}`,
         start_time: booking.start_time,
         duration: bookingType?.duration || 60,
-        timezone: 'America/New_York'
+        timezone: coach?.timezone || 'America/Chicago' // Use coach's timezone, default to Central
       }
 
       const meeting = await ZoomAuth.createMeeting(accessToken, meetingData)
@@ -104,11 +111,18 @@ export class MeetingService {
         throw new Error('User has not connected their Zoom account')
       }
 
+      // Get coach's timezone from user record
+      const { data: coach } = await supabase
+        .from('users')
+        .select('timezone')
+        .eq('id', booking.user_id)
+        .single()
+
       const meetingRequest = {
         topic: `${bookingType?.name || 'Appointment'} - ${booking.client_name}`,
         start_time: booking.start_time,
         duration: bookingType?.duration || 60,
-        timezone: 'America/New_York'
+        timezone: coach?.timezone || 'America/Chicago' // Use coach's timezone, default to Central
       }
 
       const response = await fetch(`https://api.zoom.us/v2/meetings/${booking.zoom_meeting_id}`, {

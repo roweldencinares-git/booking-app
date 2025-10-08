@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createCalendarService } from '@/lib/calendarService'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,13 +55,26 @@ export async function POST(request: NextRequest) {
       new Date(date)
     )
 
+    // Get coach timezone
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    const { data: coach } = await supabase
+      .from('users')
+      .select('timezone')
+      .eq('id', coachId)
+      .single()
+
+    const coachTimezone = coach?.timezone || 'America/Chicago'
+
     // Format the availability data to match expected format
     const availableSlots = availability.map((slot: any) => {
       return new Date(slot.time).toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
-        timeZone: 'Asia/Singapore'
+        timeZone: coachTimezone // Use coach's actual timezone
       })
     })
 
@@ -72,11 +86,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Calendar availability error:', error)
 
-    // Return fallback slots if calendar service fails
+    // Return fallback slots if calendar service fails (Wisconsin business hours)
     return NextResponse.json({
       success: false,
-      availableSlots: ['4:15 AM', '4:30 AM', '4:45 AM', '5:00 AM', '5:15 AM', '5:30 AM'],
-      message: 'Using fallback availability'
+      availableSlots: ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'],
+      message: 'Using fallback availability (calendar service unavailable)'
     })
   }
 }

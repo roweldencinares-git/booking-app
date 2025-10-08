@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         first_name,
         last_name,
         email,
-        timezone: timezone || 'America/New_York'
+        timezone: timezone || 'America/Chicago' // Default to Central Time (Wisconsin)
         // Note: role column doesn't exist yet - will be added in future migration
       }])
       .select()

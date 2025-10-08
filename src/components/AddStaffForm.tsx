@@ -10,7 +10,7 @@ export default function AddStaffForm() {
     first_name: '',
     last_name: '',
     email: '',
-    timezone: 'America/New_York',
+    timezone: 'America/Chicago' // Default to Central Time (Wisconsin),
     role: 'admin'
   })
 
@@ -30,7 +30,7 @@ export default function AddStaffForm() {
           first_name: '',
           last_name: '',
           email: '',
-          timezone: 'America/New_York',
+          timezone: 'America/Chicago' // Default to Central Time (Wisconsin),
           role: 'admin'
         })
         router.refresh()

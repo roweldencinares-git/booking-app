@@ -289,7 +289,7 @@ export class CalendarService {
       return {
         id: data.id,
         email: data.email,
-        timezone: data.timezone || 'America/New_York',
+        timezone: data.timezone || 'America/Chicago' // Default to Central Time,
         calendarId: 'primary', // Use primary calendar since we don't store calendar_id
         accessToken: data.google_access_token,
         refreshToken: data.google_refresh_token,
@@ -342,12 +342,13 @@ export class CalendarService {
     const [startHour, startMinute] = workingHours.startTime.split(':').map(Number)
     const [endHour, endMinute] = workingHours.endTime.split(':').map(Number)
 
-    // Create start and end times for the day
-    const dayStart = new Date(date)
-    dayStart.setHours(startHour, startMinute, 0, 0)
+    // Create timezone-aware start and end times for the day
+    // Use the date string in YYYY-MM-DD format
+    const dateStr = date.toISOString().split('T')[0]
 
-    const dayEnd = new Date(date)
-    dayEnd.setHours(endHour, endMinute, 0, 0)
+    // Create times in the coach's timezone
+    const dayStart = this.createTimezoneAwareDate(dateStr, startHour, startMinute, timezone)
+    const dayEnd = this.createTimezoneAwareDate(dateStr, endHour, endMinute, timezone)
 
     // Check if the selected date is today
     const now = new Date()
@@ -447,6 +448,50 @@ export class CalendarService {
       { dayOfWeek: 0, startTime: '09:00', endTime: '17:00', isActive: false }  // Sunday
     ]
   }
+
+  /**
+   * Create a timezone-aware date from date string, time, and timezone
+   * This ensures time slots are generated in the coach's local time
+   */
+  private createTimezoneAwareDate(
+    dateStr: string,
+    hour: number,
+    minute: number,
+    timezone: string
+  ): Date {
+    const [year, month, day] = dateStr.split('-').map(Number)
+    const utcReference = new Date(Date.UTC(year, month - 1, day, hour, minute, 0))
+
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    })
+
+    const formatted = formatter.format(utcReference)
+    const [datePart, timePart] = formatted.split(', ')
+    const [fMonth, fDay, fYear] = datePart.split('/')
+    const [fHour, fMinute, fSecond] = timePart.split(':')
+
+    const tzHourDiff = parseInt(fHour) - hour
+    const tzMinuteDiff = parseInt(fMinute) - minute
+
+    const correctUtc = new Date(Date.UTC(
+      year,
+      month - 1,
+      day,
+      hour - tzHourDiff,
+      minute - tzMinuteDiff,
+      0
+    ))
+
+    return correctUtc
+  }
 }
 
 // Factory function to create CalendarService with coach data
@@ -475,7 +520,7 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
   const coach: Coach = {
     id: data.id,
     email: data.email,
-    timezone: data.timezone || 'America/New_York',
+    timezone: data.timezone || 'America/Chicago' // Default to Central Time,
     calendarId: 'primary', // Use primary calendar since we don't store calendar_id
     accessToken: data.google_access_token,
     refreshToken: data.google_refresh_token,

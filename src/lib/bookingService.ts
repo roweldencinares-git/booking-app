@@ -109,11 +109,11 @@ export class BookingService {
           description: `Booking with ${input.clientName}\nEmail: ${input.clientEmail}\nPhone: ${input.clientPhone || 'N/A'}\nNotes: ${input.notes || 'N/A'}`,
           start: {
             dateTime: input.startTime,
-            timeZone: input.timezone || 'America/New_York'
+            timeZone: input.timezone || 'America/Chicago' // Default to Central Time
           },
           end: {
             dateTime: endTime.toISOString(),
-            timeZone: input.timezone || 'America/New_York'
+            timeZone: input.timezone || 'America/Chicago' // Default to Central Time
           },
           attendees: [
             {
