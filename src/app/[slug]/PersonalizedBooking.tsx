@@ -80,22 +80,19 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const hour = parseInt(hourStr)
             const minute = parseInt(minuteStr)
 
-            // Local time display in selected timezone (MAIN DISPLAY)
-            const dateStr = selectedDate.toISOString().split('T')[0]
-            const utcDateTime = new Date(`${dateStr}T${time}:00Z`)
-            const localTime = utcDateTime.toLocaleTimeString('en-US', {
-              timeZone: selectedTimezone,
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true
-            })
-            const timezoneName = commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone
-            const displayTime = `${localTime}` // Main display time in selected timezone
-
-            // UTC time display (SECONDARY)
-            const ampm = hour >= 12 ? 'pm' : 'am'
+            // Times from API are in coach's timezone (America/Chicago - Central Time)
+            // Since the API returns times in the coach's local timezone,
+            // we display them directly without timezone conversion
+            const ampm = hour >= 12 ? 'PM' : 'AM'
             const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-            const utcDisplay = `${displayHour}:${minuteStr} ${ampm} UTC`
+            const displayTime = `${displayHour}:${minuteStr} ${ampm}`
+
+            // Calculate UTC equivalent (Central Time is UTC-6 in summer, UTC-5 in winter)
+            // For simplicity, we'll show the original time as the main display
+            const utcHour = (hour + 5) % 24 // Central is typically UTC-5 (CDT)
+            const utcAmpm = utcHour >= 12 ? 'pm' : 'am'
+            const utcDisplayHour = utcHour > 12 ? utcHour - 12 : utcHour === 0 ? 12 : utcHour
+            const utcDisplay = `${utcDisplayHour}:${minuteStr} ${utcAmpm} UTC`
 
             return { value: time, display: displayTime, localDisplay: utcDisplay }
           })
