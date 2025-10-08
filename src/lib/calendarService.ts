@@ -309,19 +309,20 @@ export class CalendarService {
       const supabase = getSupabaseClient()
       const { data, error } = await supabase
         .from('booking_types')
-        .select('id, name, duration_minutes, buffer_time_minutes')
+        .select('id, name, duration')
         .eq('id', serviceId)
         .single()
 
       if (error || !data) {
+        console.error('Error fetching service:', error)
         return null
       }
 
       return {
         id: data.id,
         name: data.name,
-        duration: data.duration_minutes,
-        bufferTime: data.buffer_time_minutes
+        duration: data.duration || 60, // Default to 60 minutes
+        bufferTime: 0 // Default to no buffer time
       }
     } catch (error) {
       console.error('Error fetching service:', error)
@@ -507,14 +508,32 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
       last_name,
       google_access_token,
       google_refresh_token,
-      google_token_expires_at,
-      working_hours
+      google_token_expires_at
     `)
     .eq('id', coachId)
     .single()
 
   if (error || !data) {
-    throw new Error('Coach not found')
+    throw new Error(`Coach not found: ${error?.message || 'Unknown error'}`)
+  }
+
+  // Get working hours from availability table
+  const { data: availabilityData } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('user_id', coachId)
+
+  // Convert availability table format to WorkingHours format
+  const workingHours: WorkingHours[] = []
+  if (availabilityData && availabilityData.length > 0) {
+    availabilityData.forEach((avail: any) => {
+      workingHours.push({
+        dayOfWeek: avail.day_of_week,
+        startTime: avail.start_time.slice(0, 5), // "09:00:00" -> "09:00"
+        endTime: avail.end_time.slice(0, 5),
+        isActive: avail.is_available
+      })
+    })
   }
 
   const coach: Coach = {
@@ -525,7 +544,9 @@ export async function createCalendarService(coachId: string): Promise<CalendarSe
     accessToken: data.google_access_token,
     refreshToken: data.google_refresh_token,
     tokenExpiryDate: data.google_token_expires_at ? new Date(data.google_token_expires_at) : undefined,
-    workingHours: data.working_hours
+    workingHours: workingHours.length > 0 ? workingHours : undefined,
+    first_name: data.first_name,
+    last_name: data.last_name
   }
 
   return new CalendarService(coach)
