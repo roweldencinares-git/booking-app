@@ -476,10 +476,10 @@ export default function StaffList({ staff }: StaffListProps) {
               <div className="flex items-center space-x-2">
                 <div className="flex flex-col space-y-1">
                   <a
-                    href={`/admin/staff/${member.id}/schedule`}
-                    className="inline-flex items-center px-3 py-1 border border-accent-grey-300 text-sm leading-4 font-medium rounded-md text-accent-grey-700 bg-white hover:bg-accent-grey-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue transition-colors"
+                    href="/admin/availability"
+                    className="inline-flex items-center px-3 py-1 border border-primary-blue text-sm leading-4 font-medium rounded-md text-white bg-primary-blue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue transition-colors"
                   >
-                    📅 Schedule
+                    📅 Availability
                   </a>
                   <div className="flex space-x-1">
                     <button
@@ -488,13 +488,6 @@ export default function StaffList({ staff }: StaffListProps) {
                       className="inline-flex items-center px-2 py-1 border border-accent-grey-300 text-xs leading-4 font-medium rounded text-accent-grey-700 bg-white hover:bg-accent-grey-50 transition-colors disabled:opacity-50"
                     >
                       ✏️ Edit
-                    </button>
-                    <button
-                      onClick={() => startConfig(member)}
-                      disabled={loading === member.id}
-                      className="inline-flex items-center px-2 py-1 border border-primary-blue text-xs leading-4 font-medium rounded text-primary-blue bg-accent-light-blue hover:bg-primary-teal hover:text-white transition-colors disabled:opacity-50"
-                    >
-                      ⚙️ Config
                     </button>
                     {member.status === 'deleted' ? (
                       <button
