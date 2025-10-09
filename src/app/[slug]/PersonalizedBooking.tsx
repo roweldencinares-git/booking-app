@@ -86,18 +86,31 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const minute = parseInt(minuteStr)
 
             // Times from API are in coach's timezone (America/Chicago - Central Time)
-            // Since the API returns times in the coach's local timezone,
-            // we display them directly without timezone conversion
-            const ampm = hour >= 12 ? 'PM' : 'AM'
-            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
-            const displayTime = `${displayHour}:${minuteStr} ${ampm}`
+            // Convert to guest's selected timezone
+            const coachTz = 'America/Chicago'
 
-            // Calculate UTC equivalent (Central Time is UTC-6 in summer, UTC-5 in winter)
-            // For simplicity, we'll show the original time as the main display
-            const utcHour = (hour + 5) % 24 // Central is typically UTC-5 (CDT)
-            const utcAmpm = utcHour >= 12 ? 'pm' : 'am'
-            const utcDisplayHour = utcHour > 12 ? utcHour - 12 : utcHour === 0 ? 12 : utcHour
-            const utcDisplay = `${utcDisplayHour}:${minuteStr} ${utcAmpm} UTC`
+            // Create a date object in the coach's timezone
+            const dateInCoachTz = new Date(selectedDate!)
+            dateInCoachTz.setHours(hour, minute, 0, 0)
+
+            // Convert to guest's timezone using Intl.DateTimeFormat
+            const formatter = new Intl.DateTimeFormat('en-US', {
+              timeZone: selectedTimezone,
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            })
+
+            const displayTime = formatter.format(dateInCoachTz)
+
+            // Also show in UTC for reference
+            const utcFormatter = new Intl.DateTimeFormat('en-US', {
+              timeZone: 'UTC',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            })
+            const utcDisplay = utcFormatter.format(dateInCoachTz) + ' UTC'
 
             return { value: time, display: displayTime, localDisplay: utcDisplay }
           })
