@@ -182,10 +182,57 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     })
   }
 
+  // Fetch guest calendar events
+  const fetchGuestCalendarEvents = async () => {
+    if (!selectedDate) return
+
+    setIsLoadingGuestEvents(true)
+    try {
+      // Get month range for selected date
+      const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+      const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0)
+
+      const response = await fetch(
+        `/api/calendar/guest-events?startDate=${monthStart.toISOString().split('T')[0]}&endDate=${monthEnd.toISOString().split('T')[0]}`
+      )
+
+      if (response.ok) {
+        const data = await response.json()
+        setGuestCalendarEvents(data.events || [])
+      } else {
+        console.error('Failed to fetch guest calendar events')
+        setGuestCalendarEvents([])
+      }
+    } catch (error) {
+      console.error('Error fetching guest calendar events:', error)
+      setGuestCalendarEvents([])
+    } finally {
+      setIsLoadingGuestEvents(false)
+    }
+  }
+
+  // Check for calendar connection on mount and when returning from OAuth
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('calendar_connected') === 'true') {
+      setShowCalendarCompare(true)
+      fetchGuestCalendarEvents()
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
+
+  // Refetch events when date changes and calendar comparison is enabled
+  useEffect(() => {
+    if (showCalendarCompare && selectedDate) {
+      fetchGuestCalendarEvents()
+    }
+  }, [showCalendarCompare, selectedDate])
+
   const handleCalendarCompare = () => {
-    setShowCalendarCompare(true)
     // Initiate Google OAuth for guest calendar access
-    alert('Calendar comparison feature: Connect your Google Calendar to see your existing events alongside available times. (Coming soon - requires Google OAuth setup for guest users)')
+    const currentPath = window.location.pathname
+    window.location.href = `/api/auth/google/guest?returnUrl=${encodeURIComponent(currentPath)}`
   }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
