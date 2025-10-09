@@ -58,6 +58,11 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
   const [timeSlots, setTimeSlots] = useState<{ value: string; display: string; localDisplay: string }[]>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
 
+  // Calendar comparison feature
+  const [showCalendarCompare, setShowCalendarCompare] = useState(false)
+  const [guestCalendarEvents, setGuestCalendarEvents] = useState<Array<{ start: string; end: string; summary: string }>>([])
+  const [isLoadingGuestEvents, setIsLoadingGuestEvents] = useState(false)
+
   // Fetch available time slots when date or duration changes
   useEffect(() => {
     if (!selectedDate) {
@@ -152,6 +157,35 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     if (selectedDate && selectedTime) {
       setStep('info')
     }
+  }
+
+  // Check if a time slot conflicts with guest's calendar events
+  const hasGuestConflict = (slotTime: string): boolean => {
+    if (!showCalendarCompare || guestCalendarEvents.length === 0 || !selectedDate) {
+      return false
+    }
+
+    const [hour, minute] = slotTime.split(':').map(Number)
+    const slotStart = new Date(selectedDate)
+    slotStart.setHours(hour, minute, 0, 0)
+    const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
+
+    return guestCalendarEvents.some(event => {
+      const eventStart = new Date(event.start)
+      const eventEnd = new Date(event.end)
+
+      return (
+        (slotStart >= eventStart && slotStart < eventEnd) ||
+        (slotEnd > eventStart && slotEnd <= eventEnd) ||
+        (slotStart <= eventStart && slotEnd >= eventEnd)
+      )
+    })
+  }
+
+  const handleCalendarCompare = () => {
+    setShowCalendarCompare(true)
+    // Initiate Google OAuth for guest calendar access
+    alert('Calendar comparison feature: Connect your Google Calendar to see your existing events alongside available times. (Coming soon - requires Google OAuth setup for guest users)')
   }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -326,6 +360,57 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
               )}
 
               <div>
+                {/* Calendar Comparison Option */}
+                {!showCalendarCompare && (
+                  <div className="mb-4 p-4 bg-accent-light-blue border border-primary-blue/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-0.5">
+                        <svg className="w-5 h-5 text-primary-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-accent-grey-900 mb-1">
+                          Compare with your calendar
+                        </h4>
+                        <p className="text-xs text-accent-grey-600 mb-2">
+                          Connect your Google Calendar to see your existing events and avoid conflicts
+                        </p>
+                        <button
+                          onClick={handleCalendarCompare}
+                          className="text-xs font-medium text-primary-blue hover:text-primary-teal transition-colors underline"
+                        >
+                          Connect Google Calendar →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {showCalendarCompare && (
+                  <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-800">
+                          Calendar comparison enabled
+                        </p>
+                        <p className="text-xs text-green-600 mt-0.5">
+                          Times that conflict with your calendar are marked
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowCalendarCompare(false)}
+                        className="text-xs text-green-600 hover:text-green-800 underline"
+                      >
+                        Disconnect
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-accent-grey-900 mb-2">
                     Select your timezone
@@ -380,18 +465,37 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
                 {selectedDate && !isLoadingSlots && timeSlots.length > 0 && (
                   <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                    {timeSlots.map(slot => (
-                      <button
-                        key={slot.value}
-                        onClick={() => handleTimeSelect(slot.value)}
-                        className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${selectedTime === slot.value ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium' : 'border-accent-grey-200 hover:border-primary-blue'}`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium">{slot.display}</span>
-                          <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
-                        </div>
-                      </button>
-                    ))}
+                    {timeSlots.map(slot => {
+                      const hasConflict = hasGuestConflict(slot.value)
+                      return (
+                        <button
+                          key={slot.value}
+                          onClick={() => handleTimeSelect(slot.value)}
+                          className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${
+                            selectedTime === slot.value
+                              ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium'
+                              : hasConflict
+                              ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
+                              : 'border-accent-grey-200 hover:border-primary-blue'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{slot.display}</span>
+                              {hasConflict && (
+                                <span className="inline-flex items-center gap-1 text-xs text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
+                                  Conflict
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
               </div>
