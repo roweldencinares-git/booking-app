@@ -18,6 +18,16 @@ interface BookingType {
   }
 }
 
+// Helper function to generate URL-safe slug from service name
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+}
+
 interface BookingTypesListProps {
   bookingTypes: BookingType[]
 }
@@ -125,15 +135,15 @@ export default function BookingTypesList({ bookingTypes }: BookingTypesListProps
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-accent-grey-500">URL:</span>
                   <a
-                    href={`https://meetings.spearity.com/${type.name}`}
+                    href={`https://meetings.spearity.com/${generateSlug(type.name)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary-blue hover:text-primary-teal transition-colors underline font-mono"
                   >
-                    meetings.spearity.com/{type.name}
+                    meetings.spearity.com/{generateSlug(type.name)}
                   </a>
                   <button
-                    onClick={() => navigator.clipboard.writeText(`https://meetings.spearity.com/${type.name}`)}
+                    onClick={() => navigator.clipboard.writeText(`https://meetings.spearity.com/${generateSlug(type.name)}`)}
                     className="text-accent-grey-400 hover:text-accent-grey-600 transition-colors"
                     title="Copy URL"
                   >

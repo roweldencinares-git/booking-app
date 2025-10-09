@@ -50,11 +50,25 @@ export async function GET(request: NextRequest) {
 
     // Generate time slots from availability
     const availableSlots: string[] = []
-    const startTime = parseISO(`${format(requestedDate, 'yyyy-MM-dd')}T${availability.start_time}`)
-    const endTime = parseISO(`${format(requestedDate, 'yyyy-MM-dd')}T${availability.end_time}`)
+    const dateStr = format(requestedDate, 'yyyy-MM-dd')
+
+    // Create date/time in UTC for comparison (times in DB are coach's local time)
+    // Parse as local time first, then convert to compare with server's now()
+    const startTime = parseISO(`${dateStr}T${availability.start_time}`)
+    const endTime = parseISO(`${dateStr}T${availability.end_time}`)
 
     let currentSlot = startTime
     const now = new Date()
+
+    console.log('=== Availability Debug ===')
+    console.log('Requested date:', date)
+    console.log('Day of week:', dayOfWeek)
+    console.log('Availability found:', !!availability)
+    console.log('Start time from DB:', availability.start_time)
+    console.log('End time from DB:', availability.end_time)
+    console.log('First slot time:', startTime.toISOString())
+    console.log('Current server time:', now.toISOString())
+    console.log('Is first slot after now?:', isAfter(startTime, now))
 
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
