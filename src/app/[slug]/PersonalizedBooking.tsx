@@ -94,16 +94,24 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             dateInCoachTz.setHours(hour, minute, 0, 0)
 
             // Convert to guest's timezone using Intl.DateTimeFormat
-            const formatter = new Intl.DateTimeFormat('en-US', {
+            const guestFormatter = new Intl.DateTimeFormat('en-US', {
               timeZone: selectedTimezone,
               hour: 'numeric',
               minute: '2-digit',
               hour12: true
             })
+            const displayTime = guestFormatter.format(dateInCoachTz)
 
-            const displayTime = formatter.format(dateInCoachTz)
+            // Also show coach's time (Central Time) for reference
+            const coachFormatter = new Intl.DateTimeFormat('en-US', {
+              timeZone: coachTz,
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            })
+            const coachTime = coachFormatter.format(dateInCoachTz) + ' CT'
 
-            return { value: time, display: displayTime, localDisplay: '' }
+            return { value: time, display: displayTime, localDisplay: coachTime }
           })
           setTimeSlots(formattedSlots)
         } else {
@@ -489,7 +497,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                     </p>
                     <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs text-blue-700">
-                        Times shown in {commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone}
+                        Your time ({commonTimezones.find(tz => tz.value === selectedTimezone)?.label || selectedTimezone}) shown on left, coach's time (CT) on right
                       </p>
                     </div>
                   </div>
@@ -530,16 +538,19 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                               : 'border-accent-grey-200 hover:border-primary-blue'
                           }`}
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{slot.display}</span>
-                            {hasConflict && (
-                              <span className="inline-flex items-center gap-1 text-xs text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                Conflict
-                              </span>
-                            )}
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{slot.display}</span>
+                              {hasConflict && (
+                                <span className="inline-flex items-center gap-1 text-xs text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
+                                  Conflict
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
                           </div>
                         </button>
                       )
