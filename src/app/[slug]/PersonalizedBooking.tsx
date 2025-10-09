@@ -86,12 +86,21 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const minute = parseInt(minuteStr)
 
             // Times from API are in coach's timezone (America/Chicago - Central Time)
-            // Convert to guest's selected timezone
-            const coachTz = 'America/Chicago'
+            // The API returns time strings like "08:00" which represent 8:00 AM Central Time
 
-            // Create a date object in the coach's timezone
-            const dateInCoachTz = new Date(selectedDate!)
-            dateInCoachTz.setHours(hour, minute, 0, 0)
+            // Create a date string in ISO format assuming the time is in Central Time
+            const dateStr = selectedDate!.toISOString().split('T')[0] // YYYY-MM-DD
+            const coachTimeStr = `${dateStr}T${hourStr.padStart(2, '0')}:${minuteStr}:00` // YYYY-MM-DDT08:00:00
+
+            // Parse this as a UTC date (we'll treat it as if it's UTC, then format it in different timezones)
+            const baseDate = new Date(coachTimeStr + 'Z')
+
+            // Get offset for Central Time from UTC (in milliseconds)
+            const coachDate = new Date(baseDate.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
+            const centralOffset = coachDate.getTime() - baseDate.getTime()
+
+            // Adjust the base date by the offset to get the actual moment in time
+            const actualMoment = new Date(baseDate.getTime() - centralOffset)
 
             // Convert to guest's timezone using Intl.DateTimeFormat
             const guestFormatter = new Intl.DateTimeFormat('en-US', {
@@ -100,16 +109,16 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
               minute: '2-digit',
               hour12: true
             })
-            const displayTime = guestFormatter.format(dateInCoachTz)
+            const displayTime = guestFormatter.format(actualMoment)
 
             // Also show coach's time (Central Time) for reference
             const coachFormatter = new Intl.DateTimeFormat('en-US', {
-              timeZone: coachTz,
+              timeZone: 'America/Chicago',
               hour: 'numeric',
               minute: '2-digit',
               hour12: true
             })
-            const coachTime = coachFormatter.format(dateInCoachTz) + ' CT'
+            const coachTime = coachFormatter.format(actualMoment) + ' CT'
 
             return { value: time, display: displayTime, localDisplay: coachTime }
           })
