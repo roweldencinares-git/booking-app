@@ -170,6 +170,33 @@ async function createBookingCore(input: CreateBookingInput): Promise<BookingResu
   const endTime = new Date(startTime)
   endTime.setMinutes(endTime.getMinutes() + input.duration)
 
+  // Check for booking conflicts
+  const { data: conflicts } = await supabase
+    .from('bookings')
+    .select('id, client_name, start_time, end_time')
+    .eq('user_id', input.userId)
+    .eq('status', 'confirmed')
+    .or(`start_time.lt.${endTime.toISOString()},end_time.gt.${startTime.toISOString()}`)
+
+  if (conflicts && conflicts.length > 0) {
+    // Check for actual overlap (not just same day)
+    const hasOverlap = conflicts.some(existing => {
+      const existingStart = new Date(existing.start_time)
+      const existingEnd = new Date(existing.end_time)
+
+      return (
+        (startTime >= existingStart && startTime < existingEnd) ||
+        (endTime > existingStart && endTime <= existingEnd) ||
+        (startTime <= existingStart && endTime >= existingEnd)
+      )
+    })
+
+    if (hasOverlap) {
+      const conflictDetails = conflicts[0]
+      throw new Error(`Time slot unavailable. Already booked from ${new Date(conflictDetails.start_time).toLocaleTimeString()} to ${new Date(conflictDetails.end_time).toLocaleTimeString()}`)
+    }
+  }
+
   // Create booking in database
   const { data: booking, error: bookingError } = await supabase
     .from('bookings')

@@ -9,9 +9,9 @@ export interface CreateBookingInput {
   clientName: string
   clientEmail: string
   clientPhone?: string
-  startTime: string // ISO string
+  startTime: string // ISO string (UTC)
   notes?: string
-  timezone?: string
+  timezone: string // Client's timezone for calendar events
 }
 
 export interface RescheduleBookingInput {
@@ -100,6 +100,15 @@ export class BookingService {
       throw new Error(`Failed to create booking: ${bookingError?.message}`)
     }
 
+    // Get user's timezone for calendar event
+    const { data: user } = await supabase
+      .from('users')
+      .select('timezone')
+      .eq('id', bookingType.user_id)
+      .single()
+
+    const coachTimezone = user?.timezone || 'America/Chicago'
+
     // Create Google Calendar event if available
     let googleCalendarEventId: string | undefined
     if (this.googleCalendar) {
@@ -109,11 +118,11 @@ export class BookingService {
           description: `Booking with ${input.clientName}\nEmail: ${input.clientEmail}\nPhone: ${input.clientPhone || 'N/A'}\nNotes: ${input.notes || 'N/A'}`,
           start: {
             dateTime: input.startTime,
-            timeZone: input.timezone || 'America/Chicago' // Default to Central Time
+            timeZone: coachTimezone // Use coach's timezone for their calendar
           },
           end: {
             dateTime: endTime.toISOString(),
-            timeZone: input.timezone || 'America/Chicago' // Default to Central Time
+            timeZone: coachTimezone // Use coach's timezone for their calendar
           },
           attendees: [
             {
@@ -284,6 +293,15 @@ export class BookingService {
       throw new Error(`Failed to reschedule booking: ${updateError?.message}`)
     }
 
+    // Get user's timezone for calendar event
+    const { data: user } = await supabase
+      .from('users')
+      .select('timezone')
+      .eq('id', booking.user_id)
+      .single()
+
+    const coachTimezone = user?.timezone || 'America/Chicago'
+
     // Update Google Calendar event if exists
     if (this.googleCalendar && booking.google_calendar_event_id) {
       try {
@@ -292,11 +310,11 @@ export class BookingService {
           description: `Booking with ${booking.client_name}\nEmail: ${booking.client_email}\nPhone: ${booking.client_phone || 'N/A'}\nNotes: ${input.notes || booking.notes || 'N/A'}`,
           start: {
             dateTime: input.newStartTime,
-            timeZone: 'America/New_York' // TODO: Get from user preferences
+            timeZone: coachTimezone // Use coach's timezone for their calendar
           },
           end: {
             dateTime: newEndTime.toISOString(),
-            timeZone: 'America/New_York'
+            timeZone: coachTimezone
           },
           attendees: [
             {

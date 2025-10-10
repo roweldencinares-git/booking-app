@@ -69,6 +69,13 @@ export async function GET(request: NextRequest) {
     console.log('First slot time:', startTime.toISOString())
     console.log('Current server time:', now.toISOString())
     console.log('Is first slot after now?:', isAfter(startTime, now))
+    console.log('Existing bookings found:', bookings?.length || 0)
+    if (bookings && bookings.length > 0) {
+      console.log('Bookings:', bookings.map(b => ({
+        start: b.start_time,
+        end: b.end_time
+      })))
+    }
 
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)

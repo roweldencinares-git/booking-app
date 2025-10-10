@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react'
 
 interface DateTimePickerProps {
-  onDateTimeSelect: (date: Date, time: string, duration: number) => void
+  onDateTimeSelect: (date: Date, time: string, duration: number, timezone?: string) => void
   serviceId: string
   defaultDuration: number
   serviceName?: string
+  coachTimezone?: string
 }
 
 export default function DateTimePicker({
   onDateTimeSelect,
   serviceId,
   defaultDuration,
-  serviceName
+  serviceName,
+  coachTimezone
 }: DateTimePickerProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedTime, setSelectedTime] = useState<string>('')
@@ -21,6 +23,13 @@ export default function DateTimePicker({
   const [availableSlots, setAvailableSlots] = useState<string[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [loading, setLoading] = useState(false)
+  const [clientTimezone, setClientTimezone] = useState<string>('')
+
+  // Detect client's timezone on mount
+  useEffect(() => {
+    const detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    setClientTimezone(detectedTimezone)
+  }, [])
 
   // Determine available duration options based on service configuration
   const getAvailableDurations = () => {
@@ -62,7 +71,8 @@ export default function DateTimePicker({
         body: JSON.stringify({
           date: date.toISOString().split('T')[0],
           duration: duration,
-          serviceId: serviceId
+          serviceId: serviceId,
+          clientTimezone: clientTimezone
         })
       })
 
@@ -71,12 +81,12 @@ export default function DateTimePicker({
         setAvailableSlots(data.availableSlots || [])
       } else {
         // Fallback to demo slots if API fails
-        setAvailableSlots(['4:15 am', '4:30 am', '4:45 am', '5:00 am', '5:15 am'])
+        setAvailableSlots([])
       }
     } catch (error) {
       console.error('Error fetching availability:', error)
-      // Fallback to demo slots
-      setAvailableSlots(['4:15 am', '4:30 am', '4:45 am', '5:00 am', '5:15 am'])
+      // Fallback to empty slots
+      setAvailableSlots([])
     } finally {
       setLoading(false)
     }
@@ -115,7 +125,7 @@ export default function DateTimePicker({
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time)
     if (selectedDate) {
-      onDateTimeSelect(selectedDate, time, duration)
+      onDateTimeSelect(selectedDate, time, duration, clientTimezone)
     }
   }
 
@@ -125,7 +135,7 @@ export default function DateTimePicker({
       fetchAvailableSlots(selectedDate) // Refresh slots for new duration
     }
     if (selectedDate && selectedTime) {
-      onDateTimeSelect(selectedDate, selectedTime, newDuration)
+      onDateTimeSelect(selectedDate, selectedTime, newDuration, clientTimezone)
     }
   }
 
@@ -260,11 +270,22 @@ export default function DateTimePicker({
               })}
             </p>
 
-            {/* Timezone */}
+            {/* Timezone Display */}
             <div className="mb-4">
-              <select className="w-full p-2 border border-gray-300 rounded-lg text-sm">
-                <option>UTC +08:00 China, Hong Kong, Singapore</option>
-              </select>
+              <div className="w-full p-2 border border-gray-300 rounded-lg text-sm bg-gray-50">
+                {clientTimezone ? (
+                  <>
+                    <span className="font-medium">Your timezone:</span> {clientTimezone}
+                    {coachTimezone && coachTimezone !== clientTimezone && (
+                      <div className="text-xs text-gray-500 mt-1">
+                        Coach is in {coachTimezone}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  'Detecting timezone...'
+                )}
+              </div>
             </div>
 
             {/* Available Times */}

@@ -86,23 +86,54 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             const minute = parseInt(minuteStr)
 
             // Times from API are in coach's timezone (America/Chicago - Central Time)
-            // The API returns time strings like "08:00" which represent 8:00 AM Central Time
+            // The API returns "08:00" meaning 8:00 AM in Central Time
+            // We need to construct the actual UTC moment for "08:00 Central Time on selectedDate"
 
-            // Create a date string in ISO format assuming the time is in Central Time
-            const dateStr = selectedDate!.toISOString().split('T')[0] // YYYY-MM-DD
-            const coachTimeStr = `${dateStr}T${hourStr.padStart(2, '0')}:${minuteStr}:00` // YYYY-MM-DDT08:00:00
+            const year = selectedDate!.getFullYear()
+            const month = String(selectedDate!.getMonth() + 1).padStart(2, '0')
+            const day = String(selectedDate!.getDate()).padStart(2, '0')
 
-            // Parse this as a UTC date (we'll treat it as if it's UTC, then format it in different timezones)
-            const baseDate = new Date(coachTimeStr + 'Z')
+            // Strategy: Create a date string, then use toLocaleString to interpret it correctly
+            // Step 1: Create a dummy date string (interpreted in browser's local timezone)
+            const localDateStr = `${year}-${month}-${day}T${hourStr.padStart(2, '0')}:${minuteStr}:00`
+            const localDate = new Date(localDateStr)
 
-            // Get offset for Central Time from UTC (in milliseconds)
-            const coachDate = new Date(baseDate.toLocaleString('en-US', { timeZone: 'America/Chicago' }))
-            const centralOffset = coachDate.getTime() - baseDate.getTime()
+            // Step 2: Get what time this date displays in Central Time
+            const formatter = new Intl.DateTimeFormat('en-US', {
+              timeZone: 'America/Chicago',
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            })
+            const centralStr = formatter.format(localDate) // e.g., "01/15/2025, 09:00:00" if browser is ahead
 
-            // Adjust the base date by the offset to get the actual moment in time
-            const actualMoment = new Date(baseDate.getTime() - centralOffset)
+            // Step 3: Parse what we got vs what we want
+            const [datePart, timePart] = centralStr.split(', ')
+            const [centralMonth, centralDay, centralYear] = datePart.split('/')
+            const [centralHourStr, centralMinStr, centralSecStr] = timePart.split(':')
 
-            // Convert to guest's timezone using Intl.DateTimeFormat
+            // What we want: hour:minute in Central Time on selectedDate
+            // What we got: centralHourStr:centralMinStr in Central Time on selectedDate
+            // Difference tells us the offset
+
+            const wantedHour = parseInt(hourStr)
+            const gotHour = parseInt(centralHourStr)
+            const wantedMin = parseInt(minuteStr)
+            const gotMin = parseInt(centralMinStr)
+
+            // Calculate the difference in minutes
+            const wantedTotalMinutes = wantedHour * 60 + wantedMin
+            const gotTotalMinutes = gotHour * 60 + gotMin
+            const diffMinutes = wantedTotalMinutes - gotTotalMinutes
+
+            // Adjust the date by this difference
+            const actualMoment = new Date(localDate.getTime() + diffMinutes * 60000)
+
+            // Format for guest's timezone
             const guestFormatter = new Intl.DateTimeFormat('en-US', {
               timeZone: selectedTimezone,
               hour: 'numeric',
@@ -111,7 +142,7 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
             })
             const displayTime = guestFormatter.format(actualMoment)
 
-            // Also show coach's time (Central Time) for reference
+            // Format for coach's timezone (Central Time)
             const coachFormatter = new Intl.DateTimeFormat('en-US', {
               timeZone: 'America/Chicago',
               hour: 'numeric',
