@@ -2,13 +2,6 @@ import { google } from 'googleapis'
 
 const calendar = google.calendar('v3')
 
-// Google Calendar OAuth configuration
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-)
-
 export interface CalendarEvent {
   id?: string
   summary: string
@@ -29,6 +22,7 @@ export interface CalendarEvent {
 
 export class GoogleCalendarService {
   private userId: string
+  private oauth2Client: any // Instance-specific OAuth client
 
   constructor(
     private accessToken: string,
@@ -37,7 +31,13 @@ export class GoogleCalendarService {
     private expiryDate?: Date
   ) {
     this.userId = userId || ''
-    oauth2Client.setCredentials({
+    // Create a NEW OAuth client instance for each service instance
+    this.oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    )
+    this.oauth2Client.setCredentials({
       access_token: accessToken,
       refresh_token: refreshToken,
       expiry_date: expiryDate?.getTime()
@@ -47,7 +47,7 @@ export class GoogleCalendarService {
   // Check if token is expired and refresh if needed
   private async ensureValidToken(): Promise<void> {
     try {
-      const credentials = oauth2Client.credentials
+      const credentials = this.oauth2Client.credentials
 
       // If token expires within 5 minutes, refresh it
       if (credentials.expiry_date && credentials.expiry_date < Date.now() + (5 * 60 * 1000)) {
@@ -63,14 +63,14 @@ export class GoogleCalendarService {
   // Refresh the access token using refresh token
   private async refreshAccessToken(): Promise<void> {
     try {
-      const { credentials } = await oauth2Client.refreshAccessToken()
+      const { credentials } = await this.oauth2Client.refreshAccessToken()
 
       if (credentials.access_token && this.userId) {
         // Update database with new token
         await this.updateTokenInDatabase(credentials.access_token, credentials.expiry_date)
       }
 
-      oauth2Client.setCredentials(credentials)
+      this.oauth2Client.setCredentials(credentials)
     } catch (error) {
       console.error('Error refreshing token:', error)
       throw new Error('Failed to refresh Google Calendar access token')
@@ -105,12 +105,12 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       const response = await calendar.events.insert({
-        auth: oauth2Client,
+        auth: this.oauth2Client,
         calendarId,
         requestBody: event,
         sendUpdates: 'all' // Send invites to attendees
       })
-      
+
       return response.data
     } catch (error) {
       console.error('Error creating calendar event:', error)
@@ -123,13 +123,13 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       const response = await calendar.events.update({
-        auth: oauth2Client,
+        auth: this.oauth2Client,
         calendarId,
         eventId,
         requestBody: event,
         sendUpdates: 'all'
       })
-      
+
       return response.data
     } catch (error) {
       console.error('Error updating calendar event:', error)
@@ -142,12 +142,12 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       await calendar.events.delete({
-        auth: oauth2Client,
+        auth: this.oauth2Client,
         calendarId,
         eventId,
         sendUpdates: 'all'
       })
-      
+
       return true
     } catch (error) {
       console.error('Error deleting calendar event:', error)
@@ -160,14 +160,14 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       const response = await calendar.freebusy.query({
-        auth: oauth2Client,
+        auth: this.oauth2Client,
         requestBody: {
           timeMin,
           timeMax,
           items: [{ id: calendarId }]
         }
       })
-      
+
       return response.data.calendars?.[calendarId]?.busy || []
     } catch (error) {
       console.error('Error getting busy times:', error)
@@ -180,7 +180,7 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       const response = await calendar.events.list({
-        auth: oauth2Client,
+        auth: this.oauth2Client,
         calendarId,
         timeMin: timeMin || new Date().toISOString(),
         timeMax,
@@ -188,7 +188,7 @@ export class GoogleCalendarService {
         singleEvents: true,
         orderBy: 'startTime'
       })
-      
+
       return response.data.items || []
     } catch (error) {
       console.error('Error listing calendar events:', error)
@@ -201,9 +201,9 @@ export class GoogleCalendarService {
     try {
       await this.ensureValidToken()
       const response = await calendar.calendarList.list({
-        auth: oauth2Client
+        auth: this.oauth2Client
       })
-      
+
       return response.data.items || []
     } catch (error) {
       console.error('Error getting calendar list:', error)
@@ -219,6 +219,12 @@ export function getGoogleAuthUrl(userId: string): string {
     'https://www.googleapis.com/auth/calendar.events'
   ]
 
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  )
+
   return oauth2Client.generateAuthUrl({
     access_type: 'offline', // Request offline access for refresh tokens
     scope: scopes,
@@ -231,7 +237,12 @@ export function getGoogleAuthUrl(userId: string): string {
 // Exchange authorization code for tokens
 export async function exchangeCodeForTokens(code: string) {
   try {
-    const { tokens } = await oauth2Client.getAccessToken(code)
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    )
+    const { tokens } = await oauth2Client.getToken(code)
     return tokens
   } catch (error) {
     console.error('Error exchanging code for tokens:', error)
