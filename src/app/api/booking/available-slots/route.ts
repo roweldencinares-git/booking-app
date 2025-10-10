@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { parseISO, addMinutes, format, isAfter, isBefore } from 'date-fns'
 import { fromZonedTime, toZonedTime } from 'date-fns-tz'
+import { GoogleCalendarService } from '@/lib/google-calendar'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,10 +18,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get user's timezone
+    // Get user's timezone and Google Calendar integration
     const { data: user } = await supabase
       .from('users')
-      .select('timezone')
+      .select('timezone, google_calendar_connected, google_access_token, google_refresh_token, google_token_expires_at')
       .eq('id', userId)
       .single()
 
@@ -56,6 +57,27 @@ export async function GET(request: NextRequest) {
 
     if (bookingsError) {
       console.error('Error fetching bookings:', bookingsError)
+    }
+
+    // Get Google Calendar busy times if connected
+    let googleBusyTimes: Array<{start: string, end: string}> = []
+    if (user?.google_calendar_connected && user?.google_access_token && user?.google_refresh_token) {
+      try {
+        const calendarService = new GoogleCalendarService(
+          user.google_access_token,
+          user.google_refresh_token,
+          userId,
+          user.google_token_expires_at ? new Date(user.google_token_expires_at) : undefined
+        )
+        googleBusyTimes = await calendarService.getBusyTimes('primary', startOfDay, endOfDay)
+        console.log('Google Calendar busy times found:', googleBusyTimes.length)
+        if (googleBusyTimes.length > 0) {
+          console.log('Google busy times:', googleBusyTimes)
+        }
+      } catch (calendarError) {
+        console.error('Error fetching Google Calendar busy times:', calendarError)
+        // Continue without Google Calendar conflicts
+      }
     }
 
     // Generate time slots from availability
@@ -99,8 +121,8 @@ export async function GET(request: NextRequest) {
 
       // Check if slot is in the past
       if (isAfter(currentSlot, now)) {
-        // Check if slot conflicts with any booking
-        const hasConflict = bookings?.some(booking => {
+        // Check if slot conflicts with any booking in database
+        const hasBookingConflict = bookings?.some(booking => {
           const bookingStart = parseISO(booking.start_time)
           const bookingEnd = parseISO(booking.end_time)
 
@@ -111,7 +133,19 @@ export async function GET(request: NextRequest) {
           )
         })
 
-        if (!hasConflict) {
+        // Check if slot conflicts with Google Calendar events
+        const hasGoogleConflict = googleBusyTimes.some(busyTime => {
+          const busyStart = parseISO(busyTime.start)
+          const busyEnd = parseISO(busyTime.end)
+
+          return (
+            (currentSlot >= busyStart && currentSlot < busyEnd) ||
+            (slotEnd > busyStart && slotEnd <= busyEnd) ||
+            (currentSlot <= busyStart && slotEnd >= busyEnd)
+          )
+        })
+
+        if (!hasBookingConflict && !hasGoogleConflict) {
           // Convert back to coach's local time for display
           const slotInLocalTime = toZonedTime(currentSlot, timezone)
           availableSlots.push(format(slotInLocalTime, 'HH:mm'))
