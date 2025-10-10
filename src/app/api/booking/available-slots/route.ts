@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { parseISO, addMinutes, format, isAfter, isBefore } from 'date-fns'
+import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +16,15 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Get user's timezone
+    const { data: user } = await supabase
+      .from('users')
+      .select('timezone')
+      .eq('id', userId)
+      .single()
+
+    const timezone = user?.timezone || 'America/Chicago'
 
     const requestedDate = parseISO(date)
     const dayOfWeek = requestedDate.getDay()
@@ -52,10 +62,17 @@ export async function GET(request: NextRequest) {
     const availableSlots: string[] = []
     const dateStr = format(requestedDate, 'yyyy-MM-dd')
 
-    // Create date/time in UTC for comparison (times in DB are coach's local time)
-    // Parse as local time first, then convert to compare with server's now()
-    const startTime = parseISO(`${dateStr}T${availability.start_time}`)
-    const endTime = parseISO(`${dateStr}T${availability.end_time}`)
+    // Parse availability times in coach's timezone and convert to UTC
+    const [startHour, startMin] = availability.start_time.split(':').map(Number)
+    const [endHour, endMin] = availability.end_time.split(':').map(Number)
+
+    // Create times in coach's timezone
+    const startTimeLocal = `${dateStr}T${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`
+    const endTimeLocal = `${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`
+
+    // Convert to UTC for comparison with bookings (which are stored in UTC)
+    const startTime = fromZonedTime(startTimeLocal, timezone)
+    const endTime = fromZonedTime(endTimeLocal, timezone)
 
     let currentSlot = startTime
     const now = new Date()
