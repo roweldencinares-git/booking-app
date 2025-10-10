@@ -99,25 +99,10 @@ export async function GET(request: NextRequest) {
     let currentSlot = startTime
     const now = new Date()
 
-    console.log('=== Availability Debug ===')
-    console.log('Requested date:', date)
-    console.log('Day of week:', dayOfWeek)
-    console.log('Availability found:', !!availability)
-    console.log('Start time from DB:', availability.start_time)
-    console.log('End time from DB:', availability.end_time)
-    console.log('First slot time:', startTime.toISOString())
-    console.log('Current server time:', now.toISOString())
-    console.log('Is first slot after now?:', isAfter(startTime, now))
-    console.log('Existing bookings found:', bookings?.length || 0)
-    if (bookings && bookings.length > 0) {
-      console.log('Bookings:', bookings.map(b => ({
-        start: b.start_time,
-        end: b.end_time
-      })))
-    }
-
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
+      const slotInLocalTime = toZonedTime(currentSlot, timezone)
+      const slotTimeStr = format(slotInLocalTime, 'HH:mm')
 
       // Check if slot is in the past
       if (isAfter(currentSlot, now)) {
@@ -147,8 +132,7 @@ export async function GET(request: NextRequest) {
 
         if (!hasBookingConflict && !hasGoogleConflict) {
           // Convert back to coach's local time for display
-          const slotInLocalTime = toZonedTime(currentSlot, timezone)
-          availableSlots.push(format(slotInLocalTime, 'HH:mm'))
+          availableSlots.push(slotTimeStr)
         }
       }
 
