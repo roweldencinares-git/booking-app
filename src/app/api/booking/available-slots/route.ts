@@ -112,7 +112,9 @@ export async function GET(request: NextRequest) {
         })
 
         if (!hasConflict) {
-          availableSlots.push(format(currentSlot, 'HH:mm'))
+          // Convert back to coach's local time for display
+          const slotInLocalTime = toZonedTime(currentSlot, timezone)
+          availableSlots.push(format(slotInLocalTime, 'HH:mm'))
         }
       }
 
