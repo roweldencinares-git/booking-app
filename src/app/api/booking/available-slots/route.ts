@@ -70,9 +70,9 @@ export async function GET(request: NextRequest) {
           user.google_token_expires_at ? new Date(user.google_token_expires_at) : undefined
         )
         googleBusyTimes = await calendarService.getBusyTimes('primary', startOfDay, endOfDay)
-        console.log('Google Calendar busy times found:', googleBusyTimes.length)
+        console.log(`[Google Calendar] Found ${googleBusyTimes.length} busy times for ${dateStr}`)
         if (googleBusyTimes.length > 0) {
-          console.log('Google busy times:', googleBusyTimes)
+          console.log('[Google Calendar] Busy times:', JSON.stringify(googleBusyTimes, null, 2))
         }
       } catch (calendarError) {
         console.error('Error fetching Google Calendar busy times:', calendarError)
