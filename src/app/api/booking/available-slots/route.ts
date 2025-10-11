@@ -99,13 +99,22 @@ export async function GET(request: NextRequest) {
     let currentSlot = startTime
     const now = new Date()
 
+    // Only filter past times if the requested date is TODAY
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const requestedDateOnly = new Date(requestedDate)
+    requestedDateOnly.setHours(0, 0, 0, 0)
+    const isToday = requestedDateOnly.getTime() === today.getTime()
+
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
       const slotInLocalTime = toZonedTime(currentSlot, timezone)
       const slotTimeStr = format(slotInLocalTime, 'HH:mm')
 
-      // Check if slot is in the past
-      if (isAfter(currentSlot, now)) {
+      // Only check if slot is in the past if this is TODAY
+      const isPastSlot = isToday && isBefore(currentSlot, now)
+
+      if (!isPastSlot) {
         // Check if slot conflicts with any booking in database
         const hasBookingConflict = bookings?.some(booking => {
           const bookingStart = parseISO(booking.start_time)
