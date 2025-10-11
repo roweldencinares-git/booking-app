@@ -99,12 +99,10 @@ export async function GET(request: NextRequest) {
     let currentSlot = startTime
     const now = new Date()
 
-    // Only filter past times if the requested date is TODAY
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const requestedDateOnly = new Date(requestedDate)
-    requestedDateOnly.setHours(0, 0, 0, 0)
-    const isToday = requestedDateOnly.getTime() === today.getTime()
+    // Only filter past times if the requested date is TODAY in the coach's timezone
+    const nowInCoachTZ = toZonedTime(now, timezone)
+    const todayInCoachTZ = format(nowInCoachTZ, 'yyyy-MM-dd')
+    const isToday = dateStr === todayInCoachTZ
 
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
