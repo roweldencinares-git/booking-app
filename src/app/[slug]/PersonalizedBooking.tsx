@@ -324,13 +324,21 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
       const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0)
 
+      console.log(`[Calendar API] Fetching events from ${monthStart.toISOString().split('T')[0]} to ${monthEnd.toISOString().split('T')[0]}`)
+
       const response = await fetch(
         `/api/calendar/guest-events?startDate=${monthStart.toISOString().split('T')[0]}&endDate=${monthEnd.toISOString().split('T')[0]}`
       )
 
+      console.log(`[Calendar API] Response status: ${response.status}`)
+
       if (response.ok) {
         const data = await response.json()
-        console.log(`[Calendar Events] Fetched ${data.events?.length || 0} events for month`)
+        console.log(`[Calendar Events] ✓ Fetched ${data.events?.length || 0} events for month`)
+
+        if (data.events && data.events.length > 0) {
+          console.log(`[Calendar Events] All events:`, data.events)
+        }
 
         // Filter events for selected date only
         const selectedDateStr = selectedDate.toISOString().split('T')[0]
@@ -346,11 +354,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
         setGuestCalendarEvents(data.events || [])
       } else {
-        console.error('Failed to fetch guest calendar events')
+        const errorText = await response.text()
+        console.error(`[Calendar API] ✗ Failed to fetch: ${response.status} - ${errorText}`)
         setGuestCalendarEvents([])
       }
     } catch (error) {
-      console.error('Error fetching guest calendar events:', error)
+      console.error('[Calendar API] ✗ Error:', error)
       setGuestCalendarEvents([])
     } finally {
       setIsLoadingGuestEvents(false)
