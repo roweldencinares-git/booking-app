@@ -283,11 +283,13 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     const slotStart = new Date(slotDateInLocalTZ.getTime() + diffMinutes * 60000)
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
-    console.log(`[Conflict Check] Checking slot ${slotTime} (UTC: ${slotStart.toISOString()} - ${slotEnd.toISOString()})`)
+    console.log(`[Conflict Check] Slot ${slotTime} on ${dateStr}`)
+    console.log(`[Conflict Check] Slot UTC range: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
+    console.log(`[Conflict Check] Checking against ${guestCalendarEvents.length} calendar events`)
 
     // Pure UTC comparison - check all events directly without timezone filtering
     // Calendar events are already in UTC/ISO format
-    return guestCalendarEvents.some(event => {
+    const conflicts = guestCalendarEvents.filter(event => {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
 
@@ -298,12 +300,18 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
         (slotStart <= eventStart && slotEnd >= eventEnd)
       )
 
-      if (hasConflict) {
-        console.log(`[Conflict Check] ✗ CONFLICT with: ${event.summary} (UTC: ${eventStart.toISOString()} - ${eventEnd.toISOString()})`)
-      }
+      console.log(`[Conflict Check]   Event: "${event.summary}" (${eventStart.toISOString()} to ${eventEnd.toISOString()}) - ${hasConflict ? '✗ CONFLICT' : '✓ OK'}`)
 
       return hasConflict
     })
+
+    if (conflicts.length > 0) {
+      console.log(`[Conflict Check] ✗ ${conflicts.length} conflict(s) found for slot ${slotTime}`)
+    } else {
+      console.log(`[Conflict Check] ✓ No conflicts for slot ${slotTime}`)
+    }
+
+    return conflicts.length > 0
   }
 
   // Fetch guest calendar events
