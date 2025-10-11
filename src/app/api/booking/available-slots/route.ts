@@ -104,6 +104,9 @@ export async function GET(request: NextRequest) {
     const todayInCoachTZ = format(nowInCoachTZ, 'yyyy-MM-dd')
     const isToday = dateStr === todayInCoachTZ
 
+    console.log(`[Slot Generation] Date: ${dateStr}, Today in ${timezone}: ${todayInCoachTZ}, isToday: ${isToday}`)
+    console.log(`[Slot Generation] Current time in ${timezone}: ${format(nowInCoachTZ, 'yyyy-MM-dd HH:mm:ss')}`)
+
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
       const slotInLocalTime = toZonedTime(currentSlot, timezone)
@@ -111,6 +114,10 @@ export async function GET(request: NextRequest) {
 
       // Only check if slot is in the past if this is TODAY
       const isPastSlot = isToday && isBefore(currentSlot, now)
+
+      if (slotTimeStr === '09:00' || slotTimeStr === '10:00' || slotTimeStr === '10:15' || slotTimeStr === '10:30') {
+        console.log(`[Slot Check] ${slotTimeStr} - isToday: ${isToday}, isPast: ${isPastSlot}, now: ${now.toISOString()}, slot: ${currentSlot.toISOString()}`)
+      }
 
       if (!isPastSlot) {
         // Check if slot conflicts with any booking in database
