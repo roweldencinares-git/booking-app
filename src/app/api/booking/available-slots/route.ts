@@ -60,25 +60,26 @@ export async function GET(request: NextRequest) {
     }
 
     // Get Google Calendar busy times if connected
+    // TEMPORARILY DISABLED - Coach's calendar blocking slots
     let googleBusyTimes: Array<{start: string, end: string}> = []
-    if (user?.google_calendar_connected && user?.google_access_token && user?.google_refresh_token) {
-      try {
-        const calendarService = new GoogleCalendarService(
-          user.google_access_token,
-          user.google_refresh_token,
-          userId,
-          user.google_token_expires_at ? new Date(user.google_token_expires_at) : undefined
-        )
-        googleBusyTimes = await calendarService.getBusyTimes('primary', startOfDay, endOfDay)
-        console.log(`[Google Calendar] Found ${googleBusyTimes.length} busy times for ${dateStr}`)
-        if (googleBusyTimes.length > 0) {
-          console.log('[Google Calendar] Busy times:', JSON.stringify(googleBusyTimes, null, 2))
-        }
-      } catch (calendarError) {
-        console.error('Error fetching Google Calendar busy times:', calendarError)
-        // Continue without Google Calendar conflicts
-      }
-    }
+    // if (user?.google_calendar_connected && user?.google_access_token && user?.google_refresh_token) {
+    //   try {
+    //     const calendarService = new GoogleCalendarService(
+    //       user.google_access_token,
+    //       user.google_refresh_token,
+    //       userId,
+    //       user.google_token_expires_at ? new Date(user.google_token_expires_at) : undefined
+    //     )
+    //     googleBusyTimes = await calendarService.getBusyTimes('primary', startOfDay, endOfDay)
+    //     console.log(`[Google Calendar] Found ${googleBusyTimes.length} busy times for ${dateStr}`)
+    //     if (googleBusyTimes.length > 0) {
+    //       console.log('[Google Calendar] Busy times:', JSON.stringify(googleBusyTimes, null, 2))
+    //     }
+    //   } catch (calendarError) {
+    //     console.error('Error fetching Google Calendar busy times:', calendarError)
+    //     // Continue without Google Calendar conflicts
+    //   }
+    // }
 
     // Generate time slots from availability
     const availableSlots: string[] = []
