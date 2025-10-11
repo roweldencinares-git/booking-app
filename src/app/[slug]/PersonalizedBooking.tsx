@@ -57,11 +57,40 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [timeSlots, setTimeSlots] = useState<{ value: string; display: string; localDisplay: string }[]>([])
   const [isLoadingSlots, setIsLoadingSlots] = useState(false)
+  const [availableDays, setAvailableDays] = useState<Set<number>>(new Set([1, 2, 3, 4, 5])) // Default: Mon-Fri
 
   // Calendar comparison feature
   const [showCalendarCompare, setShowCalendarCompare] = useState(false)
   const [guestCalendarEvents, setGuestCalendarEvents] = useState<Array<{ start: string; end: string; summary: string }>>([])
   const [isLoadingGuestEvents, setIsLoadingGuestEvents] = useState(false)
+
+  // Fetch coach's availability settings on mount
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        console.log('[Booking] Fetching availability for user:', service.users.id)
+        const response = await fetch(`/api/admin/check-availability?userId=${service.users.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('[Booking] Availability data:', data)
+          // Extract which days are available (day_of_week where is_available = true)
+          const availDays = new Set<number>()
+          data.raw?.forEach((avail: any) => {
+            if (avail.is_available) {
+              availDays.add(avail.day_of_week)
+            }
+          })
+          console.log('[Booking] Available days:', Array.from(availDays))
+          setAvailableDays(availDays)
+        } else {
+          console.error('[Booking] Failed to fetch availability:', response.status)
+        }
+      } catch (error) {
+        console.error('[Booking] Error fetching availability:', error)
+      }
+    }
+    fetchAvailability()
+  }, [service.users.id])
 
   // Fetch available time slots when date or duration changes
   useEffect(() => {
@@ -168,12 +197,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     fetchAvailableSlots()
   }, [selectedDate, selectedDuration, selectedTimezone, service.users.id])
 
-  // Calendar generation
+  // Calendar generation - create dates at noon to avoid timezone issues
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear()
     const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
+    const firstDay = new Date(year, month, 1, 12, 0, 0)
+    const lastDay = new Date(year, month + 1, 0, 12, 0, 0)
     const daysInMonth = lastDay.getDate()
     const startingDayOfWeek = firstDay.getDay()
 
@@ -182,9 +211,9 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null)
     }
-    // Add days of month
+    // Add days of month - create at noon to avoid timezone shifts
     for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day))
+      days.push(new Date(year, month, day, 12, 0, 0))
     }
     return days
   }
@@ -217,20 +246,63 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       return false
     }
 
+    // slotTime is in HH:mm format (24-hour) in coach's timezone (Central Time)
+    // Convert to UTC timestamp for pure UTC comparison
     const [hour, minute] = slotTime.split(':').map(Number)
-    const slotStart = new Date(selectedDate)
-    slotStart.setHours(hour, minute, 0, 0)
+
+    const year = selectedDate.getFullYear()
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
+    const day = String(selectedDate.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+
+    // Create date in local browser timezone first
+    const slotTimeInCoachTZ = `${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`
+    const slotDateInLocalTZ = new Date(slotTimeInCoachTZ)
+
+    // Get the offset between browser's timezone and coach's timezone
+    const coachTZFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Chicago',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    })
+    const coachTimeStr = coachTZFormatter.format(slotDateInLocalTZ)
+    const [coachDatePart, coachTimePart] = coachTimeStr.split(', ')
+    const [coachHourStr, coachMinStr] = coachTimePart.split(':')
+
+    // Calculate the difference to adjust
+    const wantedMinutes = hour * 60 + minute
+    const gotMinutes = parseInt(coachHourStr) * 60 + parseInt(coachMinStr)
+    const diffMinutes = wantedMinutes - gotMinutes
+
+    // Adjust to get the correct UTC timestamp
+    const slotStart = new Date(slotDateInLocalTZ.getTime() + diffMinutes * 60000)
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
+    console.log(`[Conflict Check] Checking slot ${slotTime} (UTC: ${slotStart.toISOString()} - ${slotEnd.toISOString()})`)
+
+    // Pure UTC comparison - check all events directly without timezone filtering
+    // Calendar events are already in UTC/ISO format
     return guestCalendarEvents.some(event => {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
 
-      return (
+      // Simple UTC overlap check
+      const hasConflict = (
         (slotStart >= eventStart && slotStart < eventEnd) ||
         (slotEnd > eventStart && slotEnd <= eventEnd) ||
         (slotStart <= eventStart && slotEnd >= eventEnd)
       )
+
+      if (hasConflict) {
+        console.log(`[Conflict Check] ✗ CONFLICT with: ${event.summary} (UTC: ${eventStart.toISOString()} - ${eventEnd.toISOString()})`)
+      }
+
+      return hasConflict
     })
   }
 
@@ -250,6 +322,20 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
       if (response.ok) {
         const data = await response.json()
+        console.log(`[Calendar Events] Fetched ${data.events?.length || 0} events for month`)
+
+        // Filter events for selected date only
+        const selectedDateStr = selectedDate.toISOString().split('T')[0]
+        const eventsOnSelectedDate = (data.events || []).filter((event: any) => {
+          const eventDate = new Date(event.start).toISOString().split('T')[0]
+          return eventDate === selectedDateStr
+        })
+
+        console.log(`[Calendar Events] ${eventsOnSelectedDate.length} events on ${selectedDateStr}:`)
+        eventsOnSelectedDate.forEach((event: any) => {
+          console.log(`  - ${event.summary}: ${event.start} to ${event.end}`)
+        })
+
         setGuestCalendarEvents(data.events || [])
       } else {
         console.error('Failed to fetch guest calendar events')
@@ -411,21 +497,33 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                 </div>
 
                 <div className="grid grid-cols-7 gap-2">
-                  {getDaysInMonth(currentMonth).map((date, index) => (
-                    <button
-                      key={index}
-                      onClick={() => date && handleDateSelect(date)}
-                      disabled={!date || date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      className={`
-                        aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-colors
-                        ${!date ? 'invisible' : ''}
-                        ${date && date < new Date(new Date().setHours(0, 0, 0, 0)) ? 'text-white/30 cursor-not-allowed' : ''}
-                        ${selectedDate?.toDateString() === date?.toDateString() ? 'bg-white text-primary-teal' : 'hover:bg-white/20 text-white'}
-                      `}
-                    >
-                      {date?.getDate()}
-                    </button>
-                  ))}
+                  {getDaysInMonth(currentMonth).map((date, index) => {
+                    // Create today at noon for consistent comparison
+                    const today = new Date()
+                    today.setHours(12, 0, 0, 0)
+                    const isPast = date && date < today
+                    const dayOfWeek = date?.getDay()
+                    const isUnavailable = date && !availableDays.has(dayOfWeek)
+                    const isDisabled = !date || isPast || isUnavailable
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => date && !isDisabled && handleDateSelect(date)}
+                        disabled={isDisabled}
+                        className={`
+                          aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-colors
+                          ${!date ? 'invisible' : ''}
+                          ${isPast ? 'text-white/30 cursor-not-allowed' : ''}
+                          ${isUnavailable ? 'text-white/30 cursor-not-allowed line-through' : ''}
+                          ${selectedDate?.toDateString() === date?.toDateString() ? 'bg-white text-primary-teal' : 'hover:bg-white/20 text-white'}
+                          ${isDisabled ? 'cursor-not-allowed' : ''}
+                        `}
+                      >
+                        {date?.getDate()}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -562,39 +660,37 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                   </div>
                 )}
 
-                {selectedDate && !isLoadingSlots && timeSlots.length > 0 && (
-                  <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                    {timeSlots.map(slot => {
-                      const hasConflict = hasGuestConflict(slot.value)
-                      return (
+                {selectedDate && !isLoadingSlots && timeSlots.length > 0 && (() => {
+                  const availableSlots = timeSlots.filter(slot => !hasGuestConflict(slot.value))
+                  console.log(`[Available Slots] ${timeSlots.length} total slots, ${availableSlots.length} available after filtering conflicts`)
+
+                  return availableSlots.length > 0 ? (
+                    <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                      {availableSlots.map(slot => (
                         <button
                           key={slot.value}
                           onClick={() => handleTimeSelect(slot.value)}
                           className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${
                             selectedTime === slot.value
                               ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium'
-                              : hasConflict
-                              ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
                               : 'border-accent-grey-200 hover:border-primary-blue'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{slot.display}</span>
-                              {hasConflict && (
-                                <span className="inline-flex items-center gap-1 text-xs text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                  </svg>
-                                  Conflict
-                                </span>
-                              )}
-                            </div>
+                            <span className="font-medium">{slot.display}</span>
                             <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
                           </div>
                         </button>
-                      )
-                    })}
+                      ))}
+                    </div>
+                  ) : null
+                })()}
+
+                {/* Show message if calendar comparison filtered out all slots */}
+                {selectedDate && !isLoadingSlots && timeSlots.length > 0 && showCalendarCompare && timeSlots.filter(slot => !hasGuestConflict(slot.value)).length === 0 && (
+                  <div className="text-center py-8 text-orange-600">
+                    <p className="font-medium">All available times conflict with your calendar</p>
+                    <p className="text-sm text-accent-grey-600 mt-2">Try selecting a different date or disconnecting calendar comparison</p>
                   </div>
                 )}
               </div>
