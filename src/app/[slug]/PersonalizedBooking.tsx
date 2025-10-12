@@ -246,20 +246,28 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       return false
     }
 
-    // slotTime is in HH:mm format (24-hour) in coach's timezone (Central Time)
-    // We need to convert this to UTC for comparison with calendar events
+    // slotTime is "09:00" meaning 9:00 AM in coach's timezone (Central Time)
+    // We need to convert this to a UTC timestamp for comparison
     const [hour, minute] = slotTime.split(':').map(Number)
 
     const year = selectedDate.getFullYear()
-    const month = selectedDate.getMonth()
-    const day = selectedDate.getDate()
+    const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
+    const day = String(selectedDate.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
 
-    // Create date in LOCAL browser timezone first
-    const localDate = new Date(year, month, day, hour, minute, 0, 0)
+    // Create a date string like "2025-10-22T09:00:00"
+    const slotDateStr = `${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`
 
-    // Convert to Central Time using Intl
-    // First, get what this time SHOULD be in Central
-    const centralFormatter = new Intl.DateTimeFormat('en-US', {
+    // CRITICAL: new Date(slotDateStr) interprets this in LOCAL timezone (Manila)
+    // We need to convert "9:00 AM Central" to UTC
+    // Method: Create a date, then use toLocaleString to get what time it SHOULD be in Central,
+    // then calculate the offset and adjust
+
+    // Step 1: Create date in local timezone
+    const localDate = new Date(slotDateStr)
+
+    // Step 2: Get what this displays in Central Time
+    const centralTimeStr = localDate.toLocaleString('en-US', {
       timeZone: 'America/Chicago',
       year: 'numeric',
       month: '2-digit',
@@ -270,34 +278,31 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       hour12: false
     })
 
-    // Get the current offset for Central Time on this date
-    // Create a UTC date for the selected date at noon
-    const testDate = new Date(Date.UTC(year, month, day, 12, 0, 0))
-    const centralParts = centralFormatter.formatToParts(testDate)
+    // Step 3: Parse the Central Time string (format: "10/22/2025, 09:00:00")
+    const [centralDatePart, centralTimePart] = centralTimeStr.split(', ')
+    const [centralMonth, centralDay, centralYear] = centralDatePart.split('/')
+    const [centralHour, centralMin] = centralTimePart.split(':')
 
-    // Check if DST (CDT = UTC-5, CST = UTC-6)
-    const centralHour = parseInt(centralParts.find(p => p.type === 'hour')?.value || '12')
-    const utcHour = 12
-    const isDST = (utcHour - centralHour) === 5 // If difference is 5, it's CDT (DST)
-    const offsetMinutes = isDST ? 5 * 60 : 6 * 60
+    // Step 4: Calculate offset
+    const wantedHour = hour
+    const displayedHour = parseInt(centralHour)
+    const offsetHours = wantedHour - displayedHour
 
-    // Now create the UTC timestamp for this Central Time slot
-    // slotTime "09:00" on selectedDate in Central Time = what UTC time?
-    // UTC = Central + offset
-    const slotStart = new Date(Date.UTC(year, month, day, hour, minute, 0) + offsetMinutes * 60000)
+    // Step 5: Adjust the date by the offset
+    const slotStart = new Date(localDate.getTime() + offsetHours * 3600000)
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
-    console.log(`[Conflict Check] Slot ${slotTime} Central on ${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`)
-    console.log(`[Conflict Check] Offset: ${isDST ? 'CDT (UTC-5)' : 'CST (UTC-6)'}, adding ${offsetMinutes} minutes`)
-    console.log(`[Conflict Check] Slot UTC range: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
-    console.log(`[Conflict Check] Checking against ${guestCalendarEvents.length} calendar events`)
+    console.log(`[Conflict Check] Slot ${slotTime} Central on ${dateStr}`)
+    console.log(`[Conflict Check] Local date: ${localDate.toISOString()}`)
+    console.log(`[Conflict Check] Displayed in Central: ${centralTimeStr}`)
+    console.log(`[Conflict Check] Offset: ${offsetHours} hours`)
+    console.log(`[Conflict Check] Adjusted UTC: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
 
     // Check for overlaps
     const conflicts = guestCalendarEvents.filter(event => {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
 
-      // Overlap check
       const hasConflict = (
         (slotStart >= eventStart && slotStart < eventEnd) ||
         (slotEnd > eventStart && slotEnd <= eventEnd) ||
@@ -305,16 +310,16 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
       )
 
       if (hasConflict) {
-        console.log(`[Conflict Check]   ✗ CONFLICT: "${event.summary}" (${eventStart.toISOString()} to ${eventEnd.toISOString()})`)
+        console.log(`[Conflict Check]   ✗ CONFLICT: "${event.summary}" (${eventStart.toISOString()} - ${eventEnd.toISOString()})`)
       }
 
       return hasConflict
     })
 
     if (conflicts.length > 0) {
-      console.log(`[Conflict Check] ✗ ${conflicts.length} conflict(s) found for slot ${slotTime}`)
+      console.log(`[Conflict Check] ✗ Total conflicts: ${conflicts.length}`)
     } else {
-      console.log(`[Conflict Check] ✓ No conflicts for slot ${slotTime}`)
+      console.log(`[Conflict Check] ✓ No conflicts`)
     }
 
     return conflicts.length > 0
