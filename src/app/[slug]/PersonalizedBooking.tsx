@@ -255,32 +255,34 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     const day = String(selectedDate.getDate()).padStart(2, '0')
     const dateStr = `${year}-${month}-${day}`
 
-    // Create date in local browser timezone first
-    const slotTimeInCoachTZ = `${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`
-    const slotDateInLocalTZ = new Date(slotTimeInCoachTZ)
+    // Create a reference time in UTC noon (to avoid DST issues)
+    const referenceDate = new Date(`${dateStr}T12:00:00Z`)
 
-    // Get the offset between browser's timezone and coach's timezone
-    const coachTZFormatter = new Intl.DateTimeFormat('en-US', {
+    // Use Intl to find what UTC time corresponds to the slot time in Central Time
+    // Create a formatter that will give us the offset
+    const formatter = new Intl.DateTimeFormat('en-US', {
       timeZone: 'America/Chicago',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+      hour12: false,
+      timeZoneName: 'short'
     })
-    const coachTimeStr = coachTZFormatter.format(slotDateInLocalTZ)
-    const [coachDatePart, coachTimePart] = coachTimeStr.split(', ')
-    const [coachHourStr, coachMinStr] = coachTimePart.split(':')
 
-    // Calculate the difference to adjust
-    const wantedMinutes = hour * 60 + minute
-    const gotMinutes = parseInt(coachHourStr) * 60 + parseInt(coachMinStr)
-    const diffMinutes = wantedMinutes - gotMinutes
+    // Get how Central Time displays for our reference date
+    const parts = formatter.formatToParts(referenceDate)
+    const tzOffset = parts.find(p => p.type === 'timeZoneName')?.value
 
-    // Adjust to get the correct UTC timestamp
-    const slotStart = new Date(slotDateInLocalTZ.getTime() + diffMinutes * 60000)
+    // Calculate offset: CDT is UTC-5, CST is UTC-6
+    const offsetHours = tzOffset === 'CDT' ? -5 : -6
+
+    // Convert slot time in Central to UTC
+    const slotStart = new Date(`${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`)
+    // Adjust by subtracting the timezone offset to get UTC
+    slotStart.setHours(slotStart.getHours() - offsetHours)
+
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
     console.log(`[Conflict Check] Slot ${slotTime} on ${dateStr}`)
