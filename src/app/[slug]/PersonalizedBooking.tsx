@@ -292,11 +292,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     const slotStart = new Date(localDate.getTime() + offsetHours * 3600000)
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
-    console.log(`[Conflict Check] Slot ${slotTime} Central on ${dateStr}`)
-    console.log(`[Conflict Check] Local date: ${localDate.toISOString()}`)
-    console.log(`[Conflict Check] Displayed in Central: ${centralTimeStr}`)
-    console.log(`[Conflict Check] Offset: ${offsetHours} hours`)
-    console.log(`[Conflict Check] Adjusted UTC: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
+    console.log(`\n====== CONFLICT CHECK for ${slotTime} on ${dateStr} ======`)
+    console.log(`Step 1 - Local date created: ${localDate.toISOString()}`)
+    console.log(`Step 2 - Displayed in Central: ${centralTimeStr}`)
+    console.log(`Step 3 - Offset calculation: wanted ${hour}:00, got ${centralHour}:00, offset = ${offsetHours} hours`)
+    console.log(`Step 4 - Adjusted UTC: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
+    console.log(`Step 5 - Total calendar events to check: ${guestCalendarEvents.length}`)
 
     // Check for overlaps
     const conflicts = guestCalendarEvents.filter(event => {
@@ -309,8 +310,14 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
         (slotStart <= eventStart && slotEnd >= eventEnd)
       )
 
-      if (hasConflict) {
-        console.log(`[Conflict Check]   ✗ CONFLICT: "${event.summary}" (${eventStart.toISOString()} - ${eventEnd.toISOString()})`)
+      // Log EVERY event check for first 3 slots only
+      if (parseInt(slotTime.split(':')[0]) <= 10) {
+        console.log(`  Event: "${event.summary}"`)
+        console.log(`    Event time: ${eventStart.toISOString()} - ${eventEnd.toISOString()}`)
+        console.log(`    Slot time:  ${slotStart.toISOString()} - ${slotEnd.toISOString()}`)
+        console.log(`    Result: ${hasConflict ? '✗ CONFLICT!' : '✓ no conflict'}`)
+      } else if (hasConflict) {
+        console.log(`  ✗ CONFLICT: "${event.summary}" (${eventStart.toISOString()} - ${eventEnd.toISOString()})`)
       }
 
       return hasConflict
