@@ -247,62 +247,66 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
     }
 
     // slotTime is in HH:mm format (24-hour) in coach's timezone (Central Time)
-    // Convert to UTC timestamp for pure UTC comparison
+    // We need to convert this to UTC for comparison with calendar events
     const [hour, minute] = slotTime.split(':').map(Number)
 
     const year = selectedDate.getFullYear()
-    const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
-    const day = String(selectedDate.getDate()).padStart(2, '0')
-    const dateStr = `${year}-${month}-${day}`
+    const month = selectedDate.getMonth()
+    const day = selectedDate.getDate()
 
-    // Create a reference time in UTC noon (to avoid DST issues)
-    const referenceDate = new Date(`${dateStr}T12:00:00Z`)
+    // Create date in LOCAL browser timezone first
+    const localDate = new Date(year, month, day, hour, minute, 0, 0)
 
-    // Use Intl to find what UTC time corresponds to the slot time in Central Time
-    // Create a formatter that will give us the offset
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    // Convert to Central Time using Intl
+    // First, get what this time SHOULD be in Central
+    const centralFormatter = new Intl.DateTimeFormat('en-US', {
       timeZone: 'America/Chicago',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
-      timeZoneName: 'short'
+      second: '2-digit',
+      hour12: false
     })
 
-    // Get how Central Time displays for our reference date
-    const parts = formatter.formatToParts(referenceDate)
-    const tzOffset = parts.find(p => p.type === 'timeZoneName')?.value
+    // Get the current offset for Central Time on this date
+    // Create a UTC date for the selected date at noon
+    const testDate = new Date(Date.UTC(year, month, day, 12, 0, 0))
+    const centralParts = centralFormatter.formatToParts(testDate)
 
-    // Calculate offset: CDT is UTC-5, CST is UTC-6
-    const offsetHours = tzOffset === 'CDT' ? -5 : -6
+    // Check if DST (CDT = UTC-5, CST = UTC-6)
+    const centralHour = parseInt(centralParts.find(p => p.type === 'hour')?.value || '12')
+    const utcHour = 12
+    const isDST = (utcHour - centralHour) === 5 // If difference is 5, it's CDT (DST)
+    const offsetMinutes = isDST ? 5 * 60 : 6 * 60
 
-    // Convert slot time in Central to UTC
-    const slotStart = new Date(`${dateStr}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`)
-    // Adjust by subtracting the timezone offset to get UTC
-    slotStart.setHours(slotStart.getHours() - offsetHours)
-
+    // Now create the UTC timestamp for this Central Time slot
+    // slotTime "09:00" on selectedDate in Central Time = what UTC time?
+    // UTC = Central + offset
+    const slotStart = new Date(Date.UTC(year, month, day, hour, minute, 0) + offsetMinutes * 60000)
     const slotEnd = new Date(slotStart.getTime() + selectedDuration * 60000)
 
-    console.log(`[Conflict Check] Slot ${slotTime} on ${dateStr}`)
+    console.log(`[Conflict Check] Slot ${slotTime} Central on ${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`)
+    console.log(`[Conflict Check] Offset: ${isDST ? 'CDT (UTC-5)' : 'CST (UTC-6)'}, adding ${offsetMinutes} minutes`)
     console.log(`[Conflict Check] Slot UTC range: ${slotStart.toISOString()} to ${slotEnd.toISOString()}`)
     console.log(`[Conflict Check] Checking against ${guestCalendarEvents.length} calendar events`)
 
-    // Pure UTC comparison - check all events directly without timezone filtering
-    // Calendar events are already in UTC/ISO format
+    // Check for overlaps
     const conflicts = guestCalendarEvents.filter(event => {
       const eventStart = new Date(event.start)
       const eventEnd = new Date(event.end)
 
-      // Simple UTC overlap check
+      // Overlap check
       const hasConflict = (
         (slotStart >= eventStart && slotStart < eventEnd) ||
         (slotEnd > eventStart && slotEnd <= eventEnd) ||
         (slotStart <= eventStart && slotEnd >= eventEnd)
       )
 
-      console.log(`[Conflict Check]   Event: "${event.summary}" (${eventStart.toISOString()} to ${eventEnd.toISOString()}) - ${hasConflict ? '✗ CONFLICT' : '✓ OK'}`)
+      if (hasConflict) {
+        console.log(`[Conflict Check]   ✗ CONFLICT: "${event.summary}" (${eventStart.toISOString()} to ${eventEnd.toISOString()})`)
+      }
 
       return hasConflict
     })
