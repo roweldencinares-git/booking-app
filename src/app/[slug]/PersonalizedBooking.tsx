@@ -347,21 +347,13 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
         const data = await response.json()
         console.log(`[Calendar Events] ✓ Fetched ${data.events?.length || 0} events for month`)
 
+        // Store ALL events from the month - don't filter by date here
+        // The conflict check will handle checking if they overlap with specific slots
+        console.log(`[Calendar Events] Total events fetched: ${data.events?.length || 0}`)
+
         if (data.events && data.events.length > 0) {
-          console.log(`[Calendar Events] All events:`, data.events)
+          console.log(`[Calendar Events] Sample events:`, data.events.slice(0, 5))
         }
-
-        // Filter events for selected date only
-        const selectedDateStr = selectedDate.toISOString().split('T')[0]
-        const eventsOnSelectedDate = (data.events || []).filter((event: any) => {
-          const eventDate = new Date(event.start).toISOString().split('T')[0]
-          return eventDate === selectedDateStr
-        })
-
-        console.log(`[Calendar Events] ${eventsOnSelectedDate.length} events on ${selectedDateStr}:`)
-        eventsOnSelectedDate.forEach((event: any) => {
-          console.log(`  - ${event.summary}: ${event.start} to ${event.end}`)
-        })
 
         setGuestCalendarEvents(data.events || [])
       } else {
