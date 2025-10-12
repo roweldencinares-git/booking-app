@@ -680,23 +680,35 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                 )}
 
                 {selectedDate && !isLoadingSlots && timeSlots.length > 0 && (() => {
-                  const availableSlots = timeSlots.filter(slot => !hasGuestConflict(slot.value))
-                  console.log(`[Available Slots] ${timeSlots.length} total slots, ${availableSlots.length} available after filtering conflicts`)
+                  const slotsWithConflicts = timeSlots.map(slot => ({
+                    ...slot,
+                    hasConflict: showCalendarCompare && hasGuestConflict(slot.value)
+                  }))
+                  const availableCount = slotsWithConflicts.filter(s => !s.hasConflict).length
+                  console.log(`[Available Slots] ${timeSlots.length} total slots, ${availableCount} available, ${timeSlots.length - availableCount} conflicted`)
 
-                  return availableSlots.length > 0 ? (
+                  return slotsWithConflicts.length > 0 ? (
                     <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                      {availableSlots.map(slot => (
+                      {slotsWithConflicts.map(slot => (
                         <button
                           key={slot.value}
-                          onClick={() => handleTimeSelect(slot.value)}
+                          onClick={() => !slot.hasConflict && handleTimeSelect(slot.value)}
+                          disabled={slot.hasConflict}
                           className={`w-full py-3 px-4 rounded-lg border transition-colors text-left ${
-                            selectedTime === slot.value
+                            slot.hasConflict
+                              ? 'border-red-200 bg-red-50 opacity-60 cursor-not-allowed'
+                              : selectedTime === slot.value
                               ? 'border-primary-blue bg-accent-light-blue text-primary-teal font-medium'
                               : 'border-accent-grey-200 hover:border-primary-blue'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <span className="font-medium">{slot.display}</span>
+                            <div className="flex items-center gap-2">
+                              {slot.hasConflict && (
+                                <span className="text-red-500 text-xs font-semibold px-2 py-0.5 bg-red-100 rounded">CONFLICT</span>
+                              )}
+                              <span className={`font-medium ${slot.hasConflict ? 'text-red-600' : ''}`}>{slot.display}</span>
+                            </div>
                             <span className="text-sm text-accent-grey-500">{slot.localDisplay}</span>
                           </div>
                         </button>
@@ -704,14 +716,6 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
                     </div>
                   ) : null
                 })()}
-
-                {/* Show message if calendar comparison filtered out all slots */}
-                {selectedDate && !isLoadingSlots && timeSlots.length > 0 && showCalendarCompare && timeSlots.filter(slot => !hasGuestConflict(slot.value)).length === 0 && (
-                  <div className="text-center py-8 text-orange-600">
-                    <p className="font-medium">All available times conflict with your calendar</p>
-                    <p className="text-sm text-accent-grey-600 mt-2">Try selecting a different date or disconnecting calendar comparison</p>
-                  </div>
-                )}
               </div>
 
               {selectedDate && selectedTime && (
