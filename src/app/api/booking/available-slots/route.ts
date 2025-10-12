@@ -89,6 +89,10 @@ export async function GET(request: NextRequest) {
     const [startHour, startMin] = availability.start_time.split(':').map(Number)
     const [endHour, endMin] = availability.end_time.split(':').map(Number)
 
+    console.log(`[API Available Slots] Date: ${dateStr}, Day of week: ${dayOfWeek}`)
+    console.log(`[API Available Slots] Coach availability: ${availability.start_time} - ${availability.end_time} (${timezone})`)
+    console.log(`[API Available Slots] Existing bookings: ${bookings?.length || 0}`)
+
     // Create times in coach's timezone
     const startTimeLocal = `${dateStr}T${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}:00`
     const endTimeLocal = `${dateStr}T${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}:00`
@@ -97,12 +101,18 @@ export async function GET(request: NextRequest) {
     const startTime = fromZonedTime(startTimeLocal, timezone)
     const endTime = fromZonedTime(endTimeLocal, timezone)
 
+    console.log(`[API Available Slots] Start time (UTC): ${startTime.toISOString()}, End time (UTC): ${endTime.toISOString()}`)
+
     let currentSlot = startTime
+    let generatedCount = 0
+    let blockedCount = 0
 
     while (isBefore(addMinutes(currentSlot, duration), endTime) || currentSlot.getTime() === endTime.getTime()) {
       const slotEnd = addMinutes(currentSlot, duration)
       const slotInLocalTime = toZonedTime(currentSlot, timezone)
       const slotTimeStr = format(slotInLocalTime, 'HH:mm')
+
+      generatedCount++
 
       // Show all slots - let frontend handle past filtering if needed
       if (true) {
@@ -133,11 +143,18 @@ export async function GET(request: NextRequest) {
         if (!hasBookingConflict && !hasGoogleConflict) {
           // Convert back to coach's local time for display
           availableSlots.push(slotTimeStr)
+          console.log(`[API Available Slots]   ✓ ${slotTimeStr} (UTC: ${currentSlot.toISOString()}) - AVAILABLE`)
+        } else {
+          blockedCount++
+          console.log(`[API Available Slots]   ✗ ${slotTimeStr} (UTC: ${currentSlot.toISOString()}) - BLOCKED (${hasBookingConflict ? 'booking' : 'calendar'} conflict)`)
         }
       }
 
       currentSlot = addMinutes(currentSlot, 15) // Move in 15-minute increments
     }
+
+    console.log(`[API Available Slots] Summary: ${generatedCount} slots generated, ${availableSlots.length} available, ${blockedCount} blocked`)
+    console.log(`[API Available Slots] Returning slots:`, availableSlots)
 
     return NextResponse.json({ slots: availableSlots })
 
