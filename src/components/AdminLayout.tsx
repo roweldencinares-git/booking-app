@@ -164,10 +164,10 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
                     ? 'bg-indigo-50 text-indigo-700'
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
-                title={isCollapsed ? 'Services' : ''}
+                title={isCollapsed ? 'Meeting Types' : ''}
               >
                 <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>📋</span>
-                {!isCollapsed && 'Services'}
+                {!isCollapsed && 'Meeting Types'}
               </Link>
               <Link
                 href="/admin/availability"
@@ -199,6 +199,25 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
               >
                 <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>📈</span>
                 {!isCollapsed && 'Reports'}
+              </Link>
+            </div>
+          </div>
+
+          {/* CRM Link */}
+          <div className="px-3 mb-6">
+            {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">CRM</h3>}
+            <div className="space-y-1">
+              <Link
+                href="/crm"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/crm')
+                    ? 'bg-indigo-50 text-indigo-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'Rowel CRM' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>📊</span>
+                {!isCollapsed && 'Rowel CRM'}
               </Link>
             </div>
           </div>
