@@ -203,10 +203,22 @@ export default function AdminLayout({ children, currentPath }: AdminLayoutProps)
             </div>
           </div>
 
-          {/* CRM Link */}
+          {/* CRM + RR Links */}
           <div className="px-3 mb-6">
-            {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">CRM</h3>}
+            {!isCollapsed && <h3 className="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Platforms</h3>}
             <div className="space-y-1">
+              <Link
+                href="/rr"
+                className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive('/rr')
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                title={isCollapsed ? 'Rank & Rent OS' : ''}
+              >
+                <span className={`text-lg ${isCollapsed ? '' : 'mr-3'}`}>🌐</span>
+                {!isCollapsed && 'Rank & Rent OS'}
+              </Link>
               <Link
                 href="/crm"
                 className={`group flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2.5 text-sm font-medium rounded-lg transition-colors ${
