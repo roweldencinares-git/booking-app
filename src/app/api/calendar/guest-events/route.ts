@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     calendarUrl.searchParams.append('timeMax', timeMax);
     calendarUrl.searchParams.append('singleEvents', 'true');
     calendarUrl.searchParams.append('orderBy', 'startTime');
+    calendarUrl.searchParams.append('maxResults', '2500'); // Increase from default 250 to get more recurring events
 
     const calendarResponse = await fetch(calendarUrl.toString(), {
       headers: {

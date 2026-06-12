@@ -8,8 +8,10 @@ const isAdminRoute = createRouteMatcher(['/admin(.*)'])
 const isProtectedRoute = createRouteMatcher([
   '/bookings(.*)',
   '/settings(.*)',
+  '/portal(.*)',
   '/api/bookings(.*)',
-  '/api/availability(.*)'
+  '/api/availability(.*)',
+  '/api/portal(.*)',
 ])
 
 // Admin email addresses - only these can access admin panel

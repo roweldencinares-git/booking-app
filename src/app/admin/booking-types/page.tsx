@@ -101,29 +101,29 @@ export default async function BookingTypesPage() {
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Service Types</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Meeting Types</h1>
             <p className="mt-2 text-gray-600">
-              Create and manage the different types of appointments you offer
+              Create and manage the different types of meetings you offer
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Create New Service Type */}
+            {/* Create New Meeting Type */}
             <div className="lg:col-span-1">
               <div className="bg-white shadow rounded-lg p-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">
-                  Add New Service
+                  Add New Meeting Type
                 </h2>
                 <CreateBookingTypeForm userId={dbUser.id} />
               </div>
             </div>
 
-            {/* Existing Service Types */}
+            {/* Existing Meeting Types */}
             <div className="lg:col-span-2">
               <div className="bg-white shadow rounded-lg">
                 <div className="px-6 py-4 border-b border-gray-200">
                   <h2 className="text-lg font-medium text-gray-900">
-                    Your Services
+                    Your Meeting Types
                   </h2>
                 </div>
                 <BookingTypesList bookingTypes={bookingTypes || []} />

@@ -338,11 +338,12 @@ export default function PersonalizedBooking({ service, slug }: PersonalizedBooki
 
     setIsLoadingGuestEvents(true)
     try {
-      // Get month range for selected date
+      // Get 3-month range for selected date (current month + 2 months ahead)
+      // This ensures we capture all recurring events in the booking window
       const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
-      const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0)
+      const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 3, 0)
 
-      console.log(`[Calendar API] Fetching events from ${monthStart.toISOString().split('T')[0]} to ${monthEnd.toISOString().split('T')[0]}`)
+      console.log(`[Calendar API] Fetching events from ${monthStart.toISOString().split('T')[0]} to ${monthEnd.toISOString().split('T')[0]} (3 months)`)
 
       const response = await fetch(
         `/api/calendar/guest-events?startDate=${monthStart.toISOString().split('T')[0]}&endDate=${monthEnd.toISOString().split('T')[0]}`
